@@ -1,0 +1,121 @@
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  padding: 0 var(--space-3);
+  background: var(--surface-950);
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+  user-select: none;
+  overflow: hidden;
+
+  &__section {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  &__metrics {
+    font-family: var(--font-mono);
+    @media (max-width: 640px) {
+      display: none;
+    }
+  }
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+
+  &--valid {
+    color: var(--accent-valid);
+  }
+
+  &--invalid {
+    color: var(--accent-error);
+    max-width: 500px;
+  }
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+
+  &--valid {
+    background: var(--accent-valid);
+    box-shadow: 0 0 6px var(--accent-valid);
+  }
+
+  &--invalid {
+    background: var(--accent-error);
+    box-shadow: 0 0 6px var(--accent-error);
+  }
+}
+
+.error-coords {
+  font-family: var(--font-mono);
+  padding: 1px 5px;
+  background: var(--accent-error-bg);
+  border-radius: var(--radius-xs);
+  border: 1px solid rgba(251, 113, 133, 0.3);
+}
+
+.error-msg {
+  color: var(--text-muted);
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.worker-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent-primary);
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--accent-primary-light);
+
+  .worker-spinner {
+    width: 10px;
+    height: 10px;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.metric-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .metric-label {
+    color: var(--text-muted);
+  }
+
+  .metric-value {
+    color: var(--text-primary);
+  }
+}
+
+.metric-divider {
+  width: 1px;
+  height: 10px;
+  background: var(--border-subtle);
+  margin: 0 2px;
+}

@@ -1,0 +1,92 @@
+<div
+  class="tree-node"
+  [class.tree-node--matched]="isMatch()"
+  [class.tree-node--expanded]="isExpanded()"
+>
+  <div class="tree-node__row" (click)="toggleExpanded()">
+    <!-- Chevron / Spacer -->
+    @if (isExpandable()) {
+      <button
+        type="button"
+        class="tree-node__toggle"
+        [attr.aria-label]="isExpanded() ? 'Collapse node' : 'Expand node'"
+        (click)="$event.stopPropagation(); toggleExpanded()"
+      >
+        <lucide-icon
+          [img]="isExpanded() ? chevronDown : chevronRight"
+          size="13"
+        />
+      </button>
+    } @else {
+      <span class="tree-node__spacer"></span>
+    }
+
+    <!-- Key Name -->
+    <span class="tree-node__key" [class.highlight]="isMatch()">
+      {{ node().key }}
+    </span>
+    <span class="tree-node__colon">:</span>
+
+    <!-- Value or Container Brackets -->
+    @switch (node().type) {
+      @case ('object') {
+        <span class="tree-node__bracket">&#123;</span>
+        @if (!isExpanded()) {
+          <span class="tree-node__count">{{ node().childCount ?? 0 }} items</span>
+          <span class="tree-node__bracket">&#125;</span>
+        }
+      }
+      @case ('array') {
+        <span class="tree-node__bracket">[</span>
+        @if (!isExpanded()) {
+          <span class="tree-node__count">{{ node().childCount ?? 0 }} items</span>
+          <span class="tree-node__bracket">]</span>
+        }
+      }
+      @default {
+        <span
+          class="tree-node__value tree-node__value--{{ node().type }}"
+          [class.highlight]="isMatch()"
+        >
+          {{ formatValue(node().value) }}
+        </span>
+      }
+    }
+
+    <!-- Type Badge -->
+    <span class="tree-node__badge tree-node__badge--{{ node().type }}">
+      {{ node().type }}
+    </span>
+
+    <!-- 1-Click Copy JSONPath Button -->
+    <button
+      type="button"
+      class="tree-node__copy-btn"
+      (click)="copyPath($event)"
+      title="Copy JSONPath ({{ node().path }})"
+      aria-label="Copy JSONPath"
+    >
+      <lucide-icon [img]="copyIcon" size="12" />
+      <span class="copy-tooltip">{{ node().path }}</span>
+    </button>
+  </div>
+
+  <!-- Recursive Children Subtree -->
+  @if (isExpandable() && isExpanded()) {
+    <div class="tree-node__children">
+      @for (child of node().children; track child.id) {
+        <app-tree-node
+          [node]="child"
+          [searchQuery]="searchQuery()"
+          (pathSelected)="pathSelected.emit($event)"
+        />
+      }
+      <div class="tree-node__closing-bracket">
+        <span class="tree-node__spacer"></span>
+        <span class="tree-node__bracket">
+          {{ node().type === 'object' ? '}' : ']' }}
+        </span>
+      </div>
+    </div>
+  }
+</div>

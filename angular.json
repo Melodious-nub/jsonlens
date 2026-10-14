@@ -27,6 +27,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/monaco-editor/min/vs",
+                "output": "/assets/monaco/min/vs"
               }
             ],
             "styles": [
@@ -36,6 +41,19 @@
             "outputMode": "server",
             "security": {
               "allowedHosts": []
+            },
+            "allowedCommonJsDependencies": [
+              "lz-string",
+              "jspdf",
+              "jsonrepair",
+              "html2canvas",
+              "canvg",
+              "raf",
+              "rgbcolor",
+              "core-js"
+            ],
+            "loader": {
+              ".ttf": "file"
             },
             "ssr": {
               "entry": "src/server.ts"

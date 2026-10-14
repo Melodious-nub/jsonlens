@@ -1,0 +1,87 @@
+:root {
+  /* Surface / Background Palette (Dark First) */
+  --surface-950: #09090b;
+  --surface-900: #18181b;
+  --surface-850: #202024;
+  --surface-800: #27272a;
+  --surface-700: #3f3f46;
+  --surface-panel: rgba(24, 24, 27, 0.85);
+
+  /* Typography Colors */
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --text-inverse: #09090b;
+
+  /* Accent Colors */
+  --accent-primary: #6366f1;
+  --accent-primary-hover: #4f46e5;
+  --accent-primary-glow: rgba(99, 102, 241, 0.25);
+  --accent-valid: #34d399;
+  --accent-valid-bg: rgba(52, 211, 153, 0.12);
+  --accent-error: #fb7185;
+  --accent-error-bg: rgba(251, 113, 133, 0.12);
+  --accent-warning: #fbbf24;
+  --accent-warning-bg: rgba(251, 191, 36, 0.12);
+  --accent-info: #38bdf8;
+  --accent-info-bg: rgba(56, 189, 248, 0.12);
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: #27272a;
+  --border-focus: #6366f1;
+
+  /* Typography Families */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+
+  /* Spacing Scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Border Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 24px -2px rgba(99, 102, 241, 0.35);
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme='light'] {
+  --surface-950: #f8fafc;
+  --surface-900: #ffffff;
+  --surface-850: #f1f5f9;
+  --surface-800: #e2e8f0;
+  --surface-700: #cbd5e1;
+  --surface-panel: rgba(255, 255, 255, 0.85);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-inverse: #f8fafc;
+
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-default: #e2e8f0;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}

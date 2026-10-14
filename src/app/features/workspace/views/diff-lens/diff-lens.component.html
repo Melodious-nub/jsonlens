@@ -1,0 +1,126 @@
+<div class="diff-lens">
+  <div class="diff-lens__header">
+    <div class="diff-lens__summary">
+      <span class="diff-badge diff-badge--added">
+        +{{ diffSummary().added }} added
+      </span>
+      <span class="diff-badge diff-badge--removed">
+        -{{ diffSummary().removed }} removed
+      </span>
+      <span class="diff-badge diff-badge--modified">
+        ~{{ diffSummary().modified }} modified
+      </span>
+      <span class="diff-badge diff-badge--unchanged">
+        {{ diffSummary().unchanged }} unchanged
+      </span>
+    </div>
+
+    <div class="diff-lens__actions">
+      <button
+        type="button"
+        class="action-btn"
+        (click)="swapInputs()"
+        title="Swap Left and Right JSON"
+        aria-label="Swap Left and Right JSON"
+      >
+        <lucide-icon [img]="swapIcon" size="14" />
+        <span>Swap</span>
+      </button>
+
+      <button
+        type="button"
+        class="action-btn"
+        (click)="loadSample()"
+        title="Load comparison sample"
+        aria-label="Load comparison sample"
+      >
+        <lucide-icon [img]="sampleIcon" size="14" />
+        <span>Sample</span>
+      </button>
+
+      <button
+        type="button"
+        class="action-btn"
+        (click)="clearSecondary()"
+        title="Clear comparison JSON"
+        aria-label="Clear comparison JSON"
+      >
+        <lucide-icon [img]="clearIcon" size="14" />
+        <span>Clear</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="diff-lens__body">
+    <!-- Comparison Editor Container -->
+    <div class="diff-lens__editor-section">
+      <div class="editor-header">
+        <span class="editor-label">Comparison JSON (Modified)</span>
+        @if (!parsedSecondary().isValid) {
+          <span class="invalid-indicator">Invalid JSON syntax</span>
+        }
+      </div>
+      <div class="editor-wrapper">
+        <app-monaco-editor
+          [content]="secondaryInput()"
+          (contentChange)="onSecondaryInput($event)"
+          language="json"
+        />
+      </div>
+    </div>
+
+    <!-- Differences List Section -->
+    <div class="diff-lens__changes-section">
+      <div class="changes-header">
+        <span class="changes-title">Detected Differences ({{ meaningfulDiffs().length }})</span>
+      </div>
+
+      <div class="changes-list">
+        @if (meaningfulDiffs().length === 0) {
+          @if (!parsedSecondary().isValid || !engine.isValid()) {
+            <div class="diff-empty">
+              <span class="diff-empty-text">Resolve JSON syntax errors to compute diffs.</span>
+            </div>
+          } @else if (!engine.parsedResult().data || !parsedSecondary().data) {
+            <div class="diff-empty">
+              <span class="diff-empty-text">Provide both JSON payloads to compare.</span>
+            </div>
+          } @else {
+            <div class="diff-empty diff-empty--identical">
+              <lucide-icon [img]="matchIcon" size="20" class="match-icon" />
+              <span class="diff-empty-text">Both JSON payloads are identical!</span>
+            </div>
+          }
+        } @else {
+          @for (item of meaningfulDiffs(); track item.path + item.type) {
+            <div class="diff-row diff-row--{{ item.type }}">
+              <div class="diff-row__badge-col">
+                <span class="diff-type-badge diff-type-badge--{{ item.type }}">
+                  @switch (item.type) {
+                    @case ('added') { + ADD }
+                    @case ('removed') { - DEL }
+                    @case ('modified') { ~ MOD }
+                  }
+                </span>
+              </div>
+              <div class="diff-row__path">
+                <code>{{ item.path }}</code>
+              </div>
+              <div class="diff-row__values">
+                @if (item.type === 'modified') {
+                  <span class="diff-val diff-val--old">{{ formatVal(item.oldValue) }}</span>
+                  <span class="diff-arrow">&rarr;</span>
+                  <span class="diff-val diff-val--new">{{ formatVal(item.newValue) }}</span>
+                } @else if (item.type === 'added') {
+                  <span class="diff-val diff-val--new">{{ formatVal(item.newValue) }}</span>
+                } @else if (item.type === 'removed') {
+                  <span class="diff-val diff-val--old">{{ formatVal(item.oldValue) }}</span>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</div>

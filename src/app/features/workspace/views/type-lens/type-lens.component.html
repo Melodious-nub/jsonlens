@@ -1,0 +1,98 @@
+<div class="type-lens">
+  <div class="type-lens__header">
+    <div class="type-lens__controls">
+      <!-- Target Pills -->
+      <div class="target-pills" role="radiogroup" aria-label="Select type generation target">
+        <button
+          type="button"
+          class="target-pill"
+          [class.target-pill--active]="selectedTarget() === 'typescript'"
+          (click)="setTarget('typescript')"
+          aria-label="Generate TypeScript Interfaces"
+        >
+          TypeScript
+        </button>
+        <button
+          type="button"
+          class="target-pill"
+          [class.target-pill--active]="selectedTarget() === 'zod'"
+          (click)="setTarget('zod')"
+          aria-label="Generate Zod Schemas"
+        >
+          Zod
+        </button>
+        <button
+          type="button"
+          class="target-pill"
+          [class.target-pill--active]="selectedTarget() === 'go'"
+          (click)="setTarget('go')"
+          aria-label="Generate Go Structs"
+        >
+          Go
+        </button>
+      </div>
+
+      <!-- Root Name Input -->
+      <div class="root-name-group">
+        <span class="root-label">Root:</span>
+        <input
+          type="text"
+          class="root-input"
+          [value]="rootName()"
+          (input)="onRootNameChange($event)"
+          placeholder="Root"
+          aria-label="Root type or struct name"
+        />
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="type-lens__actions">
+      <button
+        type="button"
+        class="action-btn"
+        (click)="copyTypes()"
+        title="Copy generated code"
+        aria-label="Copy generated code"
+      >
+        <lucide-icon [img]="copyIcon" size="14" />
+        <span>Copy</span>
+      </button>
+
+      <button
+        type="button"
+        class="action-btn"
+        (click)="downloadTypes()"
+        title="Download file"
+        aria-label="Download generated code file"
+      >
+        <lucide-icon [img]="downloadIcon" size="14" />
+        <span>Download</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="type-lens__body">
+    @if (!isValid()) {
+      <div class="type-lens__empty">
+        <lucide-icon [img]="alertIcon" class="empty-icon empty-icon--error" size="32" />
+        <h4 class="empty-title">Cannot generate types</h4>
+        <p class="empty-text">Fix JSON syntax errors in the left panel to generate TypeScript, Zod, or Go types.</p>
+      </div>
+    } @else if (!engine.parsedResult().data) {
+      <div class="type-lens__empty">
+        <lucide-icon [img]="codeIcon" class="empty-icon" size="32" />
+        <h4 class="empty-title">No JSON provided</h4>
+        <p class="empty-text">Input valid JSON in the left panel to automatically generate types.</p>
+      </div>
+    } @else {
+      <div class="type-lens__editor-container">
+        <app-monaco-editor
+          [content]="generatedCode()"
+          [readOnly]="true"
+          [language]="monacoLanguage()"
+        />
+      </div>
+    }
+  </div>
+</div>

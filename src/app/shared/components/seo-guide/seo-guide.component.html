@@ -1,0 +1,55 @@
+<article class="seo-guide">
+  <div class="seo-guide__container">
+    <!-- Header Section -->
+    <header class="seo-guide__header">
+      <div class="seo-guide__badge">
+        <lucide-icon [img]="sparkleIcon" size="13" class="badge-icon" />
+        <span>{{ content().badge }}</span>
+      </div>
+      <h2 class="seo-guide__title">{{ content().title }}</h2>
+      <p class="seo-guide__subtitle">{{ content().subtitle }}</p>
+    </header>
+
+    <!-- Main Content Grid -->
+    <div class="seo-guide__grid">
+      @for (sec of content().sections; track sec.title) {
+        <section class="guide-card">
+          <h3 class="guide-card__title">{{ sec.title }}</h3>
+          <p class="guide-card__desc">{{ sec.description }}</p>
+
+          @if (sec.bullets && sec.bullets.length > 0) {
+            <ul class="guide-card__list">
+              @for (bullet of sec.bullets; track bullet) {
+                <li class="guide-card__item">
+                  <lucide-icon [img]="checkIcon" size="14" class="bullet-icon" />
+                  <span>{{ bullet }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    </div>
+
+    <!-- FAQ Section -->
+    @if (content().faqs && content().faqs.length > 0) {
+      <section class="seo-guide__faq" aria-labelledby="faq-heading">
+        <div class="faq-header">
+          <lucide-icon [img]="helpIcon" size="18" class="faq-icon" />
+          <h3 id="faq-heading" class="faq-title">Frequently Asked Questions</h3>
+        </div>
+
+        <div class="faq-list">
+          @for (faq of content().faqs; track faq.question) {
+            <details class="faq-item">
+              <summary class="faq-item__question">{{ faq.question }}</summary>
+              <div class="faq-item__answer">
+                <p>{{ faq.answer }}</p>
+              </div>
+            </details>
+          }
+        </div>
+      </section>
+    }
+  </div>
+</article>

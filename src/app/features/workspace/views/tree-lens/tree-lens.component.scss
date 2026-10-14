@@ -1,0 +1,127 @@
+.tree-lens {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: var(--surface-950);
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2) var(--space-3);
+    background: var(--surface-900);
+    border-bottom: 1px solid var(--border-default);
+    min-height: 38px;
+    gap: var(--space-2);
+  }
+
+  &__search {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface-800);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xs);
+    padding: 3px 8px;
+    flex: 1;
+    max-width: 320px;
+    transition: border-color var(--transition-fast);
+
+    &:focus-within {
+      border-color: var(--border-focus);
+    }
+
+    .search-icon {
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 0.75rem;
+      outline: none;
+      width: 100%;
+
+      &::placeholder {
+        color: var(--text-muted);
+      }
+    }
+
+    .clear-search-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      padding: 0;
+
+      &:hover {
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .stat-badge {
+      background: var(--surface-800);
+      color: var(--text-secondary);
+      padding: 2px 8px;
+      border-radius: var(--radius-xs);
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      border: 1px solid var(--border-subtle);
+    }
+  }
+
+  &__body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: var(--space-3);
+  }
+
+  &__scroll-container {
+    min-width: 100%;
+    width: max-content;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: var(--space-8);
+
+    .empty-icon {
+      color: var(--text-muted);
+      margin-bottom: var(--space-2);
+
+      &--error {
+        color: var(--accent-error);
+      }
+    }
+
+    .empty-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 var(--space-1);
+    }
+
+    .empty-text {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      max-width: 300px;
+      margin: 0;
+    }
+  }
+}

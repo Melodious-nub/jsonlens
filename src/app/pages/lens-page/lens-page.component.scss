@@ -1,0 +1,11 @@
+.lens-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: calc(100vh - 56px);
+
+  .guide-placeholder {
+    min-height: 200px;
+    background: var(--surface-950);
+  }
+}

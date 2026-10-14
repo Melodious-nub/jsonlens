@@ -1,0 +1,138 @@
+<header class="navbar">
+  <div class="navbar__brand">
+    <a routerLink="/" class="navbar__logo-link" aria-label="JsonLens Home">
+      <div class="navbar__logo-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="logo-svg"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+          <path d="M11 8v6" />
+          <path d="M8 11h6" />
+        </svg>
+      </div>
+      <span class="navbar__title">JsonLens</span>
+    </a>
+  </div>
+
+  <nav class="navbar__links" aria-label="Feature Navigation">
+    <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      Formatter
+    </a>
+    <a routerLink="/json-validator" class="nav-link" routerLinkActive="active">
+      Validator
+    </a>
+    <a routerLink="/json-minifier" class="nav-link" routerLinkActive="active">
+      Minifier
+    </a>
+    <a routerLink="/json-to-typescript" class="nav-link" routerLinkActive="active">
+      JSON → TS
+    </a>
+    <a routerLink="/json-diff" class="nav-link" routerLinkActive="active">
+      Diff
+    </a>
+  </nav>
+
+  <div class="navbar__actions">
+    <button
+      type="button"
+      class="command-palette-btn focus-ring"
+      (click)="onCommandPaletteClick()"
+      aria-label="Open Command Palette (Ctrl+K)"
+      title="Open Command Palette"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="action-icon"
+        aria-hidden="true"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+      <span class="command-palette-btn__label">Command Palette</span>
+      <span class="kbd-shortcut" aria-hidden="true">
+        <kbd>Ctrl</kbd>
+        <kbd>K</kbd>
+      </span>
+    </button>
+
+    <button
+      type="button"
+      class="icon-btn focus-ring"
+      (click)="onToggleTheme()"
+      [attr.aria-label]="themeService.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+      [title]="themeService.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+    >
+      @if (themeService.theme() === 'dark') {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="action-icon"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2" />
+          <path d="M12 20v2" />
+          <path d="m4.93 4.93 1.41 1.41" />
+          <path d="m17.66 17.66 1.41 1.41" />
+          <path d="M2 12h2" />
+          <path d="M20 12h2" />
+          <path d="m6.34 17.66-1.41 1.41" />
+          <path d="m19.07 4.93-1.41 1.41" />
+        </svg>
+      } @else {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="action-icon"
+          aria-hidden="true"
+        >
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+        </svg>
+      }
+    </button>
+
+    <a
+      href="https://github.com/Melodious-nub/jsonlens"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="icon-btn focus-ring"
+      aria-label="View on GitHub"
+      title="View source on GitHub"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        class="action-icon"
+        aria-hidden="true"
+      >
+        <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z" />
+      </svg>
+    </a>
+  </div>
+</header>

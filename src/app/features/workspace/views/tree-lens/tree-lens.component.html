@@ -1,0 +1,54 @@
+<div class="tree-lens">
+  <div class="tree-lens__header">
+    <div class="tree-lens__search">
+      <lucide-icon [img]="searchIcon" class="search-icon" size="14" />
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Filter keys, values, or JSONPath..."
+        [value]="searchQuery()"
+        (input)="onSearchInput($event)"
+        aria-label="Filter tree by key or value"
+      />
+      @if (searchQuery()) {
+        <button
+          type="button"
+          class="clear-search-btn"
+          (click)="clearSearch()"
+          aria-label="Clear filter search"
+        >
+          <lucide-icon [img]="clearIcon" size="12" />
+        </button>
+      }
+    </div>
+
+    <div class="tree-lens__stats">
+      <span class="stat-badge">{{ totalKeys() }} keys</span>
+      <span class="stat-badge">depth {{ maxDepth() }}</span>
+    </div>
+  </div>
+
+  <div class="tree-lens__body">
+    @if (!isValid()) {
+      <div class="tree-lens__empty">
+        <lucide-icon [img]="alertIcon" class="empty-icon empty-icon--error" size="32" />
+        <h4 class="empty-title">Cannot render tree</h4>
+        <p class="empty-text">Fix JSON syntax errors in the left panel to inspect the tree hierarchy.</p>
+      </div>
+    } @else if (!treeData()) {
+      <div class="tree-lens__empty">
+        <lucide-icon [img]="treeIcon" class="empty-icon" size="32" />
+        <h4 class="empty-title">No JSON data</h4>
+        <p class="empty-text">Enter or paste valid JSON in the left panel to explore its tree structure.</p>
+      </div>
+    } @else {
+      <div class="tree-lens__scroll-container">
+        <app-tree-node
+          [node]="treeData()!"
+          [searchQuery]="searchQuery()"
+          (pathSelected)="onPathSelected($event)"
+        />
+      </div>
+    }
+  </div>
+</div>

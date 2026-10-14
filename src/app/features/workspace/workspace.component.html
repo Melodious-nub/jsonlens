@@ -1,0 +1,151 @@
+<section class="workspace">
+  <!-- Top Action Toolbar -->
+  <app-toolbar />
+
+  <!-- Split Screen Panels Area -->
+  <div
+    #panelsContainer
+    class="workspace__panels"
+    [class.is-resizing]="isDragging()"
+  >
+    <!-- Left Pane: Input Editor & Drop Zone -->
+    <div
+      class="workspace__pane workspace__pane--input"
+      [style.flex-basis.%]="splitPercent()"
+      appDropZone
+      (fileDropped)="onFileDropped($event)"
+    >
+      <div class="pane-header">
+        <div class="pane-title">
+          <span class="pane-title__dot"></span>
+          <span class="pane-title__text">JSON Input</span>
+          <span class="pane-title__hint">
+            <lucide-icon [img]="uploadIcon" size="11" />
+            <span>Drop file to load</span>
+          </span>
+        </div>
+
+        <div class="pane-actions">
+          <button
+            type="button"
+            class="pane-btn"
+            (click)="engine.loadSample()"
+            title="Reset to sample JSON"
+            aria-label="Reset to sample JSON"
+          >
+            <lucide-icon [img]="resetIcon" size="13" />
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pane-content">
+        <app-monaco-editor
+          [content]="engine.rawInput()"
+          (contentChange)="engine.setInput($event)"
+          [errorMarkers]="engine.jsonError() ? [engine.jsonError()!] : []"
+          language="json"
+        />
+      </div>
+    </div>
+
+    <!-- Resizable Split Handle -->
+    <div
+      class="workspace__divider"
+      [class.workspace__divider--active]="isDragging()"
+      (pointerdown)="onDividerPointerDown($event)"
+      (dblclick)="resetSplit()"
+      title="Drag to resize, double-click to center (50/50)"
+      role="separator"
+      aria-orientation="vertical"
+      [attr.aria-valuenow]="splitPercent()"
+      aria-valuemin="20"
+      aria-valuemax="80"
+      tabindex="0"
+    >
+      <div class="divider-handle"></div>
+    </div>
+
+    <!-- Right Pane: Lens Output Views -->
+    <div
+      class="workspace__pane workspace__pane--output"
+      [style.flex-basis.%]="100 - splitPercent()"
+    >
+      <!-- Lens Tabs Bar -->
+      <nav class="lens-nav" role="tablist" aria-label="Select view lens">
+        <button
+          type="button"
+          class="lens-tab"
+          role="tab"
+          [attr.aria-selected]="activeLens() === 'code'"
+          [class.lens-tab--active]="activeLens() === 'code'"
+          (click)="setLens('code')"
+          aria-label="Formatted Code View"
+        >
+          <lucide-icon [img]="codeIcon" size="14" />
+          <span>Code</span>
+        </button>
+
+        <button
+          type="button"
+          class="lens-tab"
+          role="tab"
+          [attr.aria-selected]="activeLens() === 'tree'"
+          [class.lens-tab--active]="activeLens() === 'tree'"
+          (click)="setLens('tree')"
+          aria-label="Interactive Tree View"
+        >
+          <lucide-icon [img]="treeIcon" size="14" />
+          <span>Tree</span>
+        </button>
+
+        <button
+          type="button"
+          class="lens-tab"
+          role="tab"
+          [attr.aria-selected]="activeLens() === 'type'"
+          [class.lens-tab--active]="activeLens() === 'type'"
+          (click)="setLens('type')"
+          aria-label="Type Generator View"
+        >
+          <lucide-icon [img]="typeIcon" size="14" />
+          <span>Types</span>
+        </button>
+
+        <button
+          type="button"
+          class="lens-tab"
+          role="tab"
+          [attr.aria-selected]="activeLens() === 'diff'"
+          [class.lens-tab--active]="activeLens() === 'diff'"
+          (click)="setLens('diff')"
+          aria-label="Diff Comparison View"
+        >
+          <lucide-icon [img]="diffIcon" size="14" />
+          <span>Diff</span>
+        </button>
+      </nav>
+
+      <!-- Active Lens View -->
+      <div class="pane-content">
+        @switch (activeLens()) {
+          @case ('code') {
+            <app-code-lens />
+          }
+          @case ('tree') {
+            <app-tree-lens />
+          }
+          @case ('type') {
+            <app-type-lens />
+          }
+          @case ('diff') {
+            <app-diff-lens />
+          }
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Diagnostics & Stats Bar -->
+  <app-status-bar />
+</section>

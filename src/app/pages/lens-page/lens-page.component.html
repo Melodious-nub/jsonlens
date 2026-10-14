@@ -1,0 +1,11 @@
+<div class="lens-page">
+  <!-- Interactive App Workspace Above the Fold -->
+  <app-workspace [defaultLens]="defaultLens()" />
+
+  <!-- Below-the-Fold Semantic SEO Documentation -->
+  @defer (on viewport; prefetch on idle) {
+    <app-seo-guide [topic]="seoKey()" />
+  } @placeholder {
+    <div class="guide-placeholder" aria-hidden="true"></div>
+  }
+</div>

@@ -1,0 +1,65 @@
+<footer class="status-bar" role="status" aria-label="JSON Document Status and Statistics">
+  <!-- Left Side: Validation Status & Error Coordinates -->
+  <div class="status-bar__section">
+    @if (engine.isValid()) {
+      <div class="status-badge status-badge--valid">
+        <span class="status-dot status-dot--valid" aria-hidden="true"></span>
+        <span class="status-text">Valid JSON</span>
+      </div>
+    } @else {
+      <div class="status-badge status-badge--invalid" [title]="engine.jsonError()?.message || 'Syntax Error'">
+        <span class="status-dot status-dot--invalid" aria-hidden="true"></span>
+        <span class="status-text">Invalid JSON</span>
+        @if (engine.jsonError(); as err) {
+          <span class="error-coords">Ln {{ err.line }}, Col {{ err.column }}</span>
+          <span class="error-msg truncate">{{ err.message }}</span>
+        }
+      </div>
+    }
+
+    @if (engine.isProcessing()) {
+      <div class="worker-badge animate-fade-in" title="Processing heavy payload via background Web Worker">
+        <svg class="worker-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="10" stroke-width="3" stroke-dasharray="32" stroke-linecap="round" />
+        </svg>
+        <span>Worker Active</span>
+      </div>
+    }
+  </div>
+
+  <!-- Right Side: Payload Metrics -->
+  <div class="status-bar__section status-bar__metrics">
+    <div class="metric-item" title="Uncompressed payload size">
+      <span class="metric-label">Size:</span>
+      <span class="metric-value">{{ engine.jsonStats().byteSize | fileSize }}</span>
+    </div>
+
+    <div class="metric-divider" aria-hidden="true"></div>
+
+    <div class="metric-item" title="Total object keys count">
+      <span class="metric-label">Keys:</span>
+      <span class="metric-value">{{ engine.jsonStats().keyCount }}</span>
+    </div>
+
+    <div class="metric-divider" aria-hidden="true"></div>
+
+    <div class="metric-item" title="Maximum nesting depth">
+      <span class="metric-label">Depth:</span>
+      <span class="metric-value">{{ engine.jsonStats().maxDepth }}</span>
+    </div>
+
+    <div class="metric-divider" aria-hidden="true"></div>
+
+    <div class="metric-item" title="Objects count">
+      <span class="metric-label">Objects:</span>
+      <span class="metric-value">{{ engine.jsonStats().objectCount }}</span>
+    </div>
+
+    <div class="metric-divider" aria-hidden="true"></div>
+
+    <div class="metric-item" title="Arrays count">
+      <span class="metric-label">Arrays:</span>
+      <span class="metric-value">{{ engine.jsonStats().arrayCount }}</span>
+    </div>
+  </div>
+</footer>

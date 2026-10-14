@@ -1,0 +1,207 @@
+.tree-node {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+
+  &--matched > .tree-node__row {
+    background: rgba(99, 102, 241, 0.15);
+    border-radius: var(--radius-xs);
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 6px;
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    position: relative;
+    transition: background var(--transition-fast);
+
+    &:hover {
+      background: var(--surface-800);
+
+      .tree-node__copy-btn {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+  }
+
+  &__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--text-primary);
+    }
+  }
+
+  &__spacer {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+  }
+
+  &__key {
+    color: #e0e7ff;
+    font-weight: 500;
+
+    &.highlight {
+      background: rgba(99, 102, 241, 0.4);
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+  }
+
+  &__colon {
+    color: var(--text-muted);
+    margin-right: 2px;
+  }
+
+  &__bracket {
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  &__count {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-style: italic;
+    margin: 0 4px;
+  }
+
+  &__value {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 380px;
+
+    &.highlight {
+      background: rgba(99, 102, 241, 0.4);
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+
+    &--string {
+      color: var(--accent-valid);
+    }
+
+    &--number {
+      color: var(--accent-info);
+    }
+
+    &--boolean {
+      color: var(--accent-warning);
+    }
+
+    &--null {
+      color: var(--accent-error);
+    }
+  }
+
+  &__badge {
+    font-size: 0.65rem;
+    padding: 1px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+    margin-left: auto;
+    opacity: 0.85;
+
+    &--string {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--accent-valid);
+    }
+
+    &--number {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-info);
+    }
+
+    &--boolean {
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--accent-warning);
+    }
+
+    &--null {
+      background: rgba(251, 113, 133, 0.15);
+      color: var(--accent-error);
+    }
+
+    &--object,
+    &--array {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-secondary);
+    }
+  }
+
+  &__copy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid var(--border-default);
+    background: var(--surface-850);
+    color: var(--text-secondary);
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    position: relative;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background: var(--surface-700);
+      color: #ffffff;
+      border-color: var(--accent-primary);
+    }
+
+    .copy-tooltip {
+      position: absolute;
+      right: 110%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--surface-950);
+      border: 1px solid var(--border-default);
+      color: var(--text-primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      white-space: nowrap;
+      pointer-events: none;
+      display: none;
+      box-shadow: var(--shadow-sm);
+    }
+
+    &:hover .copy-tooltip {
+      display: block;
+    }
+  }
+
+  &__children {
+    padding-left: 18px;
+    margin-left: 7px;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    content-visibility: auto;
+  }
+
+  &__closing-bracket {
+    display: flex;
+    align-items: center;
+    padding: 1px 0;
+  }
+}
