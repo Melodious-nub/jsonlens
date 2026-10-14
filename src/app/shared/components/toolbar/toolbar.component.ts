@@ -10,6 +10,7 @@ import { JsonEngineService } from '../../../core/services/json-engine.service';
 import { ExportService } from '../../../core/services/export.service';
 import { UrlShareService } from '../../../core/services/url-share.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TypeGenService } from '../../../core/services/type-gen.service';
 import { ExportFormat, IndentOption } from '../../../core/models/json-lens.model';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
 
@@ -26,6 +27,7 @@ export class ToolbarComponent {
   private readonly exportService = inject(ExportService);
   private readonly urlShareService = inject(UrlShareService);
   private readonly toastService = inject(ToastService);
+  private readonly typeGenService = inject(TypeGenService);
 
   readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
@@ -175,10 +177,16 @@ export class ToolbarComponent {
         this.exportService.downloadCsv('data.csv', parsed.data);
         this.toastService.show('Downloaded data.csv', 'success');
         break;
-      case 'ts':
-        this.toastService.show('Exporting TypeScript definitions...', 'info');
-        // Will be wired through TypeGen in view
+      case 'ts': {
+        if (!parsed.data) {
+          this.toastService.show('Cannot export invalid JSON to TypeScript', 'error');
+          return;
+        }
+        const tsTypes = this.typeGenService.generate('typescript', parsed.data, 'Root');
+        this.exportService.downloadTs('types.ts', tsTypes);
+        this.toastService.show('Downloaded types.ts', 'success');
         break;
+      }
     }
 
     this.closeMenus();

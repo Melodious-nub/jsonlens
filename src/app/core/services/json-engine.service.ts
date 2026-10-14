@@ -27,6 +27,7 @@ import {
 } from '../../shared/utils/json-tree.util';
 import { JsonRepairService } from './json-repair.service';
 import { StorageService } from './storage.service';
+import { UrlShareService } from './url-share.service';
 import { WorkerParseRequest, WorkerParseResponse } from '../workers/json.worker';
 
 const LARGE_PAYLOAD_THRESHOLD = 2 * 1024 * 1024; // 2MB
@@ -65,8 +66,11 @@ export class JsonEngineService {
   private readonly storageService = inject(StorageService);
   private readonly destroyRef = inject(DestroyRef);
 
+  private readonly urlShareService = inject(UrlShareService);
+
   private worker: Worker | null = null;
   private currentWorkerTaskId = 0;
+  private saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // Primary Signals
   readonly rawInput = signal<string>(DEFAULT_SAMPLE_JSON);
@@ -164,17 +168,41 @@ export class JsonEngineService {
 
   constructor() {
     if (this.isBrowser) {
-      const savedInput = this.storageService.getItem<string>(
-        'jsonlens_input',
-        DEFAULT_SAMPLE_JSON,
-      );
-      this.rawInput.set(savedInput);
+      // 1. Check for shared URL payload first
+      const sharedPayload = this.urlShareService.readSharedPayload();
+      if (sharedPayload) {
+        this.rawInput.set(sharedPayload);
+        this.storageService.setItem('jsonlens_input', sharedPayload);
+      } else {
+        const savedInput = this.storageService.getItem<string>(
+          'jsonlens_input',
+          DEFAULT_SAMPLE_JSON,
+        );
+        this.rawInput.set(savedInput);
+      }
 
+      // 2. Restore indent preference
       const savedIndent = this.storageService.getItem<IndentOption>(
         'jsonlens_indent',
         '2-spaces',
       );
       this.indentOption.set(savedIndent);
+
+      // 3. Listen for dynamic URL hash changes
+      const onHashChange = () => {
+        const payload = this.urlShareService.readSharedPayload();
+        if (payload) {
+          this.setInput(payload);
+        }
+      };
+      window.addEventListener('hashchange', onHashChange);
+
+      this.destroyRef.onDestroy(() => {
+        window.removeEventListener('hashchange', onHashChange);
+        if (this.saveTimeout) {
+          clearTimeout(this.saveTimeout);
+        }
+      });
 
       this.initWorker();
     }
@@ -182,7 +210,7 @@ export class JsonEngineService {
 
   setInput(val: string): void {
     this.rawInput.set(val);
-    this.storageService.setItem('jsonlens_input', val);
+    this.debounceSaveInput(val);
 
     // If large payload, offload to worker
     if (val.length >= LARGE_PAYLOAD_THRESHOLD) {
@@ -192,6 +220,16 @@ export class JsonEngineService {
       this.workerError.set(null);
       this.workerStats.set(null);
     }
+  }
+
+  private debounceSaveInput(val: string): void {
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+    }
+    this.saveTimeout = setTimeout(() => {
+      this.storageService.setItem('jsonlens_input', val);
+      this.saveTimeout = null;
+    }, 400);
   }
 
   setIndent(option: IndentOption): void {

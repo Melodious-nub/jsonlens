@@ -14,6 +14,7 @@ import {
 import { LensTab } from '../../core/models/json-lens.model';
 import { JsonEngineService } from '../../core/services/json-engine.service';
 import { ToastService } from '../../core/services/toast.service';
+import { StorageService } from '../../core/services/storage.service';
 import { ToolbarComponent } from '../../shared/components/toolbar/toolbar.component';
 import { StatusBarComponent } from '../../shared/components/status-bar/status-bar.component';
 import { MonacoEditorComponent } from '../../shared/components/monaco-wrapper/monaco-editor.component';
@@ -53,6 +54,7 @@ import {
 export class WorkspaceComponent {
   readonly engine = inject(JsonEngineService);
   private readonly toast = inject(ToastService);
+  private readonly storage = inject(StorageService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly destroyRef = inject(DestroyRef);
@@ -78,8 +80,19 @@ export class WorkspaceComponent {
   private upListener: ((e: PointerEvent) => void) | null = null;
 
   constructor() {
+    if (this.isBrowser) {
+      const savedSplit = this.storage.getItem<number>('jsonlens_split_percent', 50);
+      this.splitPercent.set(savedSplit);
+    }
+
     effect(() => {
-      this.activeLens.set(this.defaultLens());
+      const def = this.defaultLens();
+      if (def !== 'code') {
+        this.activeLens.set(def);
+      } else if (this.isBrowser) {
+        const savedLens = this.storage.getItem<LensTab>('jsonlens_lens_tab', 'code');
+        this.activeLens.set(savedLens);
+      }
     });
 
     this.destroyRef.onDestroy(() => {
@@ -89,6 +102,9 @@ export class WorkspaceComponent {
 
   setLens(lens: LensTab): void {
     this.activeLens.set(lens);
+    if (this.isBrowser) {
+      this.storage.setItem('jsonlens_lens_tab', lens);
+    }
   }
 
   onFileDropped(content: string): void {
@@ -98,6 +114,9 @@ export class WorkspaceComponent {
 
   resetSplit(): void {
     this.splitPercent.set(50);
+    if (this.isBrowser) {
+      this.storage.setItem('jsonlens_split_percent', 50);
+    }
   }
 
   onDividerPointerDown(event: PointerEvent): void {
@@ -138,6 +157,9 @@ export class WorkspaceComponent {
     pointerId: number,
   ): void {
     this.isDragging.set(false);
+    if (this.isBrowser) {
+      this.storage.setItem('jsonlens_split_percent', this.splitPercent());
+    }
     if (target && target.releasePointerCapture) {
       try {
         target.releasePointerCapture(pointerId);
