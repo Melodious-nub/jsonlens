@@ -1,3 +1,9 @@
+:host {
+  display: block;
+  position: relative;
+  z-index: 40;
+}
+
 .toolbar {
   display: flex;
   align-items: center;
@@ -7,7 +13,9 @@
   background: var(--surface-900);
   border-bottom: 1px solid var(--border-subtle);
   user-select: none;
-  overflow-x: auto;
+  position: relative;
+  z-index: 40;
+  overflow: visible;
   white-space: nowrap;
 
   &__group {
@@ -92,6 +100,7 @@
 .dropdown-wrapper {
   position: relative;
   display: inline-block;
+  z-index: 50;
 
   .dropdown-chevron {
     width: 12px;
@@ -104,13 +113,13 @@
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
-    z-index: 60;
-    min-width: 150px;
-    padding: 4px;
+    z-index: 1000;
+    min-width: 160px;
+    padding: 6px;
     background: var(--surface-850);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
 
     &--right {
       left: auto;

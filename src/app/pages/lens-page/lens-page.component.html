@@ -1,11 +1,9 @@
 <div class="lens-page">
-  <!-- Interactive App Workspace Above the Fold -->
+  <!-- Interactive App Workspace: The only visible content on the page -->
   <app-workspace [defaultLens]="defaultLens()" />
 
-  <!-- Below-the-Fold Semantic SEO Documentation -->
-  @defer (on viewport; prefetch on idle) {
+  <!-- Semantic SEO and Documentation Content (Indexed by Googlebot & Search Crawlers) -->
+  <aside class="sr-seo-content" aria-label="JSONLens Feature Guide and SEO Content">
     <app-seo-guide [topic]="seoKey()" />
-  } @placeholder {
-    <div class="guide-placeholder" aria-hidden="true"></div>
-  }
+  </aside>
 </div>

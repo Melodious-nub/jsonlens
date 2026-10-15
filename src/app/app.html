@@ -1,8 +1,7 @@
-<div class="app-layout" [appHotkey]="'ctrl+k'" (hotkeyTriggered)="openCommandPalette()">
-  <app-navbar (triggerCommandPalette)="openCommandPalette()" />
+<div class="app-layout">
+  <app-navbar />
   <main class="main-content">
     <router-outlet />
   </main>
-  <app-command-palette [(isOpen)]="isCommandPaletteOpen" />
   <app-toast />
 </div>

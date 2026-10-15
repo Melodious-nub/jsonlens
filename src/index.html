@@ -2,15 +2,99 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8">
-  <title>JsonLens — Privacy-First JSON Workspace &amp; Formatter</title>
+  <title>JsonLens — Privacy-First JSON Workspace, Formatter &amp; Visual Diff</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="100% client-side, privacy-first JSON workspace. Real-time formatter, validator, auto-repair, tree explorer, type generator, and diff comparator.">
+  <meta name="description" content="100% client-side, zero-telemetry JSON workspace. Instant JSON formatter, validator, syntax auto-repair, interactive tree viewer, TypeScript type generator, and AST diff comparator.">
+  <meta name="keywords" content="json formatter, json validator, json viewer, json to typescript, json diff, format json online, json auto repair, json minify, json editor, beautify json, developer tools, privacy json, client side json">
+  <meta name="author" content="Shawon">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://jsonlens.dev/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jsonlens.dev/">
+  <meta property="og:title" content="JsonLens — Privacy-First JSON Workspace, Formatter &amp; Visual Diff">
+  <meta property="og:description" content="100% client-side JSON engineering workspace. Real-time formatter, validator, syntax auto-repair, interactive tree explorer, TypeScript generator, and visual diff. Zero data ever leaves your device.">
+  <meta property="og:site_name" content="JsonLens">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="JsonLens — Privacy-First JSON Workspace">
+  <meta name="twitter:description" content="Sub-millisecond JSON formatter, syntax auto-repair, tree visualizer, TypeScript generator, and AST diff. 100% private and client-side.">
+
+  <!-- Theming & Favicon -->
   <meta name="theme-color" content="#09090b">
+  <meta name="color-scheme" content="dark light">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  <!-- Structured Data: Google Search Console & Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "@id": "https://jsonlens.dev/#app",
+        "name": "JsonLens",
+        "url": "https://jsonlens.dev/",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "All (Modern Web Browsers)",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "High-performance, 100% client-side JSON engineering suite with syntax auto-repair, tree visualization, TypeScript generation, and AST diff.",
+        "featureList": [
+          "100% In-Memory Client-Side Privacy (Zero Server Uploads)",
+          "Sub-Millisecond Prettify & Compact Formatting",
+          "One-Click Syntax Auto-Repair for Broken JSON",
+          "Interactive AST Tree Lens with JSONPath Generation",
+          "TypeScript Interface & Type Generator",
+          "Side-by-Side Visual Diff Comparator",
+          "Compressed LZ-String URL Sharing",
+          "Export to JSON, Formatted PDF Report, and CSV"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://jsonlens.dev/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is my JSON data kept private and confidential on JsonLens?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, 100%. JsonLens operates entirely client-side inside your browser runtime. Zero bytes of your JSON payloads are ever transmitted, stored, or processed on remote servers."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does JsonLens Auto-Fix repair broken JSON?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The Auto-Fix engine detects common syntax errors including unquoted keys, single quotes, trailing commas, Python boolean literals (True/False/None), and unescaped characters, automatically reconstructing valid RFC 8259 JSON."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can JsonLens convert JSON to TypeScript types?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. JsonLens infers TypeScript interfaces, types, JSON Schema Draft 7, and Zod validator schemas automatically from any valid JSON document."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <app-root></app-root>

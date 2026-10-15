@@ -2,10 +2,18 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: calc(100vh - 56px);
+  height: calc(100vh - 56px);
+  overflow: hidden;
 
-  .guide-placeholder {
-    min-height: 200px;
-    background: var(--surface-950);
+  .sr-seo-content {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: normal;
+    border: 0;
   }
 }
