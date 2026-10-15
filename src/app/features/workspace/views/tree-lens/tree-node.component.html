@@ -22,7 +22,7 @@
     }
 
     <!-- Key Name -->
-    <span class="tree-node__key" [class.highlight]="isMatch()">
+    <span class="tree-node__key" [style.color]="'var(--tree-key)'" [class.highlight]="isMatch()">
       {{ node().key }}
     </span>
     <span class="tree-node__colon">:</span>

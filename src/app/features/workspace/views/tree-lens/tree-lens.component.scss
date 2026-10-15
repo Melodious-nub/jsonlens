@@ -125,3 +125,24 @@
     }
   }
 }
+
+/* Deep tree node styling overrides inside TreeLensComponent */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+:host-context([data-theme='light']) ::ng-deep .tree-node__key,
+[data-theme='light'] ::ng-deep .tree-node__key {
+  color: #1e1b4b !important;
+  font-weight: 600 !important;
+}
+
+:host-context([data-theme='dark']) ::ng-deep .tree-node__key,
+[data-theme='dark'] ::ng-deep .tree-node__key {
+  color: #a5b4fc !important;
+  font-weight: 600 !important;
+}
+

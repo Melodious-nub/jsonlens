@@ -1,0 +1,93 @@
+<main class="page-container custom-scrollbar">
+  <div class="content-wrapper">
+    <!-- Breadcrumb / Back Link -->
+    <nav class="page-nav" aria-label="Breadcrumb">
+      <a routerLink="/" class="back-link focus-ring">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="back-icon">
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+        <span>Back to Workspace</span>
+      </a>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+      <div class="header-badge">
+        <span class="badge-pill">🔒 100% Client-Side</span>
+        <span class="badge-pill">⚡ Sub-Millisecond</span>
+        <span class="badge-pill">🛡️ Zero Telemetry</span>
+      </div>
+      <h1 class="page-title">About &#123;JsonLens&#125;</h1>
+      <p class="page-lead">
+        A zero-latency, privacy-first developer workspace engineered for developers who refuse to compromise on speed or expose confidential payloads to cloud servers.
+      </p>
+    </header>
+
+    <!-- Mission & Overview -->
+    <section class="section-card">
+      <h2 class="section-title">The Privacy Crisis in Developer Tools</h2>
+      <p class="section-text">
+        Every day, software engineers paste sensitive API payloads, customer records, database dumps, and JWT tokens into online formatters and validators. Most popular online tools silently transmit this data to backend cloud servers for parsing, logging, and third-party analytics.
+      </p>
+      <p class="section-text">
+        <strong>JsonLens</strong> was built with a strict invariant: <em>zero data transmission</em>. Every single algorithm — syntax auto-repair, recursive tree traversal, TypeScript interface generation, and AST diffing — executes entirely inside your browser's local memory.
+      </p>
+    </section>
+
+    <!-- Feature Grid -->
+    <section class="features-section">
+      <h2 class="section-title">Core Engineering Features</h2>
+      <div class="features-grid">
+        @for (feature of features; track feature.title) {
+          <article class="feature-card">
+            <span class="feature-card__icon">{{ feature.icon }}</span>
+            <h3 class="feature-card__title">{{ feature.title }}</h3>
+            <p class="feature-card__desc">{{ feature.description }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- Architecture & Performance -->
+    <section class="section-card">
+      <h2 class="section-title">Architecture & Performance</h2>
+      <div class="arch-points">
+        <div class="arch-point">
+          <span class="arch-dot"></span>
+          <div>
+            <strong>Angular 22 Signals & Zoneless Reactivity:</strong>
+            <p>Direct fine-grained signal subscriptions ensure 0ms unnecessary change detection overhead.</p>
+          </div>
+        </div>
+        <div class="arch-point">
+          <span class="arch-dot"></span>
+          <div>
+            <strong>Monaco Editor Virtualization:</strong>
+            <p>Industry-standard code editor rendering only visible lines in the viewport, supporting massive payloads smoothly.</p>
+          </div>
+        </div>
+        <div class="arch-point">
+          <span class="arch-dot"></span>
+          <div>
+            <strong>Pure In-Memory AST Algorithms:</strong>
+            <p>Recursive descent AST traversals for instantaneous diffing, dot-notation flattening, and type synthesis without third-party network bloat.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Frequently Asked Questions -->
+    <section class="faq-section">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        @for (faq of faqs; track faq.question) {
+          <article class="faq-card">
+            <h3 class="faq-card__question">{{ faq.question }}</h3>
+            <p class="faq-card__answer">{{ faq.answer }}</p>
+          </article>
+        }
+      </div>
+    </section>
+  </div>
+</main>

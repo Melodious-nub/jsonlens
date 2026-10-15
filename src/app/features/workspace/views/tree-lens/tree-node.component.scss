@@ -54,8 +54,8 @@
   }
 
   &__key {
-    color: #e0e7ff;
-    font-weight: 500;
+    color: var(--tree-key, #1e1b4b);
+    font-weight: 600;
 
     &.highlight {
       background: rgba(99, 102, 241, 0.4);
@@ -64,13 +64,25 @@
     }
   }
 
+  :host-context([data-theme='light']) &__key,
+  [data-theme='light'] &__key {
+    color: #1e1b4b !important;
+    font-weight: 600 !important;
+  }
+
+  :host-context([data-theme='dark']) &__key,
+  [data-theme='dark'] &__key {
+    color: #a5b4fc !important;
+    font-weight: 600 !important;
+  }
+
   &__colon {
-    color: var(--text-muted);
+    color: var(--tree-colon);
     margin-right: 2px;
   }
 
   &__bracket {
-    color: var(--text-secondary);
+    color: var(--tree-bracket);
     font-weight: 600;
   }
 
@@ -94,19 +106,21 @@
     }
 
     &--string {
-      color: var(--accent-valid);
+      color: var(--tree-string);
     }
 
     &--number {
-      color: var(--accent-info);
+      color: var(--tree-number);
     }
 
     &--boolean {
-      color: var(--accent-warning);
+      color: var(--tree-boolean);
+      font-weight: 600;
     }
 
     &--null {
-      color: var(--accent-error);
+      color: var(--tree-null);
+      font-weight: 600;
     }
   }
 
@@ -118,31 +132,31 @@
     letter-spacing: 0.04em;
     font-weight: 600;
     margin-left: auto;
-    opacity: 0.85;
+    opacity: 0.9;
 
     &--string {
-      background: rgba(52, 211, 153, 0.15);
-      color: var(--accent-valid);
+      background: var(--tree-badge-string-bg);
+      color: var(--tree-string);
     }
 
     &--number {
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent-info);
+      background: var(--tree-badge-number-bg);
+      color: var(--tree-number);
     }
 
     &--boolean {
-      background: rgba(251, 191, 36, 0.15);
-      color: var(--accent-warning);
+      background: var(--tree-badge-boolean-bg);
+      color: var(--tree-boolean);
     }
 
     &--null {
-      background: rgba(251, 113, 133, 0.15);
-      color: var(--accent-error);
+      background: var(--tree-badge-null-bg);
+      color: var(--tree-null);
     }
 
     &--object,
     &--array {
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--tree-badge-container-bg);
       color: var(--text-secondary);
     }
   }
@@ -166,7 +180,7 @@
 
     &:hover {
       background: var(--surface-700);
-      color: #ffffff;
+      color: var(--text-primary);
       border-color: var(--accent-primary);
     }
 
@@ -175,7 +189,7 @@
       right: 110%;
       top: 50%;
       transform: translateY(-50%);
-      background: var(--surface-950);
+      background: var(--surface-900);
       border: 1px solid var(--border-default);
       color: var(--text-primary);
       padding: 2px 6px;
@@ -195,7 +209,7 @@
   &__children {
     padding-left: 18px;
     margin-left: 7px;
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 1px solid var(--tree-guide-line);
     content-visibility: auto;
   }
 

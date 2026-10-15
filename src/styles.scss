@@ -2,5 +2,15 @@
 @use "./styles/reset";
 @use "./styles/animations";
 @use "./styles/utilities";
-@use "./styles/modals";
 @use "tailwindcss";
+
+/* Tree Lens Key Contrast Guaranteed Overrides */
+[data-theme='light'] .tree-node__key {
+  color: #1e1b4b !important;
+  font-weight: 600 !important;
+}
+
+[data-theme='dark'] .tree-node__key {
+  color: #a5b4fc !important;
+  font-weight: 600 !important;
+}

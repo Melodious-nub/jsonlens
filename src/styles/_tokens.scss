@@ -26,9 +26,34 @@
   --accent-info: #38bdf8;
   --accent-info-bg: rgba(56, 189, 248, 0.12);
 
+  /* Support Nav Item */
+  --accent-support: #fb7185;
+  --accent-support-hover: #fda4af;
+  --accent-support-bg: rgba(244, 63, 94, 0.12);
+  --accent-support-border: rgba(244, 63, 94, 0.3);
+
+  /* Tree Lens Syntax Tokens */
+  --tree-key: #a5b4fc;
+  --tree-string: #34d399;
+  --tree-number: #38bdf8;
+  --tree-boolean: #fbbf24;
+  --tree-null: #fb7185;
+  --tree-colon: #71717a;
+  --tree-bracket: #a1a1aa;
+  --tree-badge-string-bg: rgba(52, 211, 153, 0.15);
+  --tree-badge-number-bg: rgba(56, 189, 248, 0.15);
+  --tree-badge-boolean-bg: rgba(251, 191, 36, 0.15);
+  --tree-badge-null-bg: rgba(251, 113, 133, 0.15);
+  --tree-badge-container-bg: rgba(255, 255, 255, 0.08);
+  --tree-guide-line: rgba(255, 255, 255, 0.08);
+
+  /* Brand Heading Bracket */
+  --brand-bracket: #38bdf8;
+
   /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-default: #27272a;
+  --border-strong: #3f3f46;
   --border-focus: #6366f1;
 
   /* Typography Families */
@@ -71,15 +96,51 @@
   --surface-850: #f1f5f9;
   --surface-800: #e2e8f0;
   --surface-700: #cbd5e1;
-  --surface-panel: rgba(255, 255, 255, 0.85);
+  --surface-panel: rgba(255, 255, 255, 0.92);
 
   --text-primary: #0f172a;
   --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-muted: #64748b;
   --text-inverse: #f8fafc;
 
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --border-default: #e2e8f0;
+  /* Accent Colors (Light Theme: Rich, high contrast, WCAG compliant) */
+  --accent-valid: #059669;
+  --accent-valid-bg: rgba(5, 150, 105, 0.12);
+  --accent-error: #e11d48;
+  --accent-error-bg: rgba(225, 29, 72, 0.1);
+  --accent-warning: #d97706;
+  --accent-warning-bg: rgba(217, 119, 6, 0.12);
+  --accent-info: #0284c7;
+  --accent-info-bg: rgba(2, 132, 199, 0.12);
+
+  /* Borders: High contrast, clearly identifiable sections */
+  --border-subtle: #e2e8f0;
+  --border-default: #cbd5e1;
+  --border-strong: #94a3b8;
+
+  /* Support Nav Item (Professional, high-contrast rose-700) */
+  --accent-support: #be123c;
+  --accent-support-hover: #9f1239;
+  --accent-support-bg: rgba(190, 18, 60, 0.08);
+  --accent-support-border: rgba(190, 18, 60, 0.25);
+
+  /* Tree Lens Syntax Tokens: Crisp, high-contrast, professional */
+  --tree-key: #1e1b4b;
+  --tree-string: #047857;
+  --tree-number: #0284c7;
+  --tree-boolean: #b45309;
+  --tree-null: #be123c;
+  --tree-colon: #64748b;
+  --tree-bracket: #475569;
+  --tree-badge-string-bg: rgba(4, 120, 87, 0.12);
+  --tree-badge-number-bg: rgba(2, 132, 199, 0.12);
+  --tree-badge-boolean-bg: rgba(180, 83, 9, 0.12);
+  --tree-badge-null-bg: rgba(190, 18, 60, 0.12);
+  --tree-badge-container-bg: rgba(15, 23, 42, 0.07);
+  --tree-guide-line: #cbd5e1;
+
+  /* Brand Heading Bracket */
+  --brand-bracket: #0284c7;
 
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);

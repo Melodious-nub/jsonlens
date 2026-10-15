@@ -106,7 +106,7 @@
       &:hover {
         background: var(--surface-700);
         border-color: var(--accent-primary);
-        color: #ffffff;
+        color: var(--text-primary);
       }
 
       &:focus-visible {
