@@ -18,19 +18,43 @@
 
         @if (isIndentMenuOpen()) {
           <div class="dropdown-menu animate-scale-in" role="menu">
-            <button type="button" class="dropdown-item" (click)="onSetIndent('2-spaces')" role="menuitem">
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.dropdown-item--active]="engine.indentOption() === '2-spaces'"
+              (click)="onSetIndent('2-spaces')"
+              role="menuitem"
+            >
               <span>2 Spaces</span>
               @if (engine.indentOption() === '2-spaces') { <span class="check-mark">✓</span> }
             </button>
-            <button type="button" class="dropdown-item" (click)="onSetIndent('4-spaces')" role="menuitem">
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.dropdown-item--active]="engine.indentOption() === '4-spaces'"
+              (click)="onSetIndent('4-spaces')"
+              role="menuitem"
+            >
               <span>4 Spaces</span>
               @if (engine.indentOption() === '4-spaces') { <span class="check-mark">✓</span> }
             </button>
-            <button type="button" class="dropdown-item" (click)="onSetIndent('tabs')" role="menuitem">
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.dropdown-item--active]="engine.indentOption() === 'tabs'"
+              (click)="onSetIndent('tabs')"
+              role="menuitem"
+            >
               <span>Tabs</span>
               @if (engine.indentOption() === 'tabs') { <span class="check-mark">✓</span> }
             </button>
-            <button type="button" class="dropdown-item" (click)="onSetIndent('minified')" role="menuitem">
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.dropdown-item--active]="engine.indentOption() === 'minified'"
+              (click)="onSetIndent('minified')"
+              role="menuitem"
+            >
               <span>Minified</span>
               @if (engine.indentOption() === 'minified') { <span class="check-mark">✓</span> }
             </button>
@@ -38,44 +62,117 @@
         }
       </div>
 
-      <!-- Sort Toggle -->
-      <button
-        type="button"
-        class="action-btn focus-ring"
-        (click)="onSortToggle()"
-        [title]="engine.sortOrder() === 'asc' ? 'Sort Keys Z-A' : 'Sort Keys A-Z'"
-        aria-label="Sort JSON keys alphabetically"
-      >
-        <lucide-icon [img]="sortIcon" size="13" />
-        <span>Sort {{ engine.sortOrder() === 'asc' ? 'Z-A' : 'A-Z' }}</span>
-      </button>
-
-      <!-- Transform Dropdown -->
-      <div class="dropdown-wrapper" appClickOutside (clickOutside)="isToolsMenuOpen.set(false)">
+      <!-- Sort Dropdown (Output View Only) -->
+      <div class="dropdown-wrapper" appClickOutside (clickOutside)="isSortMenuOpen.set(false)">
         <button
           type="button"
           class="action-btn action-btn--dropdown focus-ring"
-          (click)="toggleToolsMenu()"
-          [attr.aria-expanded]="isToolsMenuOpen()"
+          [class.action-btn--filtered]="sortOption() !== 'default'"
+          (click)="toggleSortMenu()"
+          [attr.aria-expanded]="isSortMenuOpen()"
           aria-haspopup="true"
-          title="Data Transformations"
-          aria-label="Data Transformations"
+          title="Output Keys Sorting"
+          aria-label="Output Keys Sorting"
         >
-          <lucide-icon [img]="transformIcon" size="13" />
-          <span>Transform</span>
+          <lucide-icon [img]="sortIcon" size="13" />
+          <span>Sort: {{ sortLabel() }}</span>
           <lucide-icon [img]="chevronDownIcon" size="12" class="dropdown-chevron" />
         </button>
 
-        @if (isToolsMenuOpen()) {
+        @if (isSortMenuOpen()) {
+          <div class="dropdown-menu animate-scale-in" role="menu">
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.dropdown-item--active]="sortOption() === 'default'"
+              (click)="onSetSort('default')"
+              role="menuitem"
+            >
+              <span>Default (Original)</span>
+              @if (sortOption() === 'default') { <span class="check-mark">✓</span> }
+            </button>
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.dropdown-item--active]="sortOption() === 'asc'"
+              (click)="onSetSort('asc')"
+              role="menuitem"
+            >
+              <span>Ascending (A-Z)</span>
+              @if (sortOption() === 'asc') { <span class="check-mark">✓</span> }
+            </button>
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.dropdown-item--active]="sortOption() === 'desc'"
+              (click)="onSetSort('desc')"
+              role="menuitem"
+            >
+              <span>Descending (Z-A)</span>
+              @if (sortOption() === 'desc') { <span class="check-mark">✓</span> }
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Transform Dropdown (Output View Only) -->
+      <div class="dropdown-wrapper" appClickOutside (clickOutside)="isTransformMenuOpen.set(false)">
+        <button
+          type="button"
+          class="action-btn action-btn--dropdown focus-ring"
+          [class.action-btn--filtered]="transformOption() !== 'default'"
+          (click)="toggleTransformMenu()"
+          [attr.aria-expanded]="isTransformMenuOpen()"
+          aria-haspopup="true"
+          title="Output Data Transformations"
+          aria-label="Output Data Transformations"
+        >
+          <lucide-icon [img]="transformIcon" size="13" />
+          <span>Transform: {{ transformLabel() }}</span>
+          <lucide-icon [img]="chevronDownIcon" size="12" class="dropdown-chevron" />
+        </button>
+
+        @if (isTransformMenuOpen()) {
           <div class="dropdown-menu dropdown-menu--right animate-scale-in" role="menu">
-            <button type="button" class="dropdown-item" (click)="onFlatten()" role="menuitem">
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.dropdown-item--active]="transformOption() === 'default'"
+              (click)="onSetTransform('default')"
+              role="menuitem"
+            >
+              <span>Default (Original)</span>
+              @if (transformOption() === 'default') { <span class="check-mark">✓</span> }
+            </button>
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.dropdown-item--active]="transformOption() === 'flatten'"
+              (click)="onSetTransform('flatten')"
+              role="menuitem"
+            >
               <span>Flatten Object</span>
+              @if (transformOption() === 'flatten') { <span class="check-mark">✓</span> }
             </button>
-            <button type="button" class="dropdown-item" (click)="onUnflatten()" role="menuitem">
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.dropdown-item--active]="transformOption() === 'unflatten'"
+              (click)="onSetTransform('unflatten')"
+              role="menuitem"
+            >
               <span>Unflatten Object</span>
+              @if (transformOption() === 'unflatten') { <span class="check-mark">✓</span> }
             </button>
-            <button type="button" class="dropdown-item" (click)="onStripNulls()" role="menuitem">
+            <button
+              type="button"
+              class="dropdown-item"
+              [class.dropdown-item--active]="transformOption() === 'stripNulls'"
+              (click)="onSetTransform('stripNulls')"
+              role="menuitem"
+            >
               <span>Strip Null Values</span>
+              @if (transformOption() === 'stripNulls') { <span class="check-mark">✓</span> }
             </button>
           </div>
         }

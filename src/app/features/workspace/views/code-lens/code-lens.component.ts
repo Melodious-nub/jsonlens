@@ -17,7 +17,16 @@ import {
   SlidersHorizontal,
 } from 'lucide-angular';
 import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
-import { IndentOption } from '../../../../core/models/json-lens.model';
+import { IndentOption, JsonValue } from '../../../../core/models/json-lens.model';
+import {
+  flattenJsonObject,
+  sortJsonKeys,
+  stripNullProperties,
+  unflattenJsonObject,
+} from '../../../../shared/utils/json-tree.util';
+
+export type OutputSortOption = 'default' | 'asc' | 'desc';
+export type OutputTransformOption = 'default' | 'flatten' | 'unflatten' | 'stripNulls';
 
 @Component({
   selector: 'app-code-lens',
@@ -43,9 +52,48 @@ export class CodeLensComponent {
 
   readonly isCopied = signal<boolean>(false);
   readonly isIndentMenuOpen = signal<boolean>(false);
-  readonly isToolsMenuOpen = signal<boolean>(false);
+  readonly isSortMenuOpen = signal<boolean>(false);
+  readonly isTransformMenuOpen = signal<boolean>(false);
 
-  readonly formattedJson = computed(() => this.engine.parsedResult().formatted);
+  // Output-only view filters (non-destructive: do NOT mutate input editor)
+  readonly sortOption = signal<OutputSortOption>('default');
+  readonly transformOption = signal<OutputTransformOption>('default');
+
+  readonly formattedJson = computed<string>(() => {
+    const result = this.engine.parsedResult();
+    if (!result.success || result.data === null || result.data === undefined) {
+      return result.formatted;
+    }
+
+    let data: JsonValue = result.data;
+
+    // 1. Apply Output Transform Filter
+    const transform = this.transformOption();
+    if (transform === 'flatten') {
+      data = flattenJsonObject(data);
+    } else if (transform === 'unflatten') {
+      if (typeof data === 'object' && !Array.isArray(data)) {
+        data = unflattenJsonObject(data as Record<string, unknown>);
+      }
+    } else if (transform === 'stripNulls') {
+      data = stripNullProperties(data);
+    }
+
+    // 2. Apply Output Sort Filter
+    const sort = this.sortOption();
+    if (sort === 'asc') {
+      data = sortJsonKeys(data, 'asc');
+    } else if (sort === 'desc') {
+      data = sortJsonKeys(data, 'desc');
+    }
+
+    // 3. Format with Active Indentation
+    if (this.engine.indentOption() === 'minified') {
+      return JSON.stringify(data);
+    }
+    return JSON.stringify(data, null, this.engine.indentValue());
+  });
+
   readonly lineCount = computed(() => {
     const text = this.formattedJson();
     return text ? text.split('\n').length : 0;
@@ -66,14 +114,46 @@ export class CodeLensComponent {
     }
   });
 
+  readonly sortLabel = computed<string>(() => {
+    switch (this.sortOption()) {
+      case 'default':
+        return 'Def';
+      case 'asc':
+        return 'A-Z';
+      case 'desc':
+        return 'Z-A';
+    }
+  });
+
+  readonly transformLabel = computed<string>(() => {
+    switch (this.transformOption()) {
+      case 'default':
+        return 'Def';
+      case 'flatten':
+        return 'Flat';
+      case 'unflatten':
+        return 'Unflat';
+      case 'stripNulls':
+        return 'Strip';
+    }
+  });
+
   toggleIndentMenu(): void {
     this.isIndentMenuOpen.update((v) => !v);
-    this.isToolsMenuOpen.set(false);
+    this.isSortMenuOpen.set(false);
+    this.isTransformMenuOpen.set(false);
   }
 
-  toggleToolsMenu(): void {
-    this.isToolsMenuOpen.update((v) => !v);
+  toggleSortMenu(): void {
+    this.isSortMenuOpen.update((v) => !v);
     this.isIndentMenuOpen.set(false);
+    this.isTransformMenuOpen.set(false);
+  }
+
+  toggleTransformMenu(): void {
+    this.isTransformMenuOpen.update((v) => !v);
+    this.isIndentMenuOpen.set(false);
+    this.isSortMenuOpen.set(false);
   }
 
   onSetIndent(option: IndentOption): void {
@@ -82,44 +162,53 @@ export class CodeLensComponent {
     this.toast.show(`Indentation set to ${option}`, 'info');
   }
 
-  onSortToggle(): void {
-    if (!this.engine.isValid()) {
+  onSetSort(option: OutputSortOption): void {
+    if (option !== 'default' && !this.engine.isValid()) {
       this.toast.show('Cannot sort keys on invalid JSON.', 'error');
+      this.isSortMenuOpen.set(false);
       return;
     }
-    const nextOrder = this.engine.sortOrder() === 'asc' ? 'desc' : 'asc';
-    this.engine.sortKeys(nextOrder);
-    this.toast.show(`Keys sorted ${nextOrder.toUpperCase()}`, 'success');
+
+    this.sortOption.set(option);
+    this.isSortMenuOpen.set(false);
+
+    switch (option) {
+      case 'default':
+        this.toast.show('Output sorting reset to default', 'info');
+        break;
+      case 'asc':
+        this.toast.show('Output keys sorted A-Z', 'success');
+        break;
+      case 'desc':
+        this.toast.show('Output keys sorted Z-A', 'success');
+        break;
+    }
   }
 
-  onFlatten(): void {
-    if (!this.engine.isValid()) {
-      this.toast.show('Cannot flatten invalid JSON.', 'error');
+  onSetTransform(option: OutputTransformOption): void {
+    if (option !== 'default' && !this.engine.isValid()) {
+      this.toast.show('Cannot transform invalid JSON.', 'error');
+      this.isTransformMenuOpen.set(false);
       return;
     }
-    this.engine.flatten();
-    this.toast.show('Flattened to dot-notation', 'success');
-    this.isToolsMenuOpen.set(false);
-  }
 
-  onUnflatten(): void {
-    if (!this.engine.isValid()) {
-      this.toast.show('Cannot unflatten invalid JSON.', 'error');
-      return;
-    }
-    this.engine.unflatten();
-    this.toast.show('Restored nested hierarchy', 'success');
-    this.isToolsMenuOpen.set(false);
-  }
+    this.transformOption.set(option);
+    this.isTransformMenuOpen.set(false);
 
-  onStripNulls(): void {
-    if (!this.engine.isValid()) {
-      this.toast.show('Cannot strip nulls on invalid JSON.', 'error');
-      return;
+    switch (option) {
+      case 'default':
+        this.toast.show('Output transform reset to default', 'info');
+        break;
+      case 'flatten':
+        this.toast.show('Output flattened to dot-notation', 'success');
+        break;
+      case 'unflatten':
+        this.toast.show('Output unflattened to hierarchy', 'success');
+        break;
+      case 'stripNulls':
+        this.toast.show('Output stripped of null properties', 'success');
+        break;
     }
-    this.engine.stripNulls();
-    this.toast.show('Stripped null properties', 'success');
-    this.isToolsMenuOpen.set(false);
   }
 
   async copyToClipboard(): Promise<void> {

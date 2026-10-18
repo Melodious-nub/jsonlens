@@ -20,9 +20,10 @@ describe('CodeLensComponent', () => {
     expect(comp.lineCount()).toBeGreaterThan(0);
   });
 
-  it('should toggle and set indent option', () => {
+  it('should toggle and set indent option without mutating input', () => {
     const fixture = TestBed.createComponent(CodeLensComponent);
     const comp = fixture.componentInstance;
+    const initialInput = comp.engine.rawInput();
 
     expect(comp.isIndentMenuOpen()).toBe(false);
     comp.toggleIndentMenu();
@@ -32,34 +33,75 @@ describe('CodeLensComponent', () => {
     expect(comp.engine.indentOption()).toBe('4-spaces');
     expect(comp.isIndentMenuOpen()).toBe(false);
     expect(comp.indentLabel()).toBe('4sp');
+    expect(comp.engine.rawInput()).toBe(initialInput);
   });
 
-  it('should toggle sort order', () => {
+  it('should change sort option on output without mutating input raw data', () => {
     const fixture = TestBed.createComponent(CodeLensComponent);
     const comp = fixture.componentInstance;
 
-    comp.engine.setInput('{"z": 1, "a": 2}');
-    comp.onSortToggle();
-    expect(comp.engine.sortOrder()).toBe('asc');
-    expect(comp.formattedJson()).toContain('"a": 2');
+    const originalJson = '{\n  "z": 1,\n  "a": 2\n}';
+    comp.engine.setInput(originalJson);
+
+    // Initial default: maintains original input order (z before a)
+    expect(comp.sortOption()).toBe('default');
+    expect(comp.sortLabel()).toBe('Def');
+    const defaultOutput = comp.formattedJson();
+    expect(defaultOutput.indexOf('"z"')).toBeLessThan(defaultOutput.indexOf('"a"'));
+
+    // Ascending: sorts A-Z on output
+    comp.onSetSort('asc');
+    expect(comp.sortOption()).toBe('asc');
+    expect(comp.sortLabel()).toBe('A-Z');
+    const ascOutput = comp.formattedJson();
+    expect(ascOutput.indexOf('"a"')).toBeLessThan(ascOutput.indexOf('"z"'));
+
+    // Descending: sorts Z-A on output
+    comp.onSetSort('desc');
+    expect(comp.sortOption()).toBe('desc');
+    expect(comp.sortLabel()).toBe('Z-A');
+    const descOutput = comp.formattedJson();
+    expect(descOutput.indexOf('"z"')).toBeLessThan(descOutput.indexOf('"a"'));
+
+    // Return to default: restores original key order
+    comp.onSetSort('default');
+    expect(comp.sortOption()).toBe('default');
+    expect(comp.sortLabel()).toBe('Def');
+    const restoredOutput = comp.formattedJson();
+    expect(restoredOutput.indexOf('"z"')).toBeLessThan(restoredOutput.indexOf('"a"'));
+
+    // CRITICAL: input raw data was NEVER altered by sorting
+    expect(comp.engine.rawInput()).toBe(originalJson);
   });
 
-  it('should toggle tools menu and perform transform operations', () => {
+  it('should change transform option on output without mutating input raw data', () => {
     const fixture = TestBed.createComponent(CodeLensComponent);
     const comp = fixture.componentInstance;
 
-    comp.toggleToolsMenu();
-    expect(comp.isToolsMenuOpen()).toBe(true);
+    const originalJson = '{\n  "user": {\n    "name": "Alex",\n    "nullProp": null\n  }\n}';
+    comp.engine.setInput(originalJson);
 
-    comp.engine.setInput('{"user": {"name": "Alex", "nullProp": null}}');
-    comp.onFlatten();
-    expect(comp.engine.rawInput()).toContain('user.name');
+    // 1. Flatten
+    comp.onSetTransform('flatten');
+    expect(comp.transformOption()).toBe('flatten');
+    expect(comp.transformLabel()).toBe('Flat');
+    expect(comp.formattedJson()).toContain('"user.name"');
+    expect(comp.engine.rawInput()).toBe(originalJson);
 
-    comp.onUnflatten();
-    expect(comp.engine.rawInput()).toContain('user');
+    // 2. Strip nulls
+    comp.onSetTransform('stripNulls');
+    expect(comp.transformOption()).toBe('stripNulls');
+    expect(comp.transformLabel()).toBe('Strip');
+    expect(comp.formattedJson()).not.toContain('nullProp');
+    expect(comp.engine.rawInput()).toBe(originalJson);
 
-    comp.onStripNulls();
-    expect(comp.engine.rawInput()).not.toContain('nullProp');
+    // 3. Reset to default: restores original structure
+    comp.onSetTransform('default');
+    expect(comp.transformOption()).toBe('default');
+    expect(comp.transformLabel()).toBe('Def');
+    expect(comp.formattedJson()).toContain('"nullProp": null');
+    expect(comp.formattedJson()).toContain('"name": "Alex"');
+    expect(comp.engine.rawInput()).toBe(originalJson);
   });
 
   it('should copy formatted JSON to clipboard', async () => {
