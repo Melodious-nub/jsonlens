@@ -1,7 +1,4 @@
-<section class="workspace">
-  <!-- Top Action Toolbar -->
-  <app-toolbar />
-
+<section class="workspace" [class.workspace--fullscreen]="isFullscreen()">
   <!-- Split Screen Panels Area -->
   <div
     #panelsContainer
@@ -16,26 +13,51 @@
       (fileDropped)="onFileDropped($event)"
     >
       <div class="pane-header">
-        <div class="pane-title">
-          <span class="pane-title__dot"></span>
-          <span class="pane-title__text">JSON Input</span>
-          <span class="pane-title__hint">
-            <lucide-icon [img]="uploadIcon" size="11" />
-            <span>Drop file to load</span>
-          </span>
-        </div>
-
-        <div class="pane-actions">
+        <div class="pane-header__group">
           <button
             type="button"
-            class="pane-btn"
-            (click)="engine.loadSample()"
-            title="Reset to sample JSON"
-            aria-label="Reset to sample JSON"
+            class="header-btn header-btn--primary focus-ring"
+            (click)="onFormat()"
+            title="Prettify and format JSON"
+            aria-label="Format JSON"
           >
-            <lucide-icon [img]="resetIcon" size="13" />
-            <span>Reset</span>
+            <lucide-icon [img]="formatIcon" size="13" />
+            <span>Format</span>
           </button>
+
+          <button
+            type="button"
+            class="header-btn header-btn--default focus-ring"
+            (click)="onMinify()"
+            title="Compress to single-line minified JSON"
+            aria-label="Minify JSON"
+          >
+            <lucide-icon [img]="minifyIcon" size="13" />
+            <span>Minify</span>
+          </button>
+
+          <button
+            type="button"
+            class="header-btn focus-ring"
+            [class.header-btn--repair-active]="!engine.isValid()"
+            [class.header-btn--default]="engine.isValid()"
+            (click)="onAutoRepair()"
+            title="Auto-repair syntax errors (trailing commas, quotes, unclosed brackets)"
+            aria-label="Auto-Fix JSON Syntax Errors"
+          >
+            <lucide-icon [img]="fixIcon" size="13" />
+            <span>Auto-Fix</span>
+          </button>
+        </div>
+
+        <div class="pane-header__badge">
+          <span
+            class="input-status-dot"
+            [class.input-status-dot--valid]="engine.isValid()"
+            [class.input-status-dot--invalid]="!engine.isValid()"
+            [title]="engine.isValid() ? 'Valid JSON' : 'Syntax Error Detected'"
+          ></span>
+          <span class="input-status-label">Input</span>
         </div>
       </div>
 
@@ -49,13 +71,13 @@
       </div>
     </div>
 
-    <!-- Resizable Split Handle -->
+    <!-- Middle Command Rail & Resizable Splitter -->
     <div
       class="workspace__divider"
       [class.workspace__divider--active]="isDragging()"
-      (pointerdown)="onDividerPointerDown($event)"
-      (dblclick)="resetSplit()"
-      title="Drag to resize, double-click to center (50/50)"
+      (pointerdown)="onRailPointerDown($event)"
+      (dblclick)="onRailDblClick($event)"
+      title="Middle actions (drag divider to resize, double-click to center)"
       role="separator"
       aria-orientation="vertical"
       [attr.aria-valuenow]="splitPercent()"
@@ -63,7 +85,126 @@
       aria-valuemax="80"
       tabindex="0"
     >
-      <div class="divider-handle"></div>
+      <!-- Hidden File Input for Open -->
+      <input
+        #fileInput
+        type="file"
+        accept=".json,application/json"
+        class="sr-only"
+        (change)="onFileSelected($event)"
+        aria-label="Upload JSON file"
+      />
+
+      <!-- Open File Button -->
+      <button
+        type="button"
+        class="rail-btn focus-ring"
+        (click)="onTriggerFileInput()"
+        title="Open .json file"
+        aria-label="Open .json file"
+      >
+        <lucide-icon [img]="folderOpenIcon" size="14" />
+      </button>
+
+      <!-- Load Sample Button -->
+      <button
+        type="button"
+        class="rail-btn focus-ring"
+        (click)="onLoadSample()"
+        title="Load Sample JSON"
+        aria-label="Load Sample JSON"
+      >
+        <lucide-icon [img]="sparklesIcon" size="14" />
+      </button>
+
+      <div class="rail-divider"></div>
+
+      <!-- Export Dropdown -->
+      <div class="dropdown-wrapper rail-dropdown" appClickOutside (clickOutside)="isExportMenuOpen.set(false)">
+        <button
+          type="button"
+          class="rail-btn focus-ring"
+          (click)="toggleExportMenu()"
+          [attr.aria-expanded]="isExportMenuOpen()"
+          aria-haspopup="true"
+          title="Export JSON"
+          aria-label="Export JSON"
+        >
+          <lucide-icon [img]="exportIcon" size="14" />
+        </button>
+
+        @if (isExportMenuOpen()) {
+          <div class="dropdown-menu rail-menu animate-scale-in" role="menu">
+            <button type="button" class="dropdown-item" (click)="onExport('json')" role="menuitem">
+              <span>Download .json</span>
+            </button>
+            <button type="button" class="dropdown-item" (click)="onExport('pdf')" role="menuitem">
+              <span>Download .pdf (Report)</span>
+            </button>
+            <button type="button" class="dropdown-item" (click)="onExport('csv')" role="menuitem">
+              <span>Download .csv</span>
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Share Link -->
+      <button
+        type="button"
+        class="rail-btn focus-ring"
+        (click)="onShare()"
+        title="Share JSON Link"
+        aria-label="Share via URL"
+      >
+        <lucide-icon [img]="shareIcon" size="14" />
+      </button>
+
+      <div class="rail-divider"></div>
+
+      <!-- Clear Button -->
+      <button
+        type="button"
+        class="rail-btn rail-btn--danger focus-ring"
+        (click)="onClear()"
+        title="Clear Editor"
+        aria-label="Clear all content"
+      >
+        <lucide-icon [img]="trashIcon" size="14" />
+      </button>
+
+      <!-- Center Spacer / Resize Grip -->
+      <div class="rail-spacer"></div>
+
+      <div class="rail-grip" title="Drag to resize, double-click to center (50/50)">
+        <span class="rail-grip-line"></span>
+      </div>
+
+      <div class="rail-spacer"></div>
+
+      <div class="rail-divider"></div>
+
+      <!-- Center Split Reset Button -->
+      <button
+        type="button"
+        class="rail-btn focus-ring"
+        [class.rail-btn--active]="!isSplitCentered()"
+        (click)="resetSplit()"
+        [title]="isSplitCentered() ? 'Split is Centered (50/50)' : 'Reset Split to Center (50/50) — Currently ' + splitPercent() + '/' + (100 - splitPercent())"
+        aria-label="Reset split to center (50/50)"
+      >
+        <lucide-icon [img]="centerSplitIcon" size="14" />
+      </button>
+
+      <!-- Fullscreen Toggle Button -->
+      <button
+        type="button"
+        class="rail-btn focus-ring"
+        (click)="toggleFullscreen()"
+        [title]="isFullscreen() ? 'Exit Fullscreen (Esc)' : 'Fullscreen Editor'"
+        [aria-label]="isFullscreen() ? 'Exit Fullscreen' : 'Fullscreen Editor'"
+      >
+        <lucide-icon [img]="isFullscreen() ? minimizeFullscreenIcon : maximizeIcon" size="14" />
+      </button>
     </div>
 
     <!-- Right Pane: Lens Output Views -->

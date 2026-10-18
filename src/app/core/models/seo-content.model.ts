@@ -70,9 +70,9 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
           'Yes. JsonLens utilizes background Web Workers for parsing payloads over 2 MB to keep the user interface smooth and responsive.',
       },
       {
-        question: 'What keyboard shortcuts are available?',
+        question: 'What quick controls are available?',
         answer:
-          'Press Ctrl+K (or Cmd+K) to open the Command Palette, or use the toolbar buttons to format, minify, sort, and auto-repair instantly.',
+          'Use the input header buttons to Format, Minify, or Auto-Fix instantly, the center rail to Open, Export, Share, Sample, Clear, or Fullscreen, and the Code view to customize Indent, Sort, or Transform.',
       },
     ],
   },
@@ -154,7 +154,7 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
         description:
           'Whitespace characters (spaces, tabs, newlines) can account for 20% to 50% of the overall size of formatted JSON documents. Minifying JSON payloads decreases transfer latency over HTTP and reduces memory consumption in caching layers.',
         bullets: [
-          'Instant 1-click minification via toolbar button or Ctrl+K command.',
+          'Instant 1-click minification via the input editor header button.',
           'Byte-size before and after tracking displayed in the live status bar.',
           'Copy minified payload or export as compressed .json file directly.',
         ],

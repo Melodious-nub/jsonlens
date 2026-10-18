@@ -12,15 +12,96 @@
     </div>
 
     <div class="code-lens__actions">
+      <!-- Indent Dropdown -->
+      <div class="dropdown-wrapper" appClickOutside (clickOutside)="isIndentMenuOpen.set(false)">
+        <button
+          type="button"
+          class="action-btn action-btn--dropdown focus-ring"
+          (click)="toggleIndentMenu()"
+          [attr.aria-expanded]="isIndentMenuOpen()"
+          aria-haspopup="true"
+          title="Set Indentation"
+          aria-label="Set Indentation"
+        >
+          <span>Indent: {{ indentLabel() }}</span>
+          <lucide-icon [img]="chevronDownIcon" size="12" class="dropdown-chevron" />
+        </button>
+
+        @if (isIndentMenuOpen()) {
+          <div class="dropdown-menu animate-scale-in" role="menu">
+            <button type="button" class="dropdown-item" (click)="onSetIndent('2-spaces')" role="menuitem">
+              <span>2 Spaces</span>
+              @if (engine.indentOption() === '2-spaces') { <span class="check-mark">✓</span> }
+            </button>
+            <button type="button" class="dropdown-item" (click)="onSetIndent('4-spaces')" role="menuitem">
+              <span>4 Spaces</span>
+              @if (engine.indentOption() === '4-spaces') { <span class="check-mark">✓</span> }
+            </button>
+            <button type="button" class="dropdown-item" (click)="onSetIndent('tabs')" role="menuitem">
+              <span>Tabs</span>
+              @if (engine.indentOption() === 'tabs') { <span class="check-mark">✓</span> }
+            </button>
+            <button type="button" class="dropdown-item" (click)="onSetIndent('minified')" role="menuitem">
+              <span>Minified</span>
+              @if (engine.indentOption() === 'minified') { <span class="check-mark">✓</span> }
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Sort Toggle -->
       <button
         type="button"
-        class="action-btn"
+        class="action-btn focus-ring"
+        (click)="onSortToggle()"
+        [title]="engine.sortOrder() === 'asc' ? 'Sort Keys Z-A' : 'Sort Keys A-Z'"
+        aria-label="Sort JSON keys alphabetically"
+      >
+        <lucide-icon [img]="sortIcon" size="13" />
+        <span>Sort {{ engine.sortOrder() === 'asc' ? 'Z-A' : 'A-Z' }}</span>
+      </button>
+
+      <!-- Transform Dropdown -->
+      <div class="dropdown-wrapper" appClickOutside (clickOutside)="isToolsMenuOpen.set(false)">
+        <button
+          type="button"
+          class="action-btn action-btn--dropdown focus-ring"
+          (click)="toggleToolsMenu()"
+          [attr.aria-expanded]="isToolsMenuOpen()"
+          aria-haspopup="true"
+          title="Data Transformations"
+          aria-label="Data Transformations"
+        >
+          <lucide-icon [img]="transformIcon" size="13" />
+          <span>Transform</span>
+          <lucide-icon [img]="chevronDownIcon" size="12" class="dropdown-chevron" />
+        </button>
+
+        @if (isToolsMenuOpen()) {
+          <div class="dropdown-menu dropdown-menu--right animate-scale-in" role="menu">
+            <button type="button" class="dropdown-item" (click)="onFlatten()" role="menuitem">
+              <span>Flatten Object</span>
+            </button>
+            <button type="button" class="dropdown-item" (click)="onUnflatten()" role="menuitem">
+              <span>Unflatten Object</span>
+            </button>
+            <button type="button" class="dropdown-item" (click)="onStripNulls()" role="menuitem">
+              <span>Strip Null Values</span>
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Icon-Only Copy Button -->
+      <button
+        type="button"
+        class="action-icon-btn focus-ring"
+        [class.action-icon-btn--copied]="isCopied()"
         (click)="copyToClipboard()"
-        title="Copy Formatted JSON"
+        [title]="isCopied() ? 'Copied to Clipboard!' : 'Copy Formatted JSON'"
         aria-label="Copy Formatted JSON"
       >
-        <lucide-icon [img]="copyIcon" size="14" />
-        <span>Copy JSON</span>
+        <lucide-icon [img]="isCopied() ? checkIcon : copyIcon" size="14" />
       </button>
     </div>
   </div>

@@ -2,6 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   effect,
   ElementRef,
@@ -11,14 +12,16 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { LensTab } from '../../core/models/json-lens.model';
+import { ExportFormat, LensTab } from '../../core/models/json-lens.model';
 import { JsonEngineService } from '../../core/services/json-engine.service';
 import { ToastService } from '../../core/services/toast.service';
 import { StorageService } from '../../core/services/storage.service';
-import { ToolbarComponent } from '../../shared/components/toolbar/toolbar.component';
+import { ExportService } from '../../core/services/export.service';
+import { UrlShareService } from '../../core/services/url-share.service';
 import { StatusBarComponent } from '../../shared/components/status-bar/status-bar.component';
 import { MonacoEditorComponent } from '../../shared/components/monaco-wrapper/monaco-editor.component';
 import { DropZoneDirective } from '../../shared/directives/drop-zone.directive';
+import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive';
 import { CodeLensComponent } from './views/code-lens/code-lens.component';
 import { TreeLensComponent } from './views/tree-lens/tree-lens.component';
 import { TypeLensComponent } from './views/type-lens/type-lens.component';
@@ -31,16 +34,26 @@ import {
   GitCompare,
   Upload,
   RotateCcw,
+  AlignLeft,
+  Minimize2,
+  Wand2,
+  FolderOpen,
+  Sparkles,
+  Download,
+  Share2,
+  Trash2,
+  Maximize2,
+  Columns2,
 } from 'lucide-angular';
 
 @Component({
   selector: 'app-workspace',
   standalone: true,
   imports: [
-    ToolbarComponent,
     StatusBarComponent,
     MonacoEditorComponent,
     DropZoneDirective,
+    ClickOutsideDirective,
     CodeLensComponent,
     TreeLensComponent,
     TypeLensComponent,
@@ -55,6 +68,8 @@ export class WorkspaceComponent {
   readonly engine = inject(JsonEngineService);
   private readonly toast = inject(ToastService);
   private readonly storage = inject(StorageService);
+  private readonly exportService = inject(ExportService);
+  private readonly urlShareService = inject(UrlShareService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly destroyRef = inject(DestroyRef);
@@ -66,15 +81,30 @@ export class WorkspaceComponent {
   readonly diffIcon = GitCompare;
   readonly uploadIcon = Upload;
   readonly resetIcon = RotateCcw;
+  readonly formatIcon = AlignLeft;
+  readonly minifyIcon = Minimize2;
+  readonly fixIcon = Wand2;
+  readonly folderOpenIcon = FolderOpen;
+  readonly sparklesIcon = Sparkles;
+  readonly exportIcon = Download;
+  readonly shareIcon = Share2;
+  readonly trashIcon = Trash2;
+  readonly maximizeIcon = Maximize2;
+  readonly minimizeFullscreenIcon = Minimize2;
+  readonly centerSplitIcon = Columns2;
 
   // Inputs & State
   readonly defaultLens = input<LensTab>('code');
   readonly activeLens = signal<LensTab>('code');
   readonly splitPercent = signal<number>(50); // percentage 20 to 80
+  readonly isSplitCentered = computed(() => this.splitPercent() === 50);
   readonly isDragging = signal<boolean>(false);
+  readonly isExportMenuOpen = signal<boolean>(false);
+  readonly isFullscreen = signal<boolean>(false);
 
   // References
   readonly containerRef = viewChild<ElementRef<HTMLDivElement>>('panelsContainer');
+  readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
   private moveListener: ((e: PointerEvent) => void) | null = null;
   private upListener: ((e: PointerEvent) => void) | null = null;
@@ -83,6 +113,14 @@ export class WorkspaceComponent {
     if (this.isBrowser) {
       const savedSplit = this.storage.getItem<number>('jsonlens_split_percent', 50);
       this.splitPercent.set(savedSplit);
+
+      const onKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape' && this.isFullscreen()) {
+          this.toggleFullscreen();
+        }
+      };
+      window.addEventListener('keydown', onKeyDown);
+      this.destroyRef.onDestroy(() => window.removeEventListener('keydown', onKeyDown));
     }
 
     effect(() => {
@@ -112,11 +150,162 @@ export class WorkspaceComponent {
     this.toast.show('JSON file loaded into editor', 'success');
   }
 
+  onFormat(): void {
+    if (!this.engine.isValid()) {
+      this.toast.show('Cannot format invalid JSON. Try Auto-Fix first.', 'error');
+      return;
+    }
+    this.engine.format();
+    this.toast.show('Formatted successfully', 'success');
+  }
+
+  onMinify(): void {
+    if (!this.engine.isValid()) {
+      this.toast.show('Cannot minify invalid JSON. Try Auto-Fix first.', 'error');
+      return;
+    }
+    this.engine.minify();
+    this.toast.show('Minified to single-line JSON', 'success');
+  }
+
+  onAutoRepair(): void {
+    const repaired = this.engine.autoRepair();
+    if (repaired) {
+      this.toast.show('JSON syntax automatically repaired!', 'success');
+    } else {
+      if (this.engine.isValid()) {
+        this.toast.show('JSON is already valid, no repairs needed.', 'info');
+      } else {
+        this.toast.show('Could not automatically repair syntax error.', 'error');
+      }
+    }
+  }
+
+  toggleExportMenu(): void {
+    this.isExportMenuOpen.update((v) => !v);
+  }
+
+  onTriggerFileInput(): void {
+    this.fileInput()?.nativeElement.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        this.engine.setInput(reader.result);
+        this.toast.show(`Loaded ${file.name}`, 'success');
+      }
+    };
+    reader.readAsText(file);
+    input.value = '';
+  }
+
+  onLoadSample(): void {
+    this.engine.loadSample();
+    this.toast.show('Loaded sample JSON', 'info');
+  }
+
+  onClear(): void {
+    this.engine.clear();
+    this.toast.show('Cleared editor', 'info');
+  }
+
+  onShare(): void {
+    const json = this.engine.rawInput();
+    if (!json || json.trim() === '') {
+      this.toast.show('Enter JSON before generating a share link', 'info');
+      return;
+    }
+
+    const shareUrl = this.urlShareService.createShareUrl(json);
+    this.exportService.copyToClipboard(shareUrl).then((success) => {
+      if (success) {
+        this.toast.show('Shareable link copied to clipboard!', 'success');
+      } else {
+        this.toast.show('Failed to copy share link', 'error');
+      }
+    });
+  }
+
+  async onExport(format: ExportFormat): Promise<void> {
+    const raw = this.engine.rawInput();
+    const parsed = this.engine.parsedResult();
+
+    if (!raw.trim()) {
+      this.toast.show('No JSON content to export', 'info');
+      return;
+    }
+
+    switch (format) {
+      case 'json':
+        this.exportService.downloadJson('document.json', parsed.formatted || raw);
+        this.toast.show('Downloaded document.json', 'success');
+        break;
+      case 'pdf':
+        this.toast.show('Generating PDF report...', 'info');
+        await this.exportService.downloadPdf(
+          'jsonlens-report.pdf',
+          parsed.formatted || raw,
+          this.engine.jsonStats(),
+        );
+        this.toast.show('Downloaded jsonlens-report.pdf', 'success');
+        break;
+      case 'csv':
+        if (!parsed.data) {
+          this.toast.show('Cannot export invalid JSON to CSV', 'error');
+          return;
+        }
+        this.exportService.downloadCsv('data.csv', parsed.data);
+        this.toast.show('Downloaded data.csv', 'success');
+        break;
+      case 'ts':
+        break;
+    }
+
+    this.isExportMenuOpen.set(false);
+  }
+
+  toggleFullscreen(): void {
+    const next = !this.isFullscreen();
+    this.isFullscreen.set(next);
+    if (next) {
+      this.toast.show('Entered Fullscreen (Press Esc to exit)', 'info');
+    } else {
+      this.toast.show('Exited Fullscreen', 'info');
+    }
+  }
+
   resetSplit(): void {
+    if (this.splitPercent() === 50) {
+      this.toast.show('Split is already centered (50/50)', 'info');
+      return;
+    }
     this.splitPercent.set(50);
     if (this.isBrowser) {
       this.storage.setItem('jsonlens_split_percent', 50);
     }
+    this.toast.show('Split reset to center (50/50)', 'success');
+  }
+
+  onRailPointerDown(event: PointerEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (target && target.closest('.rail-btn, .dropdown-menu')) {
+      return;
+    }
+    this.onDividerPointerDown(event);
+  }
+
+  onRailDblClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (target && target.closest('.rail-btn, .dropdown-menu')) {
+      return;
+    }
+    this.resetSplit();
   }
 
   onDividerPointerDown(event: PointerEvent): void {
