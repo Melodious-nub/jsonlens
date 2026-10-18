@@ -15,12 +15,15 @@
     user-select: auto;
 
     &.is-resizing {
-      user-select: none;
-      cursor: col-resize;
+      user-select: none !important;
+      cursor: col-resize !important;
 
       iframe,
-      .monaco-editor {
-        pointer-events: none;
+      .monaco-editor,
+      .pane-header,
+      .lens-nav,
+      .pane-content {
+        pointer-events: none !important;
       }
     }
   }
@@ -28,7 +31,7 @@
   &__pane {
     display: flex;
     flex-direction: column;
-    min-width: 250px;
+    min-width: 0;
     height: 100%;
     overflow: hidden;
     position: relative;
@@ -36,11 +39,13 @@
     &--input {
       background: var(--surface-950);
       border-right: none;
+      min-width: 340px;
     }
 
     &--output {
       background: var(--surface-950);
       flex-grow: 1;
+      min-width: 360px;
     }
   }
 
@@ -53,12 +58,15 @@
     border-bottom: 1px solid var(--border-default);
     min-height: 38px;
     gap: var(--space-2);
+    flex-wrap: nowrap;
+    white-space: nowrap;
 
     &__group {
       display: flex;
       align-items: center;
       gap: 6px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      flex-shrink: 0;
     }
 
     &__badge {
@@ -67,13 +75,25 @@
       gap: 6px;
       font-size: 0.68rem;
       font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
       letter-spacing: 0.05em;
-      padding: 2px 7px;
+      padding: 2px 8px;
       background: var(--surface-800);
       border-radius: var(--radius-xs);
       border: 1px solid var(--border-subtle);
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+      white-space: nowrap;
+
+      &--valid {
+        color: var(--accent-valid);
+        border-color: rgba(52, 211, 153, 0.3);
+      }
+
+      &--invalid {
+        color: var(--accent-error);
+        background: var(--accent-error-bg);
+        border-color: rgba(244, 63, 94, 0.35);
+      }
     }
   }
 
@@ -163,6 +183,13 @@
     min-height: 0;
     position: relative;
     overflow: hidden;
+
+    > * {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+    }
   }
 
   /* Resizable Splitter & Slim Command Rail */
@@ -180,8 +207,22 @@
     position: relative;
     z-index: 25;
     user-select: none;
-    cursor: col-resize;
-    transition: background var(--transition-fast);
+    cursor: default;
+    transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+    &--active {
+      cursor: col-resize;
+      background: var(--surface-850);
+      border-left-color: rgba(99, 102, 241, 0.45);
+      border-right-color: rgba(99, 102, 241, 0.45);
+      box-shadow: 0 0 16px rgba(99, 102, 241, 0.18);
+
+      .rail-grip-line {
+        background: var(--accent-primary);
+        height: 28px;
+        box-shadow: 0 0 8px var(--accent-primary);
+      }
+    }
 
     &:focus-visible {
       outline: 2px solid var(--border-focus);
@@ -247,19 +288,34 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 6px 0;
+      padding: 8px 0;
       cursor: col-resize;
+      transition: all var(--transition-fast);
+      touch-action: none;
+
+      &:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: -2px;
+      }
 
       .rail-grip-line {
         width: 3px;
         height: 20px;
         background: var(--border-strong);
         border-radius: var(--radius-full);
-        transition: background var(--transition-fast);
+        transition: all var(--transition-fast);
+        pointer-events: none;
       }
 
       &:hover .rail-grip-line {
         background: var(--accent-primary);
+        height: 24px;
+      }
+
+      &:active .rail-grip-line {
+        background: var(--accent-primary);
+        height: 28px;
+        box-shadow: 0 0 8px var(--accent-primary);
       }
     }
 
@@ -313,6 +369,14 @@
     min-height: 38px;
     padding: 0 var(--space-2);
     gap: 2px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
     .lens-tab {
       display: inline-flex;
@@ -327,6 +391,8 @@
       font-weight: 500;
       cursor: pointer;
       transition: all var(--transition-fast);
+      flex-shrink: 0;
+      white-space: nowrap;
 
       &:hover {
         color: var(--text-primary);
@@ -365,6 +431,7 @@
 
     &__pane {
       width: 100% !important;
+      min-width: 0 !important;
       flex-basis: auto !important;
       min-height: 380px;
     }

@@ -12,12 +12,10 @@ import {
   LucideAngularModule,
   Copy,
   Check,
-  FileCode,
   ChevronDown,
   ArrowUpDown,
   SlidersHorizontal,
 } from 'lucide-angular';
-import { FileSizePipe } from '../../../../shared/pipes/file-size.pipe';
 import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
 import { IndentOption } from '../../../../core/models/json-lens.model';
 
@@ -27,7 +25,6 @@ import { IndentOption } from '../../../../core/models/json-lens.model';
   imports: [
     MonacoEditorComponent,
     LucideAngularModule,
-    FileSizePipe,
     ClickOutsideDirective,
   ],
   templateUrl: './code-lens.component.html',
@@ -40,7 +37,6 @@ export class CodeLensComponent {
 
   readonly copyIcon = Copy;
   readonly checkIcon = Check;
-  readonly fileCodeIcon = FileCode;
   readonly chevronDownIcon = ChevronDown;
   readonly sortIcon = ArrowUpDown;
   readonly transformIcon = SlidersHorizontal;

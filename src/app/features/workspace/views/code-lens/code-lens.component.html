@@ -1,16 +1,5 @@
 <div class="code-lens">
   <div class="code-lens__header">
-    <div class="code-lens__meta">
-      <lucide-icon [img]="fileCodeIcon" class="meta-icon" size="14" />
-      <span class="meta-pill">{{ lineCount() }} lines</span>
-      <span class="meta-pill">{{ engine.jsonStats().byteSize | fileSize }}</span>
-      @if (engine.indentOption() === 'minified') {
-        <span class="meta-pill meta-pill--highlight">Minified</span>
-      } @else {
-        <span class="meta-pill">{{ engine.indentOption() }}</span>
-      }
-    </div>
-
     <div class="code-lens__actions">
       <!-- Indent Dropdown -->
       <div class="dropdown-wrapper" appClickOutside (clickOutside)="isIndentMenuOpen.set(false)">

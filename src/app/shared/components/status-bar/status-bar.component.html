@@ -1,33 +1,5 @@
 <footer class="status-bar" role="status" aria-label="JSON Document Status and Statistics">
-  <!-- Left Side: Validation Status & Error Coordinates -->
-  <div class="status-bar__section">
-    @if (engine.isValid()) {
-      <div class="status-badge status-badge--valid">
-        <span class="status-dot status-dot--valid" aria-hidden="true"></span>
-        <span class="status-text">Valid JSON</span>
-      </div>
-    } @else {
-      <div class="status-badge status-badge--invalid" [title]="engine.jsonError()?.message || 'Syntax Error'">
-        <span class="status-dot status-dot--invalid" aria-hidden="true"></span>
-        <span class="status-text">Invalid JSON</span>
-        @if (engine.jsonError(); as err) {
-          <span class="error-coords">Ln {{ err.line }}, Col {{ err.column }}</span>
-          <span class="error-msg truncate">{{ err.message }}</span>
-        }
-      </div>
-    }
-
-    @if (engine.isProcessing()) {
-      <div class="worker-badge animate-fade-in" title="Processing heavy payload via background Web Worker">
-        <svg class="worker-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <circle cx="12" cy="12" r="10" stroke-width="3" stroke-dasharray="32" stroke-linecap="round" />
-        </svg>
-        <span>Worker Active</span>
-      </div>
-    }
-  </div>
-
-  <!-- Right Side: Payload Metrics -->
+  <!-- Left Side: Global Payload Metrics -->
   <div class="status-bar__section status-bar__metrics">
     <div class="metric-item" title="Uncompressed payload size">
       <span class="metric-label">Size:</span>
@@ -61,5 +33,60 @@
       <span class="metric-label">Arrays:</span>
       <span class="metric-value">{{ engine.jsonStats().arrayCount }}</span>
     </div>
+
+    @if (engine.isProcessing()) {
+      <div class="metric-divider" aria-hidden="true"></div>
+      <div class="worker-badge animate-fade-in" title="Processing heavy payload via background Web Worker">
+        <svg class="worker-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="10" stroke-width="3" stroke-dasharray="32" stroke-linecap="round" />
+        </svg>
+        <span>Worker Active</span>
+      </div>
+    }
+  </div>
+
+  <!-- Right Side: Contextual Lens Metrics -->
+  <div class="status-bar__section status-bar__lens-metrics">
+    @switch (activeLens()) {
+      @case ('code') {
+        <div class="lens-meta-group">
+          <span class="meta-pill">{{ lineCount() }} lines</span>
+          <span class="meta-divider" aria-hidden="true">|</span>
+          <span class="meta-pill">{{ engine.jsonStats().byteSize | fileSize }}</span>
+          <span class="meta-divider" aria-hidden="true">|</span>
+          <span class="meta-pill">{{ engine.indentOption() }}</span>
+        </div>
+      }
+      @case ('tree') {
+        <div class="lens-meta-group">
+          <span class="meta-pill">{{ engine.jsonStats().keyCount }} keys</span>
+          <span class="meta-divider" aria-hidden="true">|</span>
+          <span class="meta-pill">depth {{ engine.jsonStats().maxDepth }}</span>
+        </div>
+      }
+      @case ('diff') {
+        <div class="diff-summary-badges">
+          <span class="diff-badge diff-badge--added">+{{ diff.diffSummary().added }} added</span>
+          <span class="diff-badge diff-badge--removed">-{{ diff.diffSummary().removed }} removed</span>
+          <span class="diff-badge diff-badge--modified">~{{ diff.diffSummary().modified }} modified</span>
+          <span class="diff-badge diff-badge--unchanged">{{ diff.diffSummary().unchanged }} unchanged</span>
+        </div>
+      }
+      @case ('type') {
+        <div class="lens-meta-group">
+          @if (generatedTypesCode()) {
+            <span class="meta-pill">{{ generatedTypeLines() }} lines</span>
+            <span class="meta-divider" aria-hidden="true">|</span>
+            <span class="meta-pill">{{ generatedTypeBytes() | fileSize }}</span>
+            <span class="meta-divider" aria-hidden="true">|</span>
+            <span class="meta-pill">{{ typeTargetLabel() }}</span>
+          } @else {
+            <span class="meta-pill">{{ typeTargetLabel() }}</span>
+            <span class="meta-divider" aria-hidden="true">|</span>
+            <span class="meta-pill">0 lines</span>
+          }
+        </div>
+      }
+    }
   </div>
 </footer>

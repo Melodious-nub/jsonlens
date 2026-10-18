@@ -12,6 +12,7 @@ describe('TypeLensComponent', () => {
       imports: [TypeLensComponent],
       providers: [JsonEngineService, TypeGenService, ToastService, ExportService],
     }).compileComponents();
+    TestBed.inject(TypeGenService).setTarget('typescript');
   });
 
   it('should instantiate and generate typescript code by default', () => {
@@ -36,7 +37,16 @@ describe('TypeLensComponent', () => {
     const comp = fixture.componentInstance;
     comp.setTarget('zod');
     expect(comp.selectedTarget()).toBe('zod');
+    expect(comp.targetLabel()).toBe('Zod Schemas');
     expect(comp.monacoLanguage()).toBe('typescript');
     expect(comp.generatedCode()).toContain('z.object');
+  });
+
+  it('should toggle dropdown open state', () => {
+    const fixture = TestBed.createComponent(TypeLensComponent);
+    const comp = fixture.componentInstance;
+    expect(comp.isDropdownOpen()).toBe(false);
+    comp.isDropdownOpen.set(true);
+    expect(comp.isDropdownOpen()).toBe(true);
   });
 });

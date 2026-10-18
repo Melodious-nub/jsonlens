@@ -57,7 +57,12 @@ export interface DiffItem {
   readonly newValue?: unknown;
   readonly line?: number;
 }
-
+export interface DiffSummary {
+  readonly added: number;
+  readonly removed: number;
+  readonly modified: number;
+  readonly unchanged: number;
+}
 export interface RouteMetadata {
   readonly title: string;
   readonly description: string;

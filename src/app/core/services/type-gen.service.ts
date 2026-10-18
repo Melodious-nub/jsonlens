@@ -13,7 +13,7 @@ export class TypeGenService {
   }
 
   generate(target: TypeGenTarget, json: JsonValue, rootName = 'Root'): string {
-    if (!json) {
+    if (json === null || json === undefined) {
       return '';
     }
 

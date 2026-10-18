@@ -3,12 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { DiffLensComponent } from './diff-lens.component';
 import { JsonEngineService } from '../../../../core/services/json-engine.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { DiffService } from '../../../../core/services/diff.service';
 
 describe('DiffLensComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DiffLensComponent],
-      providers: [JsonEngineService, ToastService],
+      providers: [JsonEngineService, ToastService, DiffService],
     }).compileComponents();
   });
 

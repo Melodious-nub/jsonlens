@@ -11,12 +11,25 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { ExportService } from '../../../../core/services/export.service';
 import { TypeGenTarget } from '../../../../core/models/json-lens.model';
 import { MonacoEditorComponent } from '../../../../shared/components/monaco-wrapper/monaco-editor.component';
-import { LucideAngularModule, Copy, Download, Code2, AlertCircle } from 'lucide-angular';
+import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
+import {
+  LucideAngularModule,
+  Copy,
+  Check,
+  Download,
+  Code2,
+  AlertCircle,
+  ChevronDown,
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-type-lens',
   standalone: true,
-  imports: [MonacoEditorComponent, LucideAngularModule],
+  imports: [
+    MonacoEditorComponent,
+    LucideAngularModule,
+    ClickOutsideDirective,
+  ],
   templateUrl: './type-lens.component.html',
   styleUrl: './type-lens.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,18 +41,35 @@ export class TypeLensComponent {
   private readonly exporter = inject(ExportService);
 
   readonly copyIcon = Copy;
+  readonly checkIcon = Check;
   readonly downloadIcon = Download;
   readonly codeIcon = Code2;
   readonly alertIcon = AlertCircle;
+  readonly chevronDownIcon = ChevronDown;
 
+  readonly isDropdownOpen = signal<boolean>(false);
+  readonly isCopied = signal<boolean>(false);
   readonly rootName = signal<string>('Root');
-  readonly selectedTarget = signal<TypeGenTarget>('typescript');
+  readonly selectedTarget = computed<TypeGenTarget>(() => this.typeGen.currentTarget());
+
+  readonly targetLabel = computed(() => {
+    switch (this.selectedTarget()) {
+      case 'typescript':
+        return 'TypeScript Interfaces';
+      case 'zod':
+        return 'Zod Schemas';
+      case 'go':
+        return 'Go Structs';
+      default:
+        return this.selectedTarget();
+    }
+  });
 
   readonly isValid = computed(() => this.engine.isValid());
 
   readonly generatedCode = computed<string>(() => {
     const data = this.engine.parsedResult().data;
-    if (!data) {
+    if (data === null || data === undefined) {
       return '';
     }
     const name = this.rootName().trim() || 'Root';
@@ -51,7 +81,6 @@ export class TypeLensComponent {
   });
 
   setTarget(target: TypeGenTarget): void {
-    this.selectedTarget.set(target);
     this.typeGen.setTarget(target);
   }
 
@@ -69,10 +98,12 @@ export class TypeLensComponent {
 
     try {
       await navigator.clipboard.writeText(code);
+      this.isCopied.set(true);
       this.toast.show(
         `Copied ${this.selectedTarget().toUpperCase()} types to clipboard`,
         'success',
       );
+      setTimeout(() => this.isCopied.set(false), 1800);
     } catch {
       this.toast.show('Failed to copy types', 'error');
     }

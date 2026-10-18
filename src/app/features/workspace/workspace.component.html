@@ -50,14 +50,18 @@
           </button>
         </div>
 
-        <div class="pane-header__badge">
+        <div
+          class="pane-header__badge"
+          [class.pane-header__badge--valid]="engine.isValid()"
+          [class.pane-header__badge--invalid]="!engine.isValid()"
+          [title]="engine.isValid() ? 'Valid JSON' : (engine.jsonError()?.message || 'Syntax Error Detected')"
+        >
           <span
             class="input-status-dot"
             [class.input-status-dot--valid]="engine.isValid()"
             [class.input-status-dot--invalid]="!engine.isValid()"
-            [title]="engine.isValid() ? 'Valid JSON' : 'Syntax Error Detected'"
           ></span>
-          <span class="input-status-label">Input</span>
+          <span class="input-status-label">{{ engine.isValid() ? 'Valid' : 'Invalid' }}</span>
         </div>
       </div>
 
@@ -75,15 +79,7 @@
     <div
       class="workspace__divider"
       [class.workspace__divider--active]="isDragging()"
-      (pointerdown)="onRailPointerDown($event)"
-      (dblclick)="onRailDblClick($event)"
-      title="Middle actions (drag divider to resize, double-click to center)"
-      role="separator"
-      aria-orientation="vertical"
-      [attr.aria-valuenow]="splitPercent()"
-      aria-valuemin="20"
-      aria-valuemax="80"
-      tabindex="0"
+      aria-label="Editor command rail"
     >
       <!-- Hidden File Input for Open -->
       <input
@@ -175,7 +171,19 @@
       <!-- Center Spacer / Resize Grip -->
       <div class="rail-spacer"></div>
 
-      <div class="rail-grip" title="Drag to resize, double-click to center (50/50)">
+      <div
+        class="rail-grip"
+        (pointerdown)="onGripPointerDown($event)"
+        (dblclick)="onGripDblClick($event)"
+        title="Drag to resize panels (double-click to center 50/50)"
+        role="separator"
+        aria-orientation="vertical"
+        [attr.aria-valuenow]="splitPercent()"
+        aria-valuemin="20"
+        aria-valuemax="80"
+        tabindex="0"
+        aria-label="Resize panels splitter"
+      >
         <span class="rail-grip-line"></span>
       </div>
 
@@ -288,5 +296,5 @@
   </div>
 
   <!-- Bottom Diagnostics & Stats Bar -->
-  <app-status-bar />
+  <app-status-bar [activeLens]="activeLens()" />
 </section>

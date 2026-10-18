@@ -5,6 +5,7 @@ import { JsonEngineService } from '../../core/services/json-engine.service';
 import { ToastService } from '../../core/services/toast.service';
 import { TypeGenService } from '../../core/services/type-gen.service';
 import { ExportService } from '../../core/services/export.service';
+import { DiffService } from '../../core/services/diff.service';
 
 describe('WorkspaceComponent', () => {
   beforeEach(async () => {
@@ -15,6 +16,7 @@ describe('WorkspaceComponent', () => {
         ToastService,
         TypeGenService,
         ExportService,
+        DiffService,
       ],
     }).compileComponents();
   });

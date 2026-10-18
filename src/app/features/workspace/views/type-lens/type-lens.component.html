@@ -1,73 +1,76 @@
 <div class="type-lens">
   <div class="type-lens__header">
     <div class="type-lens__controls">
-      <!-- Target Pills -->
-      <div class="target-pills" role="radiogroup" aria-label="Select type generation target">
+      <!-- Target Dropdown -->
+      <div class="dropdown-wrapper" appClickOutside (clickOutside)="isDropdownOpen.set(false)">
         <button
           type="button"
-          class="target-pill"
-          [class.target-pill--active]="selectedTarget() === 'typescript'"
-          (click)="setTarget('typescript')"
-          aria-label="Generate TypeScript Interfaces"
+          class="action-btn action-btn--dropdown focus-ring"
+          (click)="isDropdownOpen.update(v => !v)"
+          [attr.aria-expanded]="isDropdownOpen()"
+          aria-haspopup="true"
+          title="Select Target Language"
+          aria-label="Select Target Language"
         >
-          TypeScript
+          <span>{{ targetLabel() }}</span>
+          <lucide-icon [img]="chevronDownIcon" size="12" class="dropdown-chevron" />
         </button>
-        <button
-          type="button"
-          class="target-pill"
-          [class.target-pill--active]="selectedTarget() === 'zod'"
-          (click)="setTarget('zod')"
-          aria-label="Generate Zod Schemas"
-        >
-          Zod
-        </button>
-        <button
-          type="button"
-          class="target-pill"
-          [class.target-pill--active]="selectedTarget() === 'go'"
-          (click)="setTarget('go')"
-          aria-label="Generate Go Structs"
-        >
-          Go
-        </button>
-      </div>
 
-      <!-- Root Name Input -->
-      <div class="root-name-group">
-        <span class="root-label">Root:</span>
-        <input
-          type="text"
-          class="root-input"
-          [value]="rootName()"
-          (input)="onRootNameChange($event)"
-          placeholder="Root"
-          aria-label="Root type or struct name"
-        />
+        @if (isDropdownOpen()) {
+          <div class="dropdown-menu animate-scale-in" role="menu">
+            <button
+              type="button"
+              class="dropdown-item"
+              (click)="setTarget('typescript'); isDropdownOpen.set(false)"
+              role="menuitem"
+            >
+              <span>TypeScript Interfaces</span>
+              @if (selectedTarget() === 'typescript') { <span class="check-mark">✓</span> }
+            </button>
+            <button
+              type="button"
+              class="dropdown-item"
+              (click)="setTarget('zod'); isDropdownOpen.set(false)"
+              role="menuitem"
+            >
+              <span>Zod Schemas</span>
+              @if (selectedTarget() === 'zod') { <span class="check-mark">✓</span> }
+            </button>
+            <button
+              type="button"
+              class="dropdown-item"
+              (click)="setTarget('go'); isDropdownOpen.set(false)"
+              role="menuitem"
+            >
+              <span>Go Structs</span>
+              @if (selectedTarget() === 'go') { <span class="check-mark">✓</span> }
+            </button>
+          </div>
+        }
       </div>
     </div>
 
-    <!-- Actions -->
+    <!-- Actions: Icon-Only Buttons -->
     <div class="type-lens__actions">
       <button
         type="button"
-        class="action-btn"
+        class="action-icon-btn focus-ring"
+        [class.action-icon-btn--copied]="isCopied()"
         (click)="copyTypes()"
-        title="Copy generated code"
-        aria-label="Copy generated code"
+        [title]="isCopied() ? 'Copied to Clipboard!' : 'Copy Generated Code'"
+        aria-label="Copy Generated Code"
       >
-        <lucide-icon [img]="copyIcon" size="14" />
-        <span>Copy</span>
+        <lucide-icon [img]="isCopied() ? checkIcon : copyIcon" size="14" />
       </button>
 
       <button
         type="button"
-        class="action-btn"
+        class="action-icon-btn focus-ring"
         (click)="downloadTypes()"
-        title="Download file"
+        title="Download File"
         aria-label="Download generated code file"
       >
         <lucide-icon [img]="downloadIcon" size="14" />
-        <span>Download</span>
       </button>
     </div>
   </div>
@@ -79,7 +82,7 @@
         <h4 class="empty-title">Cannot generate types</h4>
         <p class="empty-text">Fix JSON syntax errors in the left panel to generate TypeScript, Zod, or Go types.</p>
       </div>
-    } @else if (!engine.parsedResult().data) {
+    } @else if (engine.parsedResult().data === null || engine.parsedResult().data === undefined) {
       <div class="type-lens__empty">
         <lucide-icon [img]="codeIcon" class="empty-icon" size="32" />
         <h4 class="empty-title">No JSON provided</h4>

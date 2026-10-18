@@ -1,3 +1,10 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
 .code-lens {
   display: flex;
   flex-direction: column;
@@ -9,7 +16,7 @@
   &__header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     padding: var(--space-2) var(--space-3);
     background: var(--surface-900);
     border-bottom: 1px solid var(--border-default);

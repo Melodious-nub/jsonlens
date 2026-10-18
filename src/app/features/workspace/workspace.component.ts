@@ -108,6 +108,11 @@ export class WorkspaceComponent {
 
   private moveListener: ((e: PointerEvent) => void) | null = null;
   private upListener: ((e: PointerEvent) => void) | null = null;
+  private cachedRect: DOMRect | null = null;
+  private cachedLowerBound = 25;
+  private cachedUpperBound = 75;
+  private lastClientX = 0;
+  private rafId: number | null = null;
 
   constructor() {
     if (this.isBrowser) {
@@ -292,20 +297,20 @@ export class WorkspaceComponent {
     this.toast.show('Split reset to center (50/50)', 'success');
   }
 
-  onRailPointerDown(event: PointerEvent): void {
-    const target = event.target as HTMLElement | null;
-    if (target && target.closest('.rail-btn, .dropdown-menu')) {
-      return;
-    }
+  onGripPointerDown(event: PointerEvent): void {
     this.onDividerPointerDown(event);
   }
 
-  onRailDblClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement | null;
-    if (target && target.closest('.rail-btn, .dropdown-menu')) {
-      return;
-    }
+  onGripDblClick(_event: MouseEvent): void {
     this.resetSplit();
+  }
+
+  onRailPointerDown(event: PointerEvent): void {
+    this.onGripPointerDown(event);
+  }
+
+  onRailDblClick(event: MouseEvent): void {
+    this.onGripDblClick(event);
   }
 
   onDividerPointerDown(event: PointerEvent): void {
@@ -314,30 +319,60 @@ export class WorkspaceComponent {
     event.preventDefault();
     this.isDragging.set(true);
 
+    const container = this.containerRef()?.nativeElement;
+    if (container) {
+      this.cachedRect = container.getBoundingClientRect();
+      const rectWidth = this.cachedRect.width;
+
+      if (rectWidth > 0) {
+        // Minimum left width: 340px (Valid/Invalid badge meets Auto-Fix button without line breaks)
+        const minLeftWidth = 340;
+        // Minimum right width: 360px (Code, Tree, Types, Diff tabs end with comfortable margin)
+        const minRightWidth = 360;
+
+        const minLeftPercent = (minLeftWidth / rectWidth) * 100;
+        const maxLeftPercent = ((rectWidth - minRightWidth) / rectWidth) * 100;
+
+        this.cachedLowerBound = Math.min(minLeftPercent, maxLeftPercent);
+        this.cachedUpperBound = Math.max(minLeftPercent, maxLeftPercent);
+      }
+    }
+
     const target = event.currentTarget as HTMLElement | null;
     if (target && target.setPointerCapture) {
       target.setPointerCapture(event.pointerId);
     }
 
+    this.lastClientX = event.clientX;
     this.moveListener = (e: PointerEvent) => this.onPointerMove(e);
     this.upListener = (e: PointerEvent) => this.onPointerUp(e, target, event.pointerId);
 
-    window.addEventListener('pointermove', this.moveListener);
+    window.addEventListener('pointermove', this.moveListener, { passive: true });
     window.addEventListener('pointerup', this.upListener);
   }
 
   private onPointerMove(event: PointerEvent): void {
-    const container = this.containerRef()?.nativeElement;
-    if (!container) return;
+    if (!this.cachedRect || this.cachedRect.width <= 0) return;
 
-    const rect = container.getBoundingClientRect();
-    if (rect.width <= 0) return;
+    this.lastClientX = event.clientX;
+    if (this.rafId !== null) {
+      return;
+    }
 
-    const pointerOffset = event.clientX - rect.left;
-    const rawPercent = (pointerOffset / rect.width) * 100;
-    const clampedPercent = Math.min(Math.max(rawPercent, 20), 80);
+    this.rafId = requestAnimationFrame(() => {
+      this.rafId = null;
+      if (!this.cachedRect || this.cachedRect.width <= 0) return;
 
-    this.splitPercent.set(Math.round(clampedPercent));
+      const pointerOffset = this.lastClientX - this.cachedRect.left;
+      const rawPercent = (pointerOffset / this.cachedRect.width) * 100;
+      const clampedPercent = Math.min(
+        Math.max(rawPercent, this.cachedLowerBound),
+        this.cachedUpperBound,
+      );
+
+      // 0.1% precision for buttery smooth, fluid subpixel motion
+      this.splitPercent.set(Math.round(clampedPercent * 10) / 10);
+    });
   }
 
   private onPointerUp(
@@ -346,6 +381,7 @@ export class WorkspaceComponent {
     pointerId: number,
   ): void {
     this.isDragging.set(false);
+    this.cachedRect = null;
     if (this.isBrowser) {
       this.storage.setItem('jsonlens_split_percent', this.splitPercent());
     }
@@ -360,6 +396,10 @@ export class WorkspaceComponent {
   }
 
   private cleanupPointerListeners(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
     if (this.moveListener) {
       window.removeEventListener('pointermove', this.moveListener);
       this.moveListener = null;
@@ -368,5 +408,6 @@ export class WorkspaceComponent {
       window.removeEventListener('pointerup', this.upListener);
       this.upListener = null;
     }
+    this.cachedRect = null;
   }
 }
