@@ -6,51 +6,45 @@
         <button
           type="button"
           class="action-btn action-btn--dropdown focus-ring"
-          (click)="isDropdownOpen.update(v => !v)"
+          (click)="toggleDropdown()"
           [attr.aria-expanded]="isDropdownOpen()"
           aria-haspopup="true"
           title="Select Target Language"
           aria-label="Select Target Language"
         >
-          <span>{{ targetLabel() }}</span>
+          <span class="action-btn__badge">{{ currentTargetConfig().tag }}</span>
+          <span class="action-btn__text">{{ targetLabel() }}</span>
           <lucide-icon [img]="chevronDownIcon" size="12" class="dropdown-chevron" />
         </button>
 
         @if (isDropdownOpen()) {
           <div class="dropdown-menu animate-scale-in" role="menu">
-            <button
-              type="button"
-              class="dropdown-item"
-              (click)="setTarget('typescript'); isDropdownOpen.set(false)"
-              role="menuitem"
-            >
-              <span>TypeScript Interfaces</span>
-              @if (selectedTarget() === 'typescript') { <span class="check-mark">✓</span> }
-            </button>
-            <button
-              type="button"
-              class="dropdown-item"
-              (click)="setTarget('zod'); isDropdownOpen.set(false)"
-              role="menuitem"
-            >
-              <span>Zod Schemas</span>
-              @if (selectedTarget() === 'zod') { <span class="check-mark">✓</span> }
-            </button>
-            <button
-              type="button"
-              class="dropdown-item"
-              (click)="setTarget('go'); isDropdownOpen.set(false)"
-              role="menuitem"
-            >
-              <span>Go Structs</span>
-              @if (selectedTarget() === 'go') { <span class="check-mark">✓</span> }
-            </button>
+            @for (cat of languageCategories(); track cat.category) {
+              <div class="dropdown-category-title">{{ cat.category }}</div>
+              @for (item of cat.items; track item.id) {
+                <button
+                  type="button"
+                  class="dropdown-item"
+                  [class.dropdown-item--active]="selectedTarget() === item.id"
+                  (click)="setTarget(item.id)"
+                  role="menuitem"
+                >
+                  <span class="dropdown-item__label">{{ item.label }}</span>
+                  <div class="dropdown-item__meta">
+                    <span class="dropdown-item__ext">{{ item.extension }}</span>
+                    @if (selectedTarget() === item.id) {
+                      <span class="check-mark">✓</span>
+                    }
+                  </div>
+                </button>
+              }
+            }
           </div>
         }
       </div>
     </div>
 
-    <!-- Actions: Icon-Only Buttons -->
+    <!-- Actions: Copy & Stacked Download Dropmodal -->
     <div class="type-lens__actions">
       <button
         type="button"
@@ -63,15 +57,60 @@
         <lucide-icon [img]="isCopied() ? checkIcon : copyIcon" size="14" />
       </button>
 
-      <button
-        type="button"
-        class="action-icon-btn focus-ring"
-        (click)="downloadTypes()"
-        title="Download File"
-        aria-label="Download generated code file"
-      >
-        <lucide-icon [img]="downloadIcon" size="14" />
-      </button>
+      <!-- Stacked Download Dropmodal -->
+      <div class="download-wrapper" appClickOutside (clickOutside)="isDownloadOpen.set(false)">
+        <button
+          type="button"
+          class="action-icon-btn focus-ring"
+          [class.action-icon-btn--active]="isDownloadOpen()"
+          (click)="toggleDownloadMenu()"
+          title="Download Code File"
+          aria-label="Download generated code file"
+          [attr.aria-expanded]="isDownloadOpen()"
+        >
+          <lucide-icon [img]="downloadIcon" size="14" />
+        </button>
+
+        @if (isDownloadOpen()) {
+          <div
+            class="download-dropmodal animate-scale-in"
+            role="dialog"
+            aria-label="Export file name and save"
+            (keydown.escape)="isDownloadOpen.set(false)"
+          >
+            <div class="download-dropmodal__row">
+              <div class="download-dropmodal__input-group">
+                <input
+                  id="export-filename-input"
+                  type="text"
+                  class="download-dropmodal__input focus-ring"
+                  [value]="downloadFileName()"
+                  (input)="onDownloadFileNameChange($event)"
+                  (keydown.enter)="executeDownload()"
+                  placeholder="root"
+                  spellcheck="false"
+                  autocomplete="off"
+                  title="File name"
+                  aria-label="Export file name"
+                />
+                <span class="download-dropmodal__ext">{{ currentTargetConfig().extension }}</span>
+              </div>
+
+              <button
+                type="button"
+                class="download-dropmodal__save-btn focus-ring"
+                (click)="executeDownload()"
+                [disabled]="!isValid() || !hasData()"
+                title="Save / Export File (Enter)"
+                aria-label="Save and export file"
+              >
+                <lucide-icon [img]="saveIcon" size="13" />
+                <span>Save</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
     </div>
   </div>
 
@@ -80,9 +119,9 @@
       <div class="type-lens__empty">
         <lucide-icon [img]="alertIcon" class="empty-icon empty-icon--error" size="32" />
         <h4 class="empty-title">Cannot generate types</h4>
-        <p class="empty-text">Fix JSON syntax errors in the left panel to generate TypeScript, Zod, or Go types.</p>
+        <p class="empty-text">Fix JSON syntax errors in the left panel to generate {{ currentTargetConfig().label }}.</p>
       </div>
-    } @else if (engine.parsedResult().data === null || engine.parsedResult().data === undefined) {
+    } @else if (!hasData()) {
       <div class="type-lens__empty">
         <lucide-icon [img]="codeIcon" class="empty-icon" size="32" />
         <h4 class="empty-title">No JSON provided</h4>

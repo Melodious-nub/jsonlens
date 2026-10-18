@@ -33,7 +33,19 @@ export type IndentOption = '2-spaces' | '4-spaces' | 'tabs' | 'minified';
 export type LensTab = 'code' | 'tree' | 'type' | 'diff';
 export type ExportFormat = 'json' | 'pdf' | 'csv' | 'ts';
 export type SortOrder = 'asc' | 'desc' | 'none';
-export type TypeGenTarget = 'typescript' | 'zod' | 'go';
+export type TypeGenTarget =
+  | 'typescript'
+  | 'zod'
+  | 'javascript'
+  | 'python'
+  | 'java'
+  | 'kotlin'
+  | 'dart'
+  | 'csharp'
+  | 'go'
+  | 'rust'
+  | 'php'
+  | 'swift';
 
 export type JsonNodeType = 'string' | 'number' | 'boolean' | 'null' | 'object' | 'array';
 

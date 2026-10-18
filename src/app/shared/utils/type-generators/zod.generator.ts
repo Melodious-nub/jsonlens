@@ -1,4 +1,5 @@
 import { JsonValue } from '../../../core/models/json-lens.model';
+import { resolveTypeName, singularize, toCamelCase, toPascalCase } from './helpers';
 
 /**
  * Generates Zod schema validation code from any valid JSON object or array.
@@ -9,9 +10,12 @@ export function jsonToZod(json: JsonValue, rootName = 'root'): string {
   }
 
   const schemas: Map<string, string> = new Map();
+  const usedNames = new Set<string>([toPascalCase(rootName)]);
 
   function generateSchema(data: Record<string, unknown>, name: string): void {
-    const lines: string[] = [`export const ${toCamelCase(name)}Schema = z.object({`];
+    const pascalName = toPascalCase(name);
+    const camelName = toCamelCase(name);
+    const lines: string[] = [`export const ${camelName}Schema = z.object({`];
 
     for (const [key, val] of Object.entries(data)) {
       const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : JSON.stringify(key);
@@ -24,25 +28,25 @@ export function jsonToZod(json: JsonValue, rootName = 'root'): string {
         } else {
           const first = val[0];
           if (first && typeof first === 'object' && !Array.isArray(first)) {
-            const childSchemaName = `${toCamelCase(name)}${toPascalCase(singularize(key))}`;
+            const childSchemaName = resolveTypeName(singularize(key), pascalName, usedNames);
             generateSchema(first as Record<string, unknown>, childSchemaName);
-            lines.push(`  ${safeKey}: z.array(${childSchemaName}Schema),`);
+            lines.push(`  ${safeKey}: z.array(${toCamelCase(childSchemaName)}Schema),`);
           } else {
             lines.push(`  ${safeKey}: z.array(${inferPrimitiveZod(first)}),`);
           }
         }
       } else if (typeof val === 'object') {
-        const childSchemaName = `${toCamelCase(name)}${toPascalCase(key)}`;
+        const childSchemaName = resolveTypeName(key, pascalName, usedNames);
         generateSchema(val as Record<string, unknown>, childSchemaName);
-        lines.push(`  ${safeKey}: ${childSchemaName}Schema,`);
+        lines.push(`  ${safeKey}: ${toCamelCase(childSchemaName)}Schema,`);
       } else {
         lines.push(`  ${safeKey}: ${inferPrimitiveZod(val)},`);
       }
     }
 
     lines.push('});');
-    lines.push(`export type ${toPascalCase(name)} = z.infer<typeof ${toCamelCase(name)}Schema>;\n`);
-    schemas.set(name, lines.join('\n'));
+    lines.push(`export type ${pascalName} = z.infer<typeof ${camelName}Schema>;\n`);
+    schemas.set(pascalName, lines.join('\n'));
   }
 
   if (Array.isArray(json)) {
@@ -51,10 +55,10 @@ export function jsonToZod(json: JsonValue, rootName = 'root'): string {
     }
     const first = json[0];
     if (first && typeof first === 'object' && !Array.isArray(first)) {
-      const itemSchemaName = `${toCamelCase(rootName)}Item`;
+      const itemSchemaName = `${toPascalCase(rootName)}Item`;
       generateSchema(first as Record<string, unknown>, itemSchemaName);
       const schemaDefinitions = Array.from(schemas.values()).join('\n');
-      return `import { z } from 'zod';\n\n${schemaDefinitions}\nexport const ${toCamelCase(rootName)}Schema = z.array(${itemSchemaName}Schema);\nexport type ${toPascalCase(rootName)} = z.infer<typeof ${toCamelCase(rootName)}Schema>;\n`;
+      return `import { z } from 'zod';\n\n${schemaDefinitions}\nexport const ${toCamelCase(rootName)}Schema = z.array(${toCamelCase(itemSchemaName)}Schema);\nexport type ${toPascalCase(rootName)} = z.infer<typeof ${toCamelCase(rootName)}Schema>;\n`;
     }
     return `import { z } from 'zod';\n\nexport const ${toCamelCase(rootName)}Schema = z.array(${inferPrimitiveZod(first)});\nexport type ${toPascalCase(rootName)} = z.infer<typeof ${toCamelCase(rootName)}Schema>;\n`;
   }
@@ -70,25 +74,4 @@ function inferPrimitiveZod(val: unknown): string {
   if (typeof val === 'number') return 'z.number()';
   if (typeof val === 'boolean') return 'z.boolean()';
   return 'z.unknown()';
-}
-
-function toCamelCase(str: string): string {
-  const pascal = toPascalCase(str);
-  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
-}
-
-function toPascalCase(str: string): string {
-  return str
-    .replace(/[^a-zA-Z0-9_]/g, ' ')
-    .split(' ')
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join('') || 'Schema';
-}
-
-function singularize(str: string): string {
-  if (str.endsWith('ies')) return str.slice(0, -3) + 'y';
-  if (str.endsWith('es')) return str.slice(0, -2);
-  if (str.endsWith('s')) return str.slice(0, -1);
-  return str;
 }
