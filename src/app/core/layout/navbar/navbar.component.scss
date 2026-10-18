@@ -172,3 +172,37 @@
   }
 }
 
+.theme-toggle-btn {
+  position: relative;
+  overflow: hidden;
+
+  .action-icon {
+    transition: transform var(--transition-fast) cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  &:hover .action-icon {
+    transform: rotate(24deg) scale(1.12);
+    color: var(--accent-primary);
+  }
+
+  &:active .action-icon {
+    transform: scale(0.88);
+  }
+
+  .theme-icon-spin {
+    animation: themeIconSpin 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+}
+
+@keyframes themeIconSpin {
+  from {
+    opacity: 0;
+    transform: rotate(-110deg) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+}
+
+

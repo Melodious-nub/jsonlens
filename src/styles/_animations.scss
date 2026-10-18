@@ -49,3 +49,26 @@
 .animate-scale-in {
   animation: scaleIn var(--transition-fast) cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* View Transition API: Circular Ripple Theme Wave */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+

@@ -13,7 +13,7 @@ import { ThemeService } from '../../services/theme.service';
 export class NavbarComponent {
   readonly themeService = inject(ThemeService);
 
-  onToggleTheme(): void {
-    this.themeService.toggleTheme();
+  onToggleTheme(event?: MouseEvent): void {
+    this.themeService.toggleTheme(event);
   }
 }
