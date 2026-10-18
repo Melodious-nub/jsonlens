@@ -1,5 +1,5 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { JsonEngineService } from './json-engine.service';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { JsonEngineService, DEFAULT_SAMPLE_JSON } from './json-engine.service';
 import { DiffItem, DiffSummary, JsonValue } from '../models/json-lens.model';
 import { deepDiffJson, summarizeDiff } from '../../shared/utils/json-diff.util';
 
@@ -36,6 +36,19 @@ export class DiffService {
   private readonly engine = inject(JsonEngineService);
 
   readonly secondaryInput = signal<string>(SAMPLE_MODIFIED_JSON);
+  readonly isSampleActive = signal<boolean>(true);
+
+  constructor() {
+    // Reactively synchronize secondary comparison with primary input
+    // whenever user enters their own data while secondary is still the untouched sample.
+    effect(() => {
+      const primary = this.engine.rawInput();
+      if (this.isSampleActive() && primary !== DEFAULT_SAMPLE_JSON && primary.trim() !== '') {
+        this.secondaryInput.set(primary);
+        this.isSampleActive.set(false);
+      }
+    });
+  }
 
   readonly parsedSecondary = computed<{ data: JsonValue | null; isValid: boolean }>(() => {
     const raw = this.secondaryInput();
@@ -71,14 +84,22 @@ export class DiffService {
 
   setSecondaryInput(val: string): void {
     this.secondaryInput.set(val);
+    this.isSampleActive.set(false);
   }
 
   loadSample(): void {
     this.secondaryInput.set(SAMPLE_MODIFIED_JSON);
+    this.isSampleActive.set(true);
   }
 
   clearSecondary(): void {
     this.secondaryInput.set('');
+    this.isSampleActive.set(false);
+  }
+
+  cloneFromPrimary(): void {
+    this.secondaryInput.set(this.engine.rawInput());
+    this.isSampleActive.set(false);
   }
 
   swapInputs(): void {

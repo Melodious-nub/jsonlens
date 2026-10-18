@@ -14,6 +14,7 @@ import {
 } from '@angular/core';
 import { ExportFormat, LensTab } from '../../core/models/json-lens.model';
 import { JsonEngineService } from '../../core/services/json-engine.service';
+import { DiffService } from '../../core/services/diff.service';
 import { ToastService } from '../../core/services/toast.service';
 import { StorageService } from '../../core/services/storage.service';
 import { ExportService } from '../../core/services/export.service';
@@ -66,6 +67,7 @@ import {
 })
 export class WorkspaceComponent {
   readonly engine = inject(JsonEngineService);
+  readonly diff = inject(DiffService);
   private readonly toast = inject(ToastService);
   private readonly storage = inject(StorageService);
   private readonly exportService = inject(ExportService);
@@ -212,11 +214,15 @@ export class WorkspaceComponent {
 
   onLoadSample(): void {
     this.engine.loadSample();
+    this.diff.loadSample();
     this.toast.show('Loaded sample JSON', 'info');
   }
 
   onClear(): void {
     this.engine.clear();
+    if (this.diff.isSampleActive()) {
+      this.diff.clearSecondary();
+    }
     this.toast.show('Cleared editor', 'info');
   }
 

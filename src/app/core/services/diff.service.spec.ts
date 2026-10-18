@@ -33,8 +33,21 @@ describe('DiffService', () => {
     const service = TestBed.inject(DiffService);
     service.clearSecondary();
     expect(service.secondaryInput()).toBe('');
+    expect(service.isSampleActive()).toBe(false);
 
     service.loadSample();
     expect(service.secondaryInput().length).toBeGreaterThan(0);
+    expect(service.isSampleActive()).toBe(true);
+  });
+
+  it('should clone primary input into secondary comparison', () => {
+    const service = TestBed.inject(DiffService);
+    const engine = TestBed.inject(JsonEngineService);
+
+    engine.setInput('{"hello": "world"}');
+    service.cloneFromPrimary();
+    expect(service.secondaryInput()).toBe('{"hello": "world"}');
+    expect(service.isSampleActive()).toBe(false);
+    expect(service.meaningfulDiffs().length).toBe(0);
   });
 });

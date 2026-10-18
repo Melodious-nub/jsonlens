@@ -1,7 +1,9 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
   afterNextRender,
+  ApplicationRef,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   effect,
@@ -10,6 +12,7 @@ import {
   input,
   model,
   PLATFORM_ID,
+  signal,
   viewChild,
 } from '@angular/core';
 import type * as MonacoType from 'monaco-editor';
@@ -28,6 +31,8 @@ export class MonacoEditorComponent {
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly destroyRef = inject(DestroyRef);
   private readonly themeService = inject(ThemeService);
+  private readonly appRef = inject(ApplicationRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly editorContainer = viewChild.required<ElementRef<HTMLDivElement>>('editorContainer');
 
@@ -43,8 +48,10 @@ export class MonacoEditorComponent {
   readonly lineNumbers = input<'on' | 'off'>('on');
 
   private editor: MonacoType.editor.IStandaloneCodeEditor | null = null;
+  private readonly editorInstance = signal<MonacoType.editor.IStandaloneCodeEditor | null>(null);
   private monacoModule: typeof MonacoType | null = null;
   private isInternalUpdate = false;
+  private tickScheduled = false;
 
   constructor() {
     // 1. Initialize Monaco in browser after rendering
@@ -57,23 +64,33 @@ export class MonacoEditorComponent {
 
     // 2. Sync content signal to editor when changed externally
     effect(() => {
+      const editor = this.editorInstance();
       const newContent = this.content();
-      if (this.editor && !this.isInternalUpdate) {
-        const currentVal = this.editor.getValue();
+      if (editor && !this.isInternalUpdate) {
+        const currentVal = editor.getValue();
         if (currentVal !== newContent) {
-          const model = this.editor.getModel();
-          if (model) {
-            this.editor.pushUndoStop();
-            this.editor.executeEdits('external-update', [
-              {
-                range: model.getFullModelRange(),
-                text: newContent,
-                forceMoveMarkers: true,
-              },
-            ]);
-            this.editor.pushUndoStop();
+          if (this.readOnly()) {
+            const model = editor.getModel();
+            if (model) {
+              model.setValue(newContent);
+            } else {
+              editor.setValue(newContent);
+            }
           } else {
-            this.editor.setValue(newContent);
+            const model = editor.getModel();
+            if (model) {
+              editor.pushUndoStop();
+              editor.executeEdits('external-update', [
+                {
+                  range: model.getFullModelRange(),
+                  text: newContent,
+                  forceMoveMarkers: true,
+                },
+              ]);
+              editor.pushUndoStop();
+            } else {
+              editor.setValue(newContent);
+            }
           }
         }
       }
@@ -82,16 +99,18 @@ export class MonacoEditorComponent {
     // 3. Sync readOnly
     effect(() => {
       const isReadOnly = this.readOnly();
-      if (this.editor) {
-        this.editor.updateOptions({ readOnly: isReadOnly });
+      const editor = this.editorInstance();
+      if (editor) {
+        editor.updateOptions({ readOnly: isReadOnly });
       }
     });
 
     // 4. Sync language
     effect(() => {
       const lang = this.language();
-      if (this.editor && this.monacoModule) {
-        const model = this.editor.getModel();
+      const editor = this.editorInstance();
+      if (editor && this.monacoModule) {
+        const model = editor.getModel();
         if (model) {
           this.monacoModule.editor.setModelLanguage(model, lang);
         }
@@ -111,8 +130,9 @@ export class MonacoEditorComponent {
     // 6. Sync error markers
     effect(() => {
       const errors = this.errorMarkers();
-      if (this.editor && this.monacoModule) {
-        const model = this.editor.getModel();
+      const editor = this.editorInstance();
+      if (editor && this.monacoModule) {
+        const model = editor.getModel();
         if (model) {
           if (!errors || errors.length === 0) {
             this.monacoModule.editor.setModelMarkers(model, 'jsonlens', []);
@@ -168,16 +188,22 @@ export class MonacoEditorComponent {
         },
       });
 
+      this.editorInstance.set(this.editor);
+
       // Listen to editor changes and update model signal
       const changeDisposable = this.editor.onDidChangeModelContent(() => {
         if (!this.editor) return;
+        const val = this.editor.getValue();
         this.isInternalUpdate = true;
-        this.content.set(this.editor.getValue());
+        this.content.set(val);
         this.isInternalUpdate = false;
+        this.cdr.markForCheck();
+        this.scheduleAppTick();
       });
 
       // Cleanup
       this.destroyRef.onDestroy(() => {
+        this.editorInstance.set(null);
         changeDisposable.dispose();
         this.editor?.dispose();
         this.editor = null;
@@ -185,6 +211,21 @@ export class MonacoEditorComponent {
     } catch (err) {
       console.error('Failed to initialize Monaco Editor:', err);
     }
+  }
+
+  private scheduleAppTick(): void {
+    if (this.tickScheduled) return;
+    this.tickScheduled = true;
+    queueMicrotask(() => {
+      this.tickScheduled = false;
+      if (!this.appRef.destroyed) {
+        try {
+          this.appRef.tick();
+        } catch {
+          // Safeguard against tick re-entrancy
+        }
+      }
+    });
   }
 
   private registerThemes(monaco: typeof MonacoType): void {
