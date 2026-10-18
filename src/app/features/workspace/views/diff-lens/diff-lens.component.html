@@ -1,59 +1,61 @@
 <div class="diff-lens">
   <div class="diff-lens__header">
-    <div class="diff-lens__summary">
-      <span class="diff-badge diff-badge--added">
-        +{{ diffSummary().added }} added
-      </span>
-      <span class="diff-badge diff-badge--removed">
-        -{{ diffSummary().removed }} removed
-      </span>
-      <span class="diff-badge diff-badge--modified">
-        ~{{ diffSummary().modified }} modified
-      </span>
-      <span class="diff-badge diff-badge--unchanged">
-        {{ diffSummary().unchanged }} unchanged
-      </span>
-    </div>
-
     <div class="diff-lens__actions">
+      <!-- Hidden file input for comparison file -->
+      <input
+        #diffFileInput
+        type="file"
+        accept=".json,application/json"
+        class="sr-only"
+        (change)="onDiffFileSelected($event)"
+        aria-label="Upload comparison JSON file"
+      />
+
       <button
         type="button"
-        class="action-btn"
+        class="action-btn focus-ring"
         (click)="swapInputs()"
         title="Swap Left and Right JSON"
         aria-label="Swap Left and Right JSON"
       >
-        <lucide-icon [img]="swapIcon" size="14" />
+        <lucide-icon [img]="swapIcon" size="13" />
         <span>Swap</span>
       </button>
 
       <button
         type="button"
-        class="action-btn"
-        (click)="loadSample()"
-        title="Load comparison sample"
-        aria-label="Load comparison sample"
+        class="action-btn focus-ring"
+        (click)="onTriggerDiffFileInput()"
+        title="Open comparison .json file"
+        aria-label="Open comparison .json file"
       >
-        <lucide-icon [img]="sampleIcon" size="14" />
-        <span>Sample</span>
+        <lucide-icon [img]="folderOpenIcon" size="13" />
+        <span>Open File</span>
       </button>
 
       <button
         type="button"
-        class="action-btn"
+        class="action-btn action-btn--danger focus-ring"
         (click)="clearSecondary()"
         title="Clear comparison JSON"
         aria-label="Clear comparison JSON"
       >
-        <lucide-icon [img]="clearIcon" size="14" />
+        <lucide-icon [img]="clearIcon" size="13" />
         <span>Clear</span>
       </button>
     </div>
   </div>
 
-  <div class="diff-lens__body">
+  <div
+    #diffBody
+    class="diff-lens__body"
+    [class.is-resizing]="isDragging()"
+  >
     <!-- Comparison Editor Container -->
-    <div class="diff-lens__editor-section">
+    <div
+      class="diff-lens__editor-section"
+      [style.flex-basis.%]="splitPercent()"
+    >
       <div class="editor-header">
         <span class="editor-label">Comparison JSON (Modified)</span>
         @if (!parsedSecondary().isValid) {
@@ -69,10 +71,36 @@
       </div>
     </div>
 
-    <!-- Differences List Section -->
-    <div class="diff-lens__changes-section">
+    <!-- Differences List Section with Draggable Header -->
+    <div
+      class="diff-lens__changes-section"
+      [style.flex-basis.%]="100 - splitPercent()"
+    >
       <div class="changes-header">
-        <span class="changes-title">Detected Differences ({{ meaningfulDiffs().length }})</span>
+        <div class="changes-header__left">
+          <span class="changes-title">Detected Differences ({{ meaningfulDiffs().length }})</span>
+        </div>
+
+        <div
+          class="changes-header__grip"
+          (pointerdown)="onGripPointerDown($event)"
+          (dblclick)="onGripDblClick($event)"
+          (keydown)="onGripKeyDown($event)"
+          title="Drag to resize panels (double-click to center 50/50)"
+          role="separator"
+          aria-orientation="horizontal"
+          [attr.aria-valuenow]="100 - splitPercent()"
+          aria-valuemin="15"
+          aria-valuemax="85"
+          tabindex="0"
+          aria-label="Resize panels splitter"
+        >
+          <span class="diff-grip-line"></span>
+        </div>
+
+        <div class="changes-header__right">
+          <span class="changes-hint">{{ Math.round(100 - splitPercent()) }}%</span>
+        </div>
       </div>
 
       <div class="changes-list">

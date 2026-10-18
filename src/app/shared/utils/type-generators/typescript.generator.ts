@@ -1,4 +1,5 @@
 import { JsonValue } from '../../../core/models/json-lens.model';
+import { resolveTypeName, singularize, toPascalCase } from './helpers';
 
 /**
  * Generates TypeScript interfaces from any valid JSON object or array.
@@ -9,9 +10,11 @@ export function jsonToTypescript(json: JsonValue, rootName = 'Root'): string {
   }
 
   const interfaces: Map<string, string> = new Map();
+  const usedNames = new Set<string>([toPascalCase(rootName)]);
 
   function generateInterface(data: Record<string, unknown>, name: string): string {
-    const lines: string[] = [`export interface ${toPascalCase(name)} {`];
+    const pascalName = toPascalCase(name);
+    const lines: string[] = [`export interface ${pascalName} {`];
 
     for (const [key, val] of Object.entries(data)) {
       const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : JSON.stringify(key);
@@ -25,7 +28,7 @@ export function jsonToTypescript(json: JsonValue, rootName = 'Root'): string {
         } else {
           const first = val[0];
           if (first && typeof first === 'object' && !Array.isArray(first)) {
-            const childInterfaceName = `${toPascalCase(name)}${toPascalCase(singularize(key))}`;
+            const childInterfaceName = resolveTypeName(singularize(key), pascalName, usedNames);
             generateInterface(first as Record<string, unknown>, childInterfaceName);
             lines.push(`  ${safeKey}: ${childInterfaceName}[];`);
           } else {
@@ -33,7 +36,7 @@ export function jsonToTypescript(json: JsonValue, rootName = 'Root'): string {
           }
         }
       } else if (typeof val === 'object') {
-        const childInterfaceName = `${toPascalCase(name)}${toPascalCase(key)}`;
+        const childInterfaceName = resolveTypeName(key, pascalName, usedNames);
         generateInterface(val as Record<string, unknown>, childInterfaceName);
         lines.push(`  ${safeKey}: ${childInterfaceName};`);
       } else {
@@ -44,7 +47,7 @@ export function jsonToTypescript(json: JsonValue, rootName = 'Root'): string {
 
     lines.push('}\n');
     const fullCode = lines.join('\n');
-    interfaces.set(name, fullCode);
+    interfaces.set(pascalName, fullCode);
     return fullCode;
   }
 
@@ -72,20 +75,4 @@ function inferPrimitiveType(val: unknown): string {
   if (typeof val === 'number') return 'number';
   if (typeof val === 'boolean') return 'boolean';
   return 'unknown';
-}
-
-function toPascalCase(str: string): string {
-  return str
-    .replace(/[^a-zA-Z0-9_]/g, ' ')
-    .split(' ')
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join('') || 'Type';
-}
-
-function singularize(str: string): string {
-  if (str.endsWith('ies')) return str.slice(0, -3) + 'y';
-  if (str.endsWith('es')) return str.slice(0, -2);
-  if (str.endsWith('s')) return str.slice(0, -1);
-  return str;
 }

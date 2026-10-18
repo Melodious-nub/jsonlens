@@ -1,3 +1,5 @@
+import { JsonValue } from '../../core/models/json-lens.model';
+
 /**
  * Converts a raw node path into a standardized JSONPath notation.
  * e.g. "root.data.items[0].id" -> "$.data.items[0].id"
@@ -55,4 +57,45 @@ export function formatPropertyAccessor(key: string): string {
     return `.${key}`;
   }
   return `[${JSON.stringify(key)}]`;
+}
+
+/**
+ * Resolves the value at a given JSONPath or dot notation within a JSON structure.
+ * e.g. getValueByJsonPath({ user: { name: 'Alice' } }, '$.user.name') -> 'Alice'
+ * e.g. getValueByJsonPath([10, 20, 30], '$[1]') -> 20
+ */
+export function getValueByJsonPath(data: JsonValue | null | undefined, path: string): unknown {
+  if (data === null || data === undefined) {
+    return undefined;
+  }
+
+  const standardPath = toStandardJsonPath(path);
+  if (standardPath === '$') {
+    return data;
+  }
+
+  const pathWithoutRoot = standardPath.slice(1);
+  const segmentRegex = /(?:\.([^.\[\]]+))|\[(?:(\d+)|"([^"]+)"|'([^']+)'|([^.\[\]]+))\]/g;
+  let current: unknown = data;
+  let match: RegExpExecArray | null;
+
+  while ((match = segmentRegex.exec(pathWithoutRoot)) !== null) {
+    if (current === null || current === undefined || typeof current !== 'object') {
+      return undefined;
+    }
+
+    const key = match[1] ?? match[3] ?? match[4] ?? match[5];
+    const indexStr = match[2];
+
+    if (key !== undefined) {
+      current = (current as Record<string, unknown>)[key];
+    } else if (indexStr !== undefined) {
+      if (!Array.isArray(current)) {
+        return undefined;
+      }
+      current = current[parseInt(indexStr, 10)];
+    }
+  }
+
+  return current;
 }

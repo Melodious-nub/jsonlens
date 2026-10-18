@@ -1,4 +1,5 @@
 import { JsonValue } from '../../../core/models/json-lens.model';
+import { resolveTypeName, singularize, toPascalCase } from './helpers';
 
 /**
  * Generates Go struct definitions from any valid JSON object or array.
@@ -9,9 +10,11 @@ export function jsonToGo(json: JsonValue, rootName = 'Root'): string {
   }
 
   const structs: Map<string, string> = new Map();
+  const usedNames = new Set<string>([toPascalCase(rootName)]);
 
   function generateStruct(data: Record<string, unknown>, name: string): void {
-    const lines: string[] = [`type ${toPascalCase(name)} struct {`];
+    const pascalName = toPascalCase(name);
+    const lines: string[] = [`type ${pascalName} struct {`];
 
     for (const [key, val] of Object.entries(data)) {
       const fieldName = toPascalCase(key);
@@ -24,7 +27,7 @@ export function jsonToGo(json: JsonValue, rootName = 'Root'): string {
         } else {
           const first = val[0];
           if (first && typeof first === 'object' && !Array.isArray(first)) {
-            const childStructName = `${toPascalCase(name)}${toPascalCase(singularize(key))}`;
+            const childStructName = resolveTypeName(singularize(key), pascalName, usedNames);
             generateStruct(first as Record<string, unknown>, childStructName);
             lines.push(`\t${fieldName} []${childStructName} \`json:"${key}"\``);
           } else {
@@ -32,7 +35,7 @@ export function jsonToGo(json: JsonValue, rootName = 'Root'): string {
           }
         }
       } else if (typeof val === 'object') {
-        const childStructName = `${toPascalCase(name)}${toPascalCase(key)}`;
+        const childStructName = resolveTypeName(key, pascalName, usedNames);
         generateStruct(val as Record<string, unknown>, childStructName);
         lines.push(`\t${fieldName} ${childStructName} \`json:"${key}"\``);
       } else {
@@ -41,7 +44,7 @@ export function jsonToGo(json: JsonValue, rootName = 'Root'): string {
     }
 
     lines.push('}\n');
-    structs.set(name, lines.join('\n'));
+    structs.set(pascalName, lines.join('\n'));
   }
 
   if (Array.isArray(json)) {
@@ -70,20 +73,4 @@ function inferGoPrimitive(val: unknown): string {
   }
   if (typeof val === 'boolean') return 'bool';
   return 'interface{}';
-}
-
-function toPascalCase(str: string): string {
-  return str
-    .replace(/[^a-zA-Z0-9_]/g, ' ')
-    .split(' ')
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join('') || 'Field';
-}
-
-function singularize(str: string): string {
-  if (str.endsWith('ies')) return str.slice(0, -3) + 'y';
-  if (str.endsWith('es')) return str.slice(0, -2);
-  if (str.endsWith('s')) return str.slice(0, -1);
-  return str;
 }

@@ -10,7 +10,13 @@
         (input)="onSearchInput($event)"
         aria-label="Filter tree by key or value"
       />
-      @if (searchQuery()) {
+      @if (searchQuery().trim()) {
+        <span
+          class="search-match-count"
+          [class.search-match-count--zero]="matchCount() === 0"
+        >
+          {{ matchCount() }} {{ matchCount() === 1 ? 'match' : 'matches' }}
+        </span>
         <button
           type="button"
           class="clear-search-btn"
@@ -20,11 +26,6 @@
           <lucide-icon [img]="clearIcon" size="12" />
         </button>
       }
-    </div>
-
-    <div class="tree-lens__stats">
-      <span class="stat-badge">{{ totalKeys() }} keys</span>
-      <span class="stat-badge">depth {{ maxDepth() }}</span>
     </div>
   </div>
 
@@ -46,9 +47,59 @@
         <app-tree-node
           [node]="treeData()!"
           [searchQuery]="searchQuery()"
-          (pathSelected)="onPathSelected($event)"
+          [selectedPath]="selectedPath()"
+          (nodeSelected)="onNodeSelected($event)"
         />
       </div>
     }
   </div>
+
+  @if (isValid() && treeData()) {
+    <footer class="tree-lens__footer" role="region" aria-label="Selected node details">
+      @if (selectedNode(); as selected) {
+        <div class="breadcrumb-info">
+          <span class="breadcrumb-label">Path:</span>
+          <code class="breadcrumb-path" [title]="selected.path">{{ selected.path }}</code>
+          <span class="breadcrumb-badge breadcrumb-badge--{{ selected.type }}">{{ selected.type }}</span>
+        </div>
+        <div class="breadcrumb-actions">
+          <button
+            type="button"
+            class="action-btn"
+            (click)="copySelectedPath()"
+            title="Copy JSONPath"
+            aria-label="Copy JSONPath"
+          >
+            <lucide-icon [img]="copyIcon" size="13" />
+            <span>Copy Path</span>
+          </button>
+          <button
+            type="button"
+            class="action-btn"
+            (click)="copySelectedValue()"
+            title="Copy Value"
+            aria-label="Copy Value"
+          >
+            <lucide-icon [img]="codeIcon" size="13" />
+            <span>Copy Value</span>
+          </button>
+          <button
+            type="button"
+            class="action-btn action-btn--icon"
+            (click)="clearSelection()"
+            title="Deselect node"
+            aria-label="Deselect node"
+          >
+            <lucide-icon [img]="clearIcon" size="13" />
+          </button>
+        </div>
+      } @else {
+        <div class="breadcrumb-hint">
+          <lucide-icon [img]="chevronRightIcon" size="13" class="hint-icon" />
+          <span>Click any node to inspect JSONPath and copy value</span>
+        </div>
+      }
+    </footer>
+  }
 </div>
+

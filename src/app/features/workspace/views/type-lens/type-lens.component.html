@@ -1,74 +1,116 @@
 <div class="type-lens">
   <div class="type-lens__header">
     <div class="type-lens__controls">
-      <!-- Target Pills -->
-      <div class="target-pills" role="radiogroup" aria-label="Select type generation target">
+      <!-- Target Dropdown -->
+      <div class="dropdown-wrapper" appClickOutside (clickOutside)="isDropdownOpen.set(false)">
         <button
           type="button"
-          class="target-pill"
-          [class.target-pill--active]="selectedTarget() === 'typescript'"
-          (click)="setTarget('typescript')"
-          aria-label="Generate TypeScript Interfaces"
+          class="action-btn action-btn--dropdown focus-ring"
+          (click)="toggleDropdown()"
+          [attr.aria-expanded]="isDropdownOpen()"
+          aria-haspopup="true"
+          title="Select Target Language"
+          aria-label="Select Target Language"
         >
-          TypeScript
+          <span class="action-btn__badge">{{ currentTargetConfig().tag }}</span>
+          <span class="action-btn__text">{{ targetLabel() }}</span>
+          <lucide-icon [img]="chevronDownIcon" size="12" class="dropdown-chevron" />
         </button>
-        <button
-          type="button"
-          class="target-pill"
-          [class.target-pill--active]="selectedTarget() === 'zod'"
-          (click)="setTarget('zod')"
-          aria-label="Generate Zod Schemas"
-        >
-          Zod
-        </button>
-        <button
-          type="button"
-          class="target-pill"
-          [class.target-pill--active]="selectedTarget() === 'go'"
-          (click)="setTarget('go')"
-          aria-label="Generate Go Structs"
-        >
-          Go
-        </button>
-      </div>
 
-      <!-- Root Name Input -->
-      <div class="root-name-group">
-        <span class="root-label">Root:</span>
-        <input
-          type="text"
-          class="root-input"
-          [value]="rootName()"
-          (input)="onRootNameChange($event)"
-          placeholder="Root"
-          aria-label="Root type or struct name"
-        />
+        @if (isDropdownOpen()) {
+          <div class="dropdown-menu animate-scale-in" role="menu">
+            @for (cat of languageCategories(); track cat.category) {
+              <div class="dropdown-category-title">{{ cat.category }}</div>
+              @for (item of cat.items; track item.id) {
+                <button
+                  type="button"
+                  class="dropdown-item"
+                  [class.dropdown-item--active]="selectedTarget() === item.id"
+                  (click)="setTarget(item.id)"
+                  role="menuitem"
+                >
+                  <span class="dropdown-item__label">{{ item.label }}</span>
+                  <div class="dropdown-item__meta">
+                    <span class="dropdown-item__ext">{{ item.extension }}</span>
+                    @if (selectedTarget() === item.id) {
+                      <span class="check-mark">✓</span>
+                    }
+                  </div>
+                </button>
+              }
+            }
+          </div>
+        }
       </div>
     </div>
 
-    <!-- Actions -->
+    <!-- Actions: Copy & Stacked Download Dropmodal -->
     <div class="type-lens__actions">
       <button
         type="button"
-        class="action-btn"
+        class="action-icon-btn focus-ring"
+        [class.action-icon-btn--copied]="isCopied()"
         (click)="copyTypes()"
-        title="Copy generated code"
-        aria-label="Copy generated code"
+        [title]="isCopied() ? 'Copied to Clipboard!' : 'Copy Generated Code'"
+        aria-label="Copy Generated Code"
       >
-        <lucide-icon [img]="copyIcon" size="14" />
-        <span>Copy</span>
+        <lucide-icon [img]="isCopied() ? checkIcon : copyIcon" size="14" />
       </button>
 
-      <button
-        type="button"
-        class="action-btn"
-        (click)="downloadTypes()"
-        title="Download file"
-        aria-label="Download generated code file"
-      >
-        <lucide-icon [img]="downloadIcon" size="14" />
-        <span>Download</span>
-      </button>
+      <!-- Stacked Download Dropmodal -->
+      <div class="download-wrapper" appClickOutside (clickOutside)="isDownloadOpen.set(false)">
+        <button
+          type="button"
+          class="action-icon-btn focus-ring"
+          [class.action-icon-btn--active]="isDownloadOpen()"
+          (click)="toggleDownloadMenu()"
+          title="Download Code File"
+          aria-label="Download generated code file"
+          [attr.aria-expanded]="isDownloadOpen()"
+        >
+          <lucide-icon [img]="downloadIcon" size="14" />
+        </button>
+
+        @if (isDownloadOpen()) {
+          <div
+            class="download-dropmodal animate-scale-in"
+            role="dialog"
+            aria-label="Export file name and save"
+            (keydown.escape)="isDownloadOpen.set(false)"
+          >
+            <div class="download-dropmodal__row">
+              <div class="download-dropmodal__input-group">
+                <input
+                  id="export-filename-input"
+                  type="text"
+                  class="download-dropmodal__input focus-ring"
+                  [value]="downloadFileName()"
+                  (input)="onDownloadFileNameChange($event)"
+                  (keydown.enter)="executeDownload()"
+                  placeholder="root"
+                  spellcheck="false"
+                  autocomplete="off"
+                  title="File name"
+                  aria-label="Export file name"
+                />
+                <span class="download-dropmodal__ext">{{ currentTargetConfig().extension }}</span>
+              </div>
+
+              <button
+                type="button"
+                class="download-dropmodal__save-btn focus-ring"
+                (click)="executeDownload()"
+                [disabled]="!isValid() || !hasData()"
+                title="Save / Export File (Enter)"
+                aria-label="Save and export file"
+              >
+                <lucide-icon [img]="saveIcon" size="13" />
+                <span>Save</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
     </div>
   </div>
 
@@ -77,9 +119,9 @@
       <div class="type-lens__empty">
         <lucide-icon [img]="alertIcon" class="empty-icon empty-icon--error" size="32" />
         <h4 class="empty-title">Cannot generate types</h4>
-        <p class="empty-text">Fix JSON syntax errors in the left panel to generate TypeScript, Zod, or Go types.</p>
+        <p class="empty-text">Fix JSON syntax errors in the left panel to generate {{ currentTargetConfig().label }}.</p>
       </div>
-    } @else if (!engine.parsedResult().data) {
+    } @else if (!hasData()) {
       <div class="type-lens__empty">
         <lucide-icon [img]="codeIcon" class="empty-icon" size="32" />
         <h4 class="empty-title">No JSON provided</h4>

@@ -311,3 +311,47 @@ function calculatePosition(input: string, line: number, column: number): number 
   }
   return pos + Math.max(0, column - 1);
 }
+
+/**
+ * Checks if a TreeNode matches a search query string against its key, path, or stringified value.
+ */
+export function isNodeMatch(node: TreeNode, query: string): boolean {
+  const q = query.toLowerCase().trim();
+  if (!q) return false;
+  const keyMatch = node.key.toLowerCase().includes(q);
+  const valMatch = node.value !== undefined && String(node.value).toLowerCase().includes(q);
+  const pathMatch = node.path.toLowerCase().includes(q);
+  return keyMatch || valMatch || pathMatch;
+}
+
+/**
+ * Checks whether any descendant of the given TreeNode matches the search query.
+ */
+export function hasMatchingDescendant(node: TreeNode, query: string): boolean {
+  const q = query.toLowerCase().trim();
+  if (!q || !node.children || node.children.length === 0) return false;
+
+  for (const child of node.children) {
+    if (isNodeMatch(child, q) || hasMatchingDescendant(child, q)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Computes the total number of matching nodes in a tree hierarchy for a search query.
+ */
+export function countTreeMatches(root: TreeNode | null, query: string): number {
+  const q = query.toLowerCase().trim();
+  if (!root || !q) return 0;
+
+  let count = isNodeMatch(root, q) ? 1 : 0;
+  if (root.children) {
+    for (const child of root.children) {
+      count += countTreeMatches(child, q);
+    }
+  }
+  return count;
+}
+

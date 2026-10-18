@@ -1,5 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
+  ApplicationRef,
   computed,
   DestroyRef,
   inject,
@@ -46,7 +47,12 @@ export const DEFAULT_SAMPLE_JSON = `{
     "Off-thread Web Worker Parser for Large Files"
   ],
   "author": {
-    "organization": "Open Source",
+    "name": "Shawon Talukder",
+    "headline": "Full-Stack Software Engineer · Angular Specialist · Mobile Developer",
+    "github": "https://github.com/Melodious-nub",
+    "linkedin": "https://www.linkedin.com/in/shawon-taluckder",
+    "email": "shawon.taluckder2@gmail.com",
+    "organization": "Open Source Community",
     "url": "https://github.com/Melodious-nub/jsonlens"
   },
   "metrics": {
@@ -65,12 +71,13 @@ export class JsonEngineService {
   private readonly repairService = inject(JsonRepairService);
   private readonly storageService = inject(StorageService);
   private readonly destroyRef = inject(DestroyRef);
-
   private readonly urlShareService = inject(UrlShareService);
+  private readonly appRef = inject(ApplicationRef);
 
   private worker: Worker | null = null;
   private currentWorkerTaskId = 0;
   private saveTimeout: ReturnType<typeof setTimeout> | null = null;
+  private tickScheduled = false;
 
   // Primary Signals
   readonly rawInput = signal<string>(DEFAULT_SAMPLE_JSON);
@@ -220,6 +227,22 @@ export class JsonEngineService {
       this.workerError.set(null);
       this.workerStats.set(null);
     }
+    this.scheduleAppTick();
+  }
+
+  scheduleAppTick(): void {
+    if (!this.isBrowser || this.tickScheduled) return;
+    this.tickScheduled = true;
+    queueMicrotask(() => {
+      this.tickScheduled = false;
+      if (!this.appRef.destroyed) {
+        try {
+          this.appRef.tick();
+        } catch {
+          // Safeguard
+        }
+      }
+    });
   }
 
   private debounceSaveInput(val: string): void {
@@ -344,6 +367,7 @@ export class JsonEngineService {
             minified: this.rawInput(),
           });
         }
+        this.scheduleAppTick();
       };
 
       this.destroyRef.onDestroy(() => {

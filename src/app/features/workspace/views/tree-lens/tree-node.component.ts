@@ -10,6 +10,10 @@ import {
 } from '@angular/core';
 import { TreeNode } from '../../../../core/models/json-lens.model';
 import { ToastService } from '../../../../core/services/toast.service';
+import {
+  hasMatchingDescendant,
+  isNodeMatch,
+} from '../../../../shared/utils/json-tree.util';
 import { LucideAngularModule, ChevronRight, ChevronDown, Copy } from 'lucide-angular';
 
 @Component({
@@ -24,8 +28,10 @@ export class TreeNodeComponent {
   readonly node = input.required<TreeNode>();
   readonly searchQuery = input<string>('');
   readonly defaultExpanded = input<boolean>(true);
+  readonly selectedPath = input<string | null>(null);
 
   readonly pathSelected = output<string>();
+  readonly nodeSelected = output<TreeNode>();
 
   private readonly toast = inject(ToastService);
 
@@ -33,8 +39,8 @@ export class TreeNodeComponent {
   readonly chevronDown = ChevronDown;
   readonly copyIcon = Copy;
 
-  // Track expanded state locally with initial value from input
-  readonly isExpanded = signal<boolean>(true);
+  // Track user manual expansion override per search query
+  private readonly manualState = signal<{ query: string; expanded: boolean } | null>(null);
 
   // Check if this node has child items
   readonly isExpandable = computed(() => {
@@ -44,19 +50,56 @@ export class TreeNodeComponent {
 
   // Highlight key/value matching search query
   readonly isMatch = computed(() => {
-    const q = this.searchQuery().toLowerCase().trim();
+    const q = this.searchQuery().trim();
     if (!q) return false;
-    const n = this.node();
-    const keyMatch = n.key.toLowerCase().includes(q);
-    const valMatch = n.value !== undefined && String(n.value).toLowerCase().includes(q);
-    const pathMatch = n.path.toLowerCase().includes(q);
-    return keyMatch || valMatch || pathMatch;
+    return isNodeMatch(this.node(), q);
   });
 
-  toggleExpanded(): void {
-    if (this.isExpandable()) {
-      this.isExpanded.update((v) => !v);
+  // Check if any descendant node matches query
+  readonly hasDescendantMatch = computed(() => {
+    const q = this.searchQuery().trim();
+    if (!q) return false;
+    return hasMatchingDescendant(this.node(), q);
+  });
+
+  // Computed expansion state: auto-expands when matching descendants or query match
+  readonly isExpanded = computed(() => {
+    const q = this.searchQuery().trim();
+    const manual = this.manualState();
+    if (manual && manual.query === q) {
+      return manual.expanded;
     }
+    if (q) {
+      return this.isMatch() || this.hasDescendantMatch();
+    }
+    return manual ? manual.expanded : this.defaultExpanded();
+  });
+
+  // Active selection state
+  readonly isSelected = computed(() => {
+    const selected = this.selectedPath();
+    return selected !== null && selected === this.node().path;
+  });
+
+  toggleExpanded(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (this.isExpandable()) {
+      const next = !this.isExpanded();
+      this.manualState.set({ query: this.searchQuery().trim(), expanded: next });
+    }
+  }
+
+  onRowClick(event: MouseEvent): void {
+    event.stopPropagation();
+    this.nodeSelected.emit(this.node());
+    this.pathSelected.emit(this.node().path);
+  }
+
+  onRowDblClick(event: MouseEvent): void {
+    event.stopPropagation();
+    this.toggleExpanded();
   }
 
   async copyPath(event: MouseEvent): Promise<void> {
@@ -65,6 +108,7 @@ export class TreeNodeComponent {
     try {
       await navigator.clipboard.writeText(p);
       this.toast.show(`Copied path: ${p}`, 'success');
+      this.nodeSelected.emit(this.node());
       this.pathSelected.emit(p);
     } catch {
       this.toast.show('Failed to copy JSONPath', 'error');
@@ -78,3 +122,4 @@ export class TreeNodeComponent {
     return String(val);
   }
 }
+

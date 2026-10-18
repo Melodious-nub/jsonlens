@@ -10,67 +10,90 @@
   color: var(--text-secondary);
   user-select: none;
   overflow: hidden;
+  gap: var(--space-2);
 
   &__section {
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    min-width: 0;
   }
 
   &__metrics {
     font-family: var(--font-mono);
+    flex-wrap: nowrap;
+    overflow: hidden;
+
     @media (max-width: 640px) {
-      display: none;
+      .metric-item:nth-child(n + 7),
+      .metric-divider:nth-child(n + 6) {
+        display: none;
+      }
     }
   }
+
+  &__lens-metrics {
+    font-family: var(--font-mono);
+    flex-shrink: 0;
+  }
 }
 
-.status-badge {
+.lens-meta-group {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-weight: 500;
+  gap: 5px;
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
 
-  &--valid {
-    color: var(--accent-valid);
+  .meta-pill {
+    color: var(--text-primary);
   }
 
-  &--invalid {
-    color: var(--accent-error);
-    max-width: 500px;
-  }
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-
-  &--valid {
-    background: var(--accent-valid);
-    box-shadow: 0 0 6px var(--accent-valid);
-  }
-
-  &--invalid {
-    background: var(--accent-error);
-    box-shadow: 0 0 6px var(--accent-error);
+  .meta-divider {
+    color: var(--border-strong);
+    opacity: 0.7;
+    margin: 0 1px;
   }
 }
 
-.error-coords {
-  font-family: var(--font-mono);
-  padding: 1px 5px;
-  background: var(--accent-error-bg);
-  border-radius: var(--radius-xs);
-  border: 1px solid rgba(251, 113, 133, 0.3);
-}
+.diff-summary-badges {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
 
-.error-msg {
-  color: var(--text-muted);
-  max-width: 250px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  .diff-badge {
+    padding: 1px 6px;
+    border-radius: var(--radius-xs);
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+
+    &--added {
+      background: rgba(52, 211, 153, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    &--removed {
+      background: rgba(244, 63, 94, 0.15);
+      color: #f43f5e;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+
+    &--modified {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    &--unchanged {
+      background: var(--surface-800);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+    }
+  }
 }
 
 .worker-badge {
@@ -103,6 +126,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
 
   .metric-label {
     color: var(--text-muted);

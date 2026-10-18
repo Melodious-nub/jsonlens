@@ -4,9 +4,12 @@ import {
   calculateStats,
   extractJsonError,
   flattenJsonObject,
+  hasMatchingDescendant,
+  isNodeMatch,
   sortJsonKeys,
   stripNullProperties,
   unflattenJsonObject,
+  countTreeMatches,
 } from './json-tree.util';
 
 describe('json-tree.util', () => {
@@ -88,5 +91,33 @@ describe('json-tree.util', () => {
     expect(coords.line).toBe(3);
     expect(coords.column).toBe(4);
     expect(coords.position).toBe(28);
+  });
+
+  it('should evaluate isNodeMatch, hasMatchingDescendant, and countTreeMatches correctly', () => {
+    const data = {
+      app: 'JsonLens',
+      settings: {
+        theme: 'dark',
+        features: ['tree', 'types', 'code'],
+      },
+    };
+    const tree = buildTreeNode(data);
+
+    // Root node
+    expect(isNodeMatch(tree, 'lens')).toBe(false);
+    expect(hasMatchingDescendant(tree, 'lens')).toBe(true);
+    expect(hasMatchingDescendant(tree, 'nonexistent')).toBe(false);
+
+    // Matching key or value
+    const appChild = tree.children?.find((c) => c.key === 'app')!;
+    expect(isNodeMatch(appChild, 'app')).toBe(true);
+    expect(isNodeMatch(appChild, 'jsonlens')).toBe(true);
+    expect(isNodeMatch(appChild, 'random')).toBe(false);
+
+    // Count matches
+    expect(countTreeMatches(tree, 'dark')).toBe(1);
+    expect(countTreeMatches(tree, 'tree')).toBe(1);
+    expect(countTreeMatches(tree, 'nonexistent')).toBe(0);
+    expect(countTreeMatches(null, 'test')).toBe(0);
   });
 });

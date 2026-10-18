@@ -1,3 +1,13 @@
+export * from './helpers';
 export { jsonToTypescript } from './typescript.generator';
 export { jsonToZod } from './zod.generator';
+export { jsonToJavascript } from './javascript.generator';
+export { jsonToPython } from './python.generator';
+export { jsonToJava } from './java.generator';
+export { jsonToKotlin } from './kotlin.generator';
+export { jsonToDart } from './dart.generator';
+export { jsonToCSharp } from './csharp.generator';
 export { jsonToGo } from './go.generator';
+export { jsonToRust } from './rust.generator';
+export { jsonToPhp } from './php.generator';
+export { jsonToSwift } from './swift.generator';
