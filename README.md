@@ -85,9 +85,11 @@ A state-of-the-art visual experience:
 - **Elastic Icon Morph:** Micro-animated Sun and Moon icons with a spring bounce and hover rotation.
 - **Zero Layout Thrashing:** Leverages the native browser View Transition API on the compositor thread.
 
-### 🔗 Zero-Server URL Sharing & Persistence
-- **Client-Side URL Hash Compression:** Compresses JSON payloads into URL hash fragments using LZ-String compression (`#payload=...`). The hash fragment is never sent in HTTP headers, keeping shared links 100% private.
-- **Local Persistence:** Working sessions and resizable split layouts automatically restore across browser reloads via LocalStorage.
+### 🔗 1-Click Instant Developer Sharing (Zero-Server Workspaces)
+Collaborate effortlessly with teammates and pick up work from any device:
+- **Instant Workspace Link:** Click the **Share** button in the navbar to instantly generate a portable, self-contained workspace URL. Send the link to any developer on Slack, Teams, Discord, or Email—they can open it in one click and immediately continue formatting, diffing, tree exploring, or generating types right where you left off.
+- **100% Client-Side Privacy (Zero Server Storage):** Powered by client-side **LZ-String URL hash compression** (`#payload=...`). Because RFC specifications mandate that browser hash fragments are *never* transmitted in HTTP request headers, your sensitive JSON data travels directly from developer to developer without ever touching an intermediate database or cloud server.
+- **Local Persistence & Session Restore:** Never lose your work. Your active JSON payload, selected indentation, and custom split-panel widths automatically persist across browser reloads via LocalStorage.
 
 ---
 
@@ -111,7 +113,7 @@ A state-of-the-art visual experience:
 3. **Inspect the Tree:** Switch to the **Tree** tab to search, auto-expand matching branches, and copy exact JSONPath queries.
 4. **Generate Types:** Open the **Types** tab, pick your target language (TypeScript, Go, Python, Rust, etc.), and click **Copy** or **Download**.
 5. **Compare Changes:** Open the **Diff** tab to view side-by-side AST differences in real time.
-6. **Share Securely:** Click **Share** in the navbar to generate an in-memory compressed URL link with zero server storage.
+6. **Share & Collaborate:** Click **Share** in the navbar to copy a zero-server workspace link. Send it to any teammate to let them continue working on the exact same payload instantly.
 
 ---
 
