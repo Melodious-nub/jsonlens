@@ -18,6 +18,12 @@ export const SAMPLE_MODIFIED_JSON = `{
     "Ultra-Fast Visual Diffing Engine"
   ],
   "author": {
+    "name": "Shawon Talukder",
+    "headline": "Full-Stack Software Engineer · Angular Specialist · Mobile Developer",
+    "github": "https://github.com/Melodious-nub",
+    "linkedin": "https://www.linkedin.com/in/shawon-taluckder",
+    "email": "shawon.taluckder2@gmail.com",
+    "fiverr": "https://www.fiverr.com/talukder_shawon/",
     "organization": "Open Source Community",
     "url": "https://github.com/Melodious-nub/jsonlens"
   },
@@ -37,15 +43,33 @@ export class DiffService {
 
   readonly secondaryInput = signal<string>(SAMPLE_MODIFIED_JSON);
   readonly isSampleActive = signal<boolean>(true);
+  readonly awaitingNewInput = signal<boolean>(false);
+  private readonly lastPrimaryOnClear = signal<string>('');
 
   constructor() {
-    // Reactively synchronize secondary comparison with primary input
-    // whenever user enters their own data while secondary is still the untouched sample.
+    // Reactively synchronize secondary comparison with primary input:
+    // 1. Initial sample startup when user enters their own data while sample is active.
+    // 2. When diff was cleared and new input is pasted/added into the primary editor.
     effect(() => {
       const primary = this.engine.rawInput();
-      if (this.isSampleActive() && primary !== DEFAULT_SAMPLE_JSON && primary.trim() !== '') {
+      const trimmedPrimary = primary.trim();
+
+      // Case 1: Initial startup with sample
+      if (this.isSampleActive() && primary !== DEFAULT_SAMPLE_JSON && trimmedPrimary !== '') {
         this.secondaryInput.set(primary);
         this.isSampleActive.set(false);
+        this.awaitingNewInput.set(false);
+        return;
+      }
+
+      // Case 2: Diff was cleared, and subsequent new JSON data is added to primary
+      if (
+        this.awaitingNewInput() &&
+        primary !== this.lastPrimaryOnClear() &&
+        trimmedPrimary !== ''
+      ) {
+        this.secondaryInput.set(primary);
+        this.awaitingNewInput.set(false);
       }
     });
   }
@@ -85,21 +109,26 @@ export class DiffService {
   setSecondaryInput(val: string): void {
     this.secondaryInput.set(val);
     this.isSampleActive.set(false);
+    this.awaitingNewInput.set(false);
   }
 
   loadSample(): void {
     this.secondaryInput.set(SAMPLE_MODIFIED_JSON);
     this.isSampleActive.set(true);
+    this.awaitingNewInput.set(false);
   }
 
   clearSecondary(): void {
     this.secondaryInput.set('');
     this.isSampleActive.set(false);
+    this.lastPrimaryOnClear.set(this.engine.rawInput());
+    this.awaitingNewInput.set(true);
   }
 
   cloneFromPrimary(): void {
     this.secondaryInput.set(this.engine.rawInput());
     this.isSampleActive.set(false);
+    this.awaitingNewInput.set(false);
   }
 
   swapInputs(): void {
@@ -107,5 +136,6 @@ export class DiffService {
     const currentSecondary = this.secondaryInput();
     this.engine.setInput(currentSecondary);
     this.secondaryInput.set(currentPrimary);
+    this.awaitingNewInput.set(false);
   }
 }

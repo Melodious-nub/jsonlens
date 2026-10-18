@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { DiffService } from './diff.service';
 import { JsonEngineService } from './json-engine.service';
 
@@ -49,5 +49,37 @@ describe('DiffService', () => {
     expect(service.secondaryInput()).toBe('{"hello": "world"}');
     expect(service.isSampleActive()).toBe(false);
     expect(service.meaningfulDiffs().length).toBe(0);
+  });
+
+  it('should auto-synchronize baseline when new input is added after diff is cleared', () => {
+    const service = TestBed.inject(DiffService);
+    const engine = TestBed.inject(JsonEngineService);
+
+    // Initial state
+    engine.setInput('{"v": 1}');
+    TestBed.flushEffects();
+
+    // Clear diff
+    service.clearSecondary();
+    expect(service.secondaryInput()).toBe('');
+    expect(service.awaitingNewInput()).toBe(true);
+    TestBed.flushEffects();
+
+    // Secondary stays cleared while primary has not changed
+    expect(service.secondaryInput()).toBe('');
+
+    // Now user inputs new JSON into primary editor
+    engine.setInput('{"v": 2, "new": true}');
+    TestBed.flushEffects();
+
+    // Secondary automatically initializes to the new baseline
+    expect(service.secondaryInput()).toBe('{"v": 2, "new": true}');
+    expect(service.awaitingNewInput()).toBe(false);
+    expect(service.meaningfulDiffs().length).toBe(0);
+
+    // Subsequent edit on secondary shows diff
+    service.setSecondaryInput('{"v": 3, "new": true}');
+    TestBed.flushEffects();
+    expect(service.meaningfulDiffs().length).toBe(1);
   });
 });

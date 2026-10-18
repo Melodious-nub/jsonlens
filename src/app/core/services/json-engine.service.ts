@@ -47,7 +47,12 @@ export const DEFAULT_SAMPLE_JSON = `{
     "Off-thread Web Worker Parser for Large Files"
   ],
   "author": {
-    "organization": "Open Source",
+    "name": "Shawon Talukder",
+    "headline": "Full-Stack Software Engineer · Angular Specialist · Mobile Developer",
+    "github": "https://github.com/Melodious-nub",
+    "linkedin": "https://www.linkedin.com/in/shawon-taluckder",
+    "email": "shawon.taluckder2@gmail.com",
+    "organization": "Open Source Community",
     "url": "https://github.com/Melodious-nub/jsonlens"
   },
   "metrics": {
