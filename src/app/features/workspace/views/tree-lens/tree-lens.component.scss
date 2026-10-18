@@ -50,6 +50,23 @@
       }
     }
 
+    .search-match-count {
+      font-size: 0.68rem;
+      font-family: var(--font-mono);
+      color: var(--accent-primary);
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: var(--radius-xs);
+      padding: 1px 6px;
+      white-space: nowrap;
+
+      &--zero {
+        color: var(--accent-warning);
+        background: rgba(245, 158, 11, 0.12);
+        border-color: rgba(245, 158, 11, 0.25);
+      }
+    }
+
     .clear-search-btn {
       background: transparent;
       border: none;
@@ -61,22 +78,6 @@
       &:hover {
         color: var(--text-primary);
       }
-    }
-  }
-
-  &__stats {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-
-    .stat-badge {
-      background: var(--surface-800);
-      color: var(--text-secondary);
-      padding: 2px 8px;
-      border-radius: var(--radius-xs);
-      font-size: 0.7rem;
-      font-family: var(--font-mono);
-      border: 1px solid var(--border-subtle);
     }
   }
 
@@ -124,9 +125,130 @@
       margin: 0;
     }
   }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    background: var(--surface-900);
+    border-top: 1px solid var(--border-default);
+    min-height: 38px;
+    font-size: 0.75rem;
+
+    .breadcrumb-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      flex: 1;
+
+      .breadcrumb-label {
+        color: var(--text-muted);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .breadcrumb-path {
+        color: var(--accent-primary);
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        background: var(--surface-800);
+        padding: 2px 6px;
+        border-radius: var(--radius-xs);
+        border: 1px solid var(--border-subtle);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 450px;
+      }
+
+      .breadcrumb-badge {
+        font-size: 0.65rem;
+        font-family: var(--font-mono);
+        text-transform: uppercase;
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-weight: 600;
+        flex-shrink: 0;
+
+        &--string {
+          background: var(--tree-badge-string-bg);
+          color: var(--tree-string);
+        }
+
+        &--number {
+          background: var(--tree-badge-number-bg);
+          color: var(--tree-number);
+        }
+
+        &--boolean {
+          background: var(--tree-badge-boolean-bg);
+          color: var(--tree-boolean);
+        }
+
+        &--null {
+          background: var(--tree-badge-null-bg);
+          color: var(--tree-null);
+        }
+
+        &--object,
+        &--array {
+          background: var(--tree-badge-container-bg);
+          color: var(--text-secondary);
+        }
+      }
+    }
+
+    .breadcrumb-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+
+      .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--surface-800);
+        border: 1px solid var(--border-default);
+        color: var(--text-secondary);
+        border-radius: var(--radius-xs);
+        padding: 3px 8px;
+        font-size: 0.72rem;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+
+        &:hover {
+          background: var(--surface-700);
+          color: var(--text-primary);
+          border-color: var(--accent-primary);
+        }
+
+        &--icon {
+          padding: 3px 5px;
+        }
+      }
+    }
+
+    .breadcrumb-hint {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+
+      .hint-icon {
+        opacity: 0.7;
+      }
+    }
+  }
 }
 
-/* Deep tree node styling overrides inside TreeLensComponent */
 :host {
   display: flex;
   flex-direction: column;
@@ -134,15 +256,4 @@
   width: 100%;
 }
 
-:host-context([data-theme='light']) ::ng-deep .tree-node__key,
-[data-theme='light'] ::ng-deep .tree-node__key {
-  color: #1e1b4b !important;
-  font-weight: 600 !important;
-}
-
-:host-context([data-theme='dark']) ::ng-deep .tree-node__key,
-[data-theme='dark'] ::ng-deep .tree-node__key {
-  color: #a5b4fc !important;
-  font-weight: 600 !important;
-}
 

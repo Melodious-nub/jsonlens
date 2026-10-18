@@ -8,6 +8,12 @@
     border-radius: var(--radius-xs);
   }
 
+  &--selected > .tree-node__row {
+    background: var(--surface-750, rgba(99, 102, 241, 0.18));
+    outline: 1px solid var(--accent-primary);
+    border-radius: var(--radius-xs);
+  }
+
   &__row {
     display: flex;
     align-items: center;
@@ -16,6 +22,7 @@
     border-radius: var(--radius-xs);
     cursor: pointer;
     position: relative;
+    user-select: none;
     transition: background var(--transition-fast);
 
     &:hover {
@@ -25,6 +32,11 @@
         opacity: 1;
         visibility: visible;
       }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--border-focus);
+      outline-offset: -1px;
     }
   }
 
@@ -54,26 +66,15 @@
   }
 
   &__key {
-    color: var(--tree-key, #1e1b4b);
+    color: var(--tree-key);
     font-weight: 600;
 
     &.highlight {
-      background: rgba(99, 102, 241, 0.4);
-      padding: 0 2px;
+      background: rgba(99, 102, 241, 0.35);
+      color: var(--text-primary);
+      padding: 0 3px;
       border-radius: 2px;
     }
-  }
-
-  :host-context([data-theme='light']) &__key,
-  [data-theme='light'] &__key {
-    color: #1e1b4b !important;
-    font-weight: 600 !important;
-  }
-
-  :host-context([data-theme='dark']) &__key,
-  [data-theme='dark'] &__key {
-    color: #a5b4fc !important;
-    font-weight: 600 !important;
   }
 
   &__colon {

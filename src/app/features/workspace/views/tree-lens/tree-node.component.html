@@ -1,16 +1,25 @@
 <div
   class="tree-node"
   [class.tree-node--matched]="isMatch()"
+  [class.tree-node--selected]="isSelected()"
   [class.tree-node--expanded]="isExpanded()"
 >
-  <div class="tree-node__row" (click)="toggleExpanded()">
+  <div
+    class="tree-node__row"
+    (click)="onRowClick($event)"
+    (dblclick)="onRowDblClick($event)"
+    role="treeitem"
+    [attr.aria-selected]="isSelected()"
+    [attr.aria-expanded]="isExpandable() ? isExpanded() : null"
+    tabindex="0"
+  >
     <!-- Chevron / Spacer -->
     @if (isExpandable()) {
       <button
         type="button"
         class="tree-node__toggle"
         [attr.aria-label]="isExpanded() ? 'Collapse node' : 'Expand node'"
-        (click)="$event.stopPropagation(); toggleExpanded()"
+        (click)="toggleExpanded($event)"
       >
         <lucide-icon
           [img]="isExpanded() ? chevronDown : chevronRight"
@@ -22,7 +31,7 @@
     }
 
     <!-- Key Name -->
-    <span class="tree-node__key" [style.color]="'var(--tree-key)'" [class.highlight]="isMatch()">
+    <span class="tree-node__key" [class.highlight]="isMatch()">
       {{ node().key }}
     </span>
     <span class="tree-node__colon">:</span>
@@ -78,7 +87,9 @@
         <app-tree-node
           [node]="child"
           [searchQuery]="searchQuery()"
+          [selectedPath]="selectedPath()"
           (pathSelected)="pathSelected.emit($event)"
+          (nodeSelected)="nodeSelected.emit($event)"
         />
       }
       <div class="tree-node__closing-bracket">
