@@ -211,5 +211,27 @@ describe('WorkspaceComponent', () => {
     expect(comp.activePane()).toBe('output');
     expect(comp.activeLens()).toBe('tree');
   });
+
+  it('should manage mobile responsive drawer state and toggle panes', () => {
+    const fixture = TestBed.createComponent(WorkspaceComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(comp.mobilePane()).toBe('input');
+
+    comp.toggleMobilePane();
+    expect(comp.mobilePane()).toBe('output');
+    expect(comp.activePane()).toBe('output');
+
+    comp.toggleMobilePane();
+    expect(comp.mobilePane()).toBe('input');
+    expect(comp.activePane()).toBe('input');
+
+    comp.setMobilePane('output');
+    expect(comp.mobilePane()).toBe('output');
+
+    comp.setMobilePane('input');
+    expect(comp.mobilePane()).toBe('input');
+  });
 });
 

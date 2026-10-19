@@ -4,6 +4,7 @@
     #panelsContainer
     class="workspace__panels"
     [class.is-resizing]="isDragging()"
+    [class.workspace__panels--mobile-output]="mobilePane() === 'output'"
   >
     <!-- Left Pane: Input Editor & Drop Zone -->
     <div
@@ -310,12 +311,12 @@
 
       <div class="rail-spacer"></div>
 
-      <div class="rail-divider"></div>
+      <div class="rail-divider rail-divider--split"></div>
 
       <!-- Center Split Reset Button -->
       <button
         type="button"
-        class="rail-btn focus-ring"
+        class="rail-btn rail-btn--center-split focus-ring"
         [class.rail-btn--active]="!isSplitCentered()"
         (click)="resetSplit()"
         [title]="isSplitCentered() ? 'Split is Centered (50/50)' : 'Reset Split to Center (50/50) — Currently ' + splitPercent() + '/' + (100 - splitPercent())"
@@ -323,6 +324,20 @@
       >
         <lucide-icon [img]="centerSplitIcon" size="14" />
       </button>
+
+      <!-- Mobile Toggle Button (Mobile only: positioned directly above Fullscreen button) -->
+      <button
+        type="button"
+        class="rail-btn rail-btn--mobile-toggle focus-ring"
+        (click)="toggleMobilePane()"
+        [title]="mobilePane() === 'input' ? 'Open Output Lens (Tree, Code, Types)' : 'Back to Input JSON Editor'"
+        [attr.aria-label]="mobilePane() === 'input' ? 'Open Output Lens' : 'Back to Input JSON Editor'"
+      >
+        <lucide-icon [img]="mobilePane() === 'input' ? chevronRightIcon : chevronLeftIcon" size="14" />
+      </button>
+
+      <!-- Mobile divider for proper separation and gap before fullscreen button -->
+      <div class="rail-divider rail-divider--mobile-sep"></div>
 
       <!-- Fullscreen Toggle Button -->
       <button
@@ -419,7 +434,7 @@
   </div>
 
   <!-- Bottom Diagnostics & Stats Bar -->
-  <app-status-bar [activeLens]="activeLens()" />
+  <app-status-bar [activeLens]="activeLens()" [mobilePane]="mobilePane()" />
 
   <!-- Full-Screen Image Previewer Lightbox for Workspace QR Code -->
   <app-image-previewer

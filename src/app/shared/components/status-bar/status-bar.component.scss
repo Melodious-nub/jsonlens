@@ -36,6 +36,41 @@
     font-family: var(--font-mono);
     flex-shrink: 0;
   }
+
+  @media (max-width: 768px) {
+    &--mobile-input {
+      .status-bar__metrics {
+        display: flex;
+        width: 100%;
+        overflow-x: auto;
+        scrollbar-width: none;
+        &::-webkit-scrollbar {
+          display: none;
+        }
+      }
+
+      .status-bar__lens-metrics {
+        display: none !important;
+      }
+    }
+
+    &--mobile-output {
+      .status-bar__metrics {
+        display: none !important;
+      }
+
+      .status-bar__lens-metrics {
+        display: flex !important;
+        width: 100%;
+        justify-content: flex-end;
+        overflow-x: auto;
+        scrollbar-width: none;
+        &::-webkit-scrollbar {
+          display: none;
+        }
+      }
+    }
+  }
 }
 
 .lens-meta-group {

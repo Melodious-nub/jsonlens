@@ -205,3 +205,26 @@
     }
   }
 }
+
+/* Mobile responsive optimizations */
+@media (max-width: 768px) {
+  .code-lens {
+    &__header {
+      padding: 4px 8px;
+      min-height: 34px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    &__actions {
+      gap: 4px;
+    }
+  }
+
+  .dropdown-wrapper--indent {
+    display: none !important;
+  }
+}

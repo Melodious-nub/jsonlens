@@ -54,6 +54,8 @@ import {
   ShieldCheck,
   Link2,
   Eye,
+  ChevronRight,
+  ChevronLeft,
 } from 'lucide-angular';
 
 @Component({
@@ -112,6 +114,8 @@ export class WorkspaceComponent {
   readonly linkIcon = Link2;
   readonly downloadQrIcon = Download;
   readonly viewQrIcon = Eye;
+  readonly chevronRightIcon = ChevronRight;
+  readonly chevronLeftIcon = ChevronLeft;
 
   // Inputs & State
   readonly defaultLens = input<LensTab>('code');
@@ -121,6 +125,9 @@ export class WorkspaceComponent {
   readonly isDragging = signal<boolean>(false);
   readonly isExportMenuOpen = signal<boolean>(false);
   readonly isFullscreen = signal<boolean>(false);
+
+  // Mobile Drawer State: 'input' = [Input Editor | Rail], 'output' = [Rail | Output Lens]
+  readonly mobilePane = signal<'input' | 'output'>('input');
 
   // 100% Client-Side Share & Mobile QR Code State
   readonly isShareMenuOpen = signal<boolean>(false);
@@ -235,6 +242,30 @@ export class WorkspaceComponent {
     if (this.activePane() !== pane) {
       this.activePane.set(pane);
     }
+  }
+
+  toggleMobilePane(): void {
+    const next = this.mobilePane() === 'input' ? 'output' : 'input';
+    this.mobilePane.set(next);
+    this.setActivePane(next);
+    this.triggerEditorLayout();
+  }
+
+  setMobilePane(pane: 'input' | 'output'): void {
+    if (this.mobilePane() !== pane) {
+      this.mobilePane.set(pane);
+      this.setActivePane(pane);
+      this.triggerEditorLayout();
+    }
+  }
+
+  private triggerEditorLayout(): void {
+    if (!this.isBrowser) return;
+    // Allow CSS translation to complete, then inform Monaco to recalculate viewport bounds
+    window.setTimeout(() => {
+      this.inputEditor()?.layout();
+      this.codeLens()?.layout();
+    }, 390);
   }
 
   setLens(lens: LensTab): void {

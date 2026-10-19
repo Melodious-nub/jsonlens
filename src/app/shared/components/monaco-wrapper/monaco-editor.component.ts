@@ -342,6 +342,12 @@ export class MonacoEditorComponent {
     return !!(findWidget && findWidget.classList.contains('visible'));
   }
 
+  layout(): void {
+    if (this.editor) {
+      this.editor.layout();
+    }
+  }
+
   private scheduleAppTick(): void {
     if (this.tickScheduled) return;
     this.tickScheduled = true;

@@ -74,6 +74,10 @@ export class CodeLensComponent {
     return this.editorComponent()?.isFindWidgetVisible() ?? false;
   }
 
+  layout(): void {
+    this.editorComponent()?.layout();
+  }
+
   readonly formattedJson = computed<string>(() => {
     const result = this.engine.parsedResult();
     if (!result.success || result.data === null || result.data === undefined) {

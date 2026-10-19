@@ -1,5 +1,11 @@
-<footer class="status-bar" role="status" aria-label="JSON Document Status and Statistics">
-  <!-- Left Side: Global Payload Metrics -->
+<footer
+  class="status-bar"
+  [class.status-bar--mobile-input]="mobilePane() === 'input'"
+  [class.status-bar--mobile-output]="mobilePane() === 'output'"
+  role="status"
+  aria-label="JSON Document Status and Statistics"
+>
+  <!-- Left Side: Input Document Metrics (Size, Keys, Depth, Objects, Arrays) -->
   <div class="status-bar__section status-bar__metrics">
     <div class="metric-item" title="Uncompressed payload size">
       <span class="metric-label">Size:</span>
@@ -45,7 +51,7 @@
     }
   </div>
 
-  <!-- Right Side: Contextual Lens Metrics -->
+  <!-- Right Side: Output Lens Metrics (Lines, Kb, Spaces) -->
   <div class="status-bar__section status-bar__lens-metrics">
     @switch (activeLens()) {
       @case ('code') {
@@ -54,7 +60,7 @@
           <span class="meta-divider" aria-hidden="true">|</span>
           <span class="meta-pill">{{ engine.jsonStats().byteSize | fileSize }}</span>
           <span class="meta-divider" aria-hidden="true">|</span>
-          <span class="meta-pill">{{ engine.indentOption() }}</span>
+          <span class="meta-pill">{{ indentLabel() }}</span>
         </div>
       }
       @case ('tree') {
