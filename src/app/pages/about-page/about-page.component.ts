@@ -51,11 +51,13 @@ export class AboutPageComponent {
   readonly externalIcon = ExternalLink;
   readonly downloadIcon = Download;
 
-  // Contact form signals (preserved)
+  // Contact form signals
+  readonly isSubmitting = signal<boolean>(false);
   readonly contactName = signal<string>('');
   readonly contactEmail = signal<string>('');
   readonly contactSubject = signal<string>('');
   readonly contactMessage = signal<string>('');
+  readonly contactHoneypot = signal<string>('');
 
   readonly creatorName = 'Shawon Talukder';
   readonly creatorRole = 'Software Engineer at Green Delta Insurance PLC';
@@ -246,7 +248,7 @@ export class AboutPageComponent {
     return this.openFaqs().includes(index);
   }
 
-  onInputChange(field: 'name' | 'email' | 'subject' | 'message', event: Event): void {
+  onInputChange(field: 'name' | 'email' | 'subject' | 'message' | 'honey', event: Event): void {
     const target = event.target as HTMLInputElement | HTMLTextAreaElement | null;
     const value = target?.value ?? '';
     switch (field) {
@@ -261,6 +263,9 @@ export class AboutPageComponent {
         break;
       case 'message':
         this.contactMessage.set(value);
+        break;
+      case 'honey':
+        this.contactHoneypot.set(value);
         break;
     }
   }
@@ -277,7 +282,11 @@ export class AboutPageComponent {
     }
   }
 
-  onSendContact(): void {
+  async onSendContact(): Promise<void> {
+    if (this.isSubmitting()) {
+      return;
+    }
+
     const name = this.contactName().trim();
     const email = this.contactEmail().trim();
     const subject = this.contactSubject().trim() || 'Inquiry regarding JsonLens';
@@ -288,18 +297,71 @@ export class AboutPageComponent {
       return;
     }
 
-    const mailtoUrl = `mailto:${this.creatorEmail}?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(`From: ${name} (${email})\n\n${message}`)}`;
-
-    if (typeof window !== 'undefined') {
-      window.open(mailtoUrl, '_blank');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      this.toastService.show('Please enter a valid email address', 'error');
+      return;
     }
 
-    this.toastService.show('Opening your email client to send message...', 'info');
-    this.contactName.set('');
-    this.contactEmail.set('');
-    this.contactSubject.set('');
-    this.contactMessage.set('');
+    // Bot honeypot check: silently drop if a bot filled the hidden honeypot
+    if (this.contactHoneypot().trim()) {
+      this.contactName.set('');
+      this.contactEmail.set('');
+      this.contactSubject.set('');
+      this.contactMessage.set('');
+      this.contactHoneypot.set('');
+      this.toastService.show('Message delivered directly to Shawon!', 'success');
+      return;
+    }
+
+    this.isSubmitting.set(true);
+
+    try {
+      const response = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(this.creatorEmail)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          _subject: `[JsonLens Contact] ${subject}`,
+          message,
+          _captcha: 'false',
+          _template: 'table',
+        }),
+      });
+
+      const result = (await response.json()) as { success?: string | boolean; message?: string };
+
+      if (response.ok && (result.success === 'true' || result.success === true)) {
+        this.toastService.show(
+          'Message delivered directly to Shawon! Thank you for reaching out.',
+          'success'
+        );
+        this.contactName.set('');
+        this.contactEmail.set('');
+        this.contactSubject.set('');
+        this.contactMessage.set('');
+      } else {
+        throw new Error(result.message || 'Form submission failed');
+      }
+    } catch (error) {
+      console.error('Contact form submission error:', error);
+      this.toastService.show(
+        'Online delivery failed. Opening email client fallback...',
+        'error'
+      );
+      // Fallback to mailto so the user never loses their message
+      const mailtoUrl = `mailto:${this.creatorEmail}?subject=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(`From: ${name} (${email})\n\n${message}`)}`;
+      if (typeof window !== 'undefined') {
+        window.open(mailtoUrl, '_blank');
+      }
+    } finally {
+      this.isSubmitting.set(false);
+    }
   }
 }

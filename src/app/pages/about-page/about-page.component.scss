@@ -799,6 +799,17 @@
       }
     }
 
+    .honeypot-field {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      height: 0;
+      width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
     .form-field {
       display: flex;
       flex-direction: column;
@@ -819,10 +830,16 @@
         font-size: 0.875rem;
         color: var(--text-primary);
         outline: none;
-        transition: border-color var(--transition-fast);
+        transition: border-color var(--transition-fast), opacity var(--transition-fast);
 
         &:focus {
           border-color: var(--accent-primary);
+        }
+
+        &:disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
+          background: var(--surface-900);
         }
       }
 
@@ -845,16 +862,36 @@
       font-size: 0.84rem;
       font-weight: 600;
       cursor: pointer;
-      transition: background var(--transition-fast);
+      transition: background var(--transition-fast), opacity var(--transition-fast);
 
       .btn-icon {
         width: 15px;
         height: 15px;
       }
 
-      &:hover {
+      .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: contact-btn-spin 0.65s linear infinite;
+      }
+
+      &:hover:not(:disabled) {
         background: var(--accent-primary-hover);
       }
+
+      &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
     }
+  }
+}
+
+@keyframes contact-btn-spin {
+  to {
+    transform: rotate(360deg);
   }
 }

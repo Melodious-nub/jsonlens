@@ -292,12 +292,24 @@
         </div>
       </div>
 
-      <!-- Direct Contact Form (Unchanged per instructions) -->
+      <!-- Direct Contact Form -->
       <div class="contact-card">
         <h3 class="section-title">Get in Touch with Shawon</h3>
         <p class="contact-subtitle">Have a feature suggestion, partnership inquiry, or found a bug? Send a message directly.</p>
 
         <form class="contact-form" (submit)="$event.preventDefault(); onSendContact()">
+          <!-- Honeypot anti-spam field (hidden from real users) -->
+          <input
+            type="text"
+            name="_honey"
+            class="honeypot-field"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+            [value]="contactHoneypot()"
+            (input)="onInputChange('honey', $event)"
+          />
+
           <div class="form-row">
             <div class="form-field">
               <label for="contact-name" class="field-label">Your Name</label>
@@ -308,6 +320,7 @@
                 [value]="contactName()"
                 (input)="onInputChange('name', $event)"
                 placeholder="e.g. Alex"
+                [disabled]="isSubmitting()"
                 required
               />
             </div>
@@ -321,6 +334,7 @@
                 [value]="contactEmail()"
                 (input)="onInputChange('email', $event)"
                 placeholder="e.g. alex@company.com"
+                [disabled]="isSubmitting()"
                 required
               />
             </div>
@@ -335,6 +349,7 @@
               [value]="contactSubject()"
               (input)="onInputChange('subject', $event)"
               placeholder="Feature Request / Inquiry"
+              [disabled]="isSubmitting()"
             />
           </div>
 
@@ -347,16 +362,27 @@
               [value]="contactMessage()"
               (input)="onInputChange('message', $event)"
               placeholder="Share your thoughts or question..."
+              [disabled]="isSubmitting()"
               required
             ></textarea>
           </div>
 
-          <button type="submit" class="submit-btn focus-ring">
-            <span>Send Direct Message</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon" aria-hidden="true">
-              <line x1="22" y1="2" x2="11" y2="13" />
-              <polygon points="22 2 15 22 11 13 2 9 22 2" />
-            </svg>
+          <button
+            type="submit"
+            class="submit-btn focus-ring"
+            [disabled]="isSubmitting()"
+            [attr.aria-busy]="isSubmitting()"
+          >
+            @if (isSubmitting()) {
+              <span class="spinner" aria-hidden="true"></span>
+              <span>Sending Message...</span>
+            } @else {
+              <span>Send Direct Message</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon" aria-hidden="true">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+            }
           </button>
         </form>
       </div>

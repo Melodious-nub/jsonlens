@@ -65,22 +65,82 @@ describe('AboutPageComponent', () => {
     expect(toastSpy).toHaveBeenCalledWith('Copied creator email to clipboard!', 'success');
   });
 
-  it('should validate contact form before sending', () => {
+  it('should validate contact form before sending', async () => {
     const toastSpy = vi.spyOn(toastService, 'show');
     const fixture = TestBed.createComponent(AboutPageComponent);
     const comp = fixture.componentInstance;
 
-    comp.onSendContact();
+    await comp.onSendContact();
     expect(toastSpy).toHaveBeenCalledWith('Please fill in Name, Email, and Message', 'error');
 
+    // Invalid email format test
     comp.contactName.set('Alex');
-    comp.contactEmail.set('alex@test.com');
+    comp.contactEmail.set('not-an-email');
     comp.contactMessage.set('Hello Shawon');
 
-    comp.onSendContact();
-    expect(toastSpy).toHaveBeenCalledWith(
-      'Opening your email client to send message...',
-      'info'
+    await comp.onSendContact();
+    expect(toastSpy).toHaveBeenCalledWith('Please enter a valid email address', 'error');
+  });
+
+  it('should silently discard submissions if honeypot is filled by bot', async () => {
+    const toastSpy = vi.spyOn(toastService, 'show');
+    const fixture = TestBed.createComponent(AboutPageComponent);
+    const comp = fixture.componentInstance;
+
+    comp.contactName.set('SpamBot');
+    comp.contactEmail.set('bot@spam.com');
+    comp.contactMessage.set('Buy something');
+    comp.contactHoneypot.set('spam_trap_value');
+
+    await comp.onSendContact();
+    expect(comp.contactName()).toBe('');
+    expect(comp.contactHoneypot()).toBe('');
+    expect(toastSpy).toHaveBeenCalledWith('Message delivered directly to Shawon!', 'success');
+  });
+
+  it('should send contact form via fetch to FormSubmit.co on valid input', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: 'true', message: 'The form was submitted successfully.' }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const toastSpy = vi.spyOn(toastService, 'show');
+    const fixture = TestBed.createComponent(AboutPageComponent);
+    const comp = fixture.componentInstance;
+
+    comp.contactName.set('Alex Dev');
+    comp.contactEmail.set('alex@example.com');
+    comp.contactSubject.set('Feature Request');
+    comp.contactMessage.set('I love JsonLens! Can we get CSV import?');
+
+    await comp.onSendContact();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('formsubmit.co/ajax/shawon.taluckder2%40gmail.com'),
+      expect.objectContaining({
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      })
     );
+
+    const requestBody = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(requestBody.name).toBe('Alex Dev');
+    expect(requestBody.email).toBe('alex@example.com');
+    expect(requestBody._subject).toBe('[JsonLens Contact] Feature Request');
+    expect(requestBody._captcha).toBe('false');
+
+    expect(comp.contactName()).toBe('');
+    expect(comp.contactEmail()).toBe('');
+    expect(comp.isSubmitting()).toBe(false);
+    expect(toastSpy).toHaveBeenCalledWith(
+      'Message delivered directly to Shawon! Thank you for reaching out.',
+      'success'
+    );
+
+    vi.unstubAllGlobals();
   });
 });
