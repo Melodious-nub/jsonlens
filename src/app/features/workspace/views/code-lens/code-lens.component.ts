@@ -4,6 +4,7 @@ import {
   computed,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { JsonEngineService } from '../../../../core/services/json-engine.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -58,6 +59,20 @@ export class CodeLensComponent {
   // Output-only view filters (non-destructive: do NOT mutate input editor)
   readonly sortOption = signal<OutputSortOption>('default');
   readonly transformOption = signal<OutputTransformOption>('default');
+
+  readonly editorComponent = viewChild<MonacoEditorComponent>('editorComponent');
+
+  triggerFind(): void {
+    this.editorComponent()?.triggerFind();
+  }
+
+  closeFindWidget(): void {
+    this.editorComponent()?.closeFindWidget();
+  }
+
+  isFindWidgetVisible(): boolean {
+    return this.editorComponent()?.isFindWidgetVisible() ?? false;
+  }
 
   readonly formattedJson = computed<string>(() => {
     const result = this.engine.parsedResult();

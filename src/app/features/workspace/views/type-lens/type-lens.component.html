@@ -130,6 +130,7 @@
     } @else {
       <div class="type-lens__editor-container">
         <app-monaco-editor
+          #editorComponent
           [content]="generatedCode()"
           [readOnly]="true"
           [language]="monacoLanguage()"

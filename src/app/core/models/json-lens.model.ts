@@ -83,3 +83,11 @@ export interface RouteMetadata {
   readonly keywords?: string[];
   readonly softwareType?: string;
 }
+
+export interface SharePayloadInfo {
+  readonly url: string;
+  readonly originalBytes: number;
+  readonly compressedBytes: number;
+  readonly percentSaved: number;
+  readonly isShort?: boolean;
+}

@@ -2,8 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { TreeNode } from '../../../../core/models/json-lens.model';
 import { JsonEngineService } from '../../../../core/services/json-engine.service';
@@ -44,6 +46,15 @@ export class TreeLensComponent {
 
   readonly searchQuery = signal<string>('');
   readonly selectedNode = signal<TreeNode | null>(null);
+  readonly searchInputRef = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+
+  focusSearch(): void {
+    const input = this.searchInputRef()?.nativeElement;
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  }
 
   readonly treeData = computed(() => this.engine.treeData());
   readonly isValid = computed(() => this.engine.isValid());

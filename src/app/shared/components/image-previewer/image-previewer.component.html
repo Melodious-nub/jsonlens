@@ -1,0 +1,139 @@
+@if (isOpen()) {
+  <div
+    class="image-previewer animate-fade-in"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="title()"
+  >
+    <!-- Frosted Backdrop -->
+    <div
+      class="image-previewer__backdrop"
+      (click)="onClose()"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Floating Top Toolbar -->
+    <header class="image-previewer__toolbar animate-scale-in">
+      <div class="toolbar__meta">
+        <lucide-icon [img]="scanIcon" size="15" class="toolbar__meta-icon" />
+        <div class="toolbar__meta-text">
+          <span class="toolbar__title">{{ title() }}</span>
+          @if (subtitle(); as sub) {
+            <span class="toolbar__subtitle">{{ sub }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="toolbar__actions">
+        <!-- Zoom Controls Group -->
+        <div class="toolbar__zoom-group" role="group" aria-label="Zoom controls">
+          <button
+            type="button"
+            class="toolbar-btn focus-ring"
+            (click)="zoomOut()"
+            [disabled]="isMinZoom()"
+            title="Zoom out (-)"
+            aria-label="Zoom out"
+          >
+            <lucide-icon [img]="zoomOutIcon" size="14" />
+          </button>
+
+          <button
+            type="button"
+            class="toolbar-zoom-badge focus-ring"
+            (click)="resetZoom()"
+            title="Reset zoom to 100% (0)"
+            aria-label="Reset zoom to 100%"
+          >
+            {{ zoomPercentage() }}%
+          </button>
+
+          <button
+            type="button"
+            class="toolbar-btn focus-ring"
+            (click)="zoomIn()"
+            [disabled]="isMaxZoom()"
+            title="Zoom in (+)"
+            aria-label="Zoom in"
+          >
+            <lucide-icon [img]="zoomInIcon" size="14" />
+          </button>
+
+          <button
+            type="button"
+            class="toolbar-btn focus-ring"
+            (click)="resetZoom()"
+            title="Reset position and zoom"
+            aria-label="Reset position and zoom"
+          >
+            <lucide-icon [img]="resetIcon" size="13" />
+          </button>
+        </div>
+
+        <div class="toolbar__divider" aria-hidden="true"></div>
+
+        <!-- Download Action -->
+        @if (allowDownload()) {
+          <button
+            type="button"
+            class="toolbar-download-btn focus-ring"
+            (click)="onDownloadClick()"
+            title="Download image"
+            aria-label="Download image"
+          >
+            <lucide-icon [img]="downloadIcon" size="13" />
+            <span class="btn-text">Download</span>
+          </button>
+        }
+
+        <!-- Close Action -->
+        <button
+          type="button"
+          class="toolbar-close-btn focus-ring"
+          (click)="onClose()"
+          title="Close preview (Esc)"
+          aria-label="Close image previewer"
+        >
+          <lucide-icon [img]="closeIcon" size="15" />
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Interactive Stage (Wheel zoom & Pan drag) -->
+    <main
+      class="image-previewer__stage"
+      [class.image-previewer__stage--dragging]="isDragging()"
+      (wheel)="onWheel($event)"
+      (pointerdown)="onPointerDown($event)"
+      (pointermove)="onPointerMove($event)"
+      (pointerup)="onPointerUp($event)"
+      (pointercancel)="onPointerUp($event)"
+      (dblclick)="onDoubleClick()"
+    >
+      @if (src(); as imageUrl) {
+        <div
+          class="image-previewer__canvas"
+          [style.transform]="'translate3d(' + panX() + 'px, ' + panY() + 'px, 0) scale(' + zoom() + ')'"
+        >
+          <div class="image-previewer__card">
+            <img
+              [src]="imageUrl"
+              [alt]="alt()"
+              class="previewer-img"
+              draggable="false"
+            />
+          </div>
+        </div>
+      } @else {
+        <div class="image-previewer__empty">
+          <span>No image to preview</span>
+        </div>
+      }
+    </main>
+
+    <!-- Bottom Helper Hint Pill -->
+    <footer class="image-previewer__hint animate-fade-in" aria-hidden="true">
+      <span>Scroll to zoom · Drag to pan · Double-click to reset · Esc to close</span>
+    </footer>
+  </div>
+}

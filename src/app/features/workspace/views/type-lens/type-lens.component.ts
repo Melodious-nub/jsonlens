@@ -4,6 +4,7 @@ import {
   computed,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { JsonEngineService } from '../../../../core/services/json-engine.service';
 import { TypeGenService } from '../../../../core/services/type-gen.service';
@@ -182,6 +183,20 @@ export class TypeLensComponent {
   readonly isDownloadOpen = signal<boolean>(false);
   readonly isCopied = signal<boolean>(false);
   readonly downloadFileName = signal<string>('root');
+
+  readonly editorComponent = viewChild<MonacoEditorComponent>('editorComponent');
+
+  triggerFind(): void {
+    this.editorComponent()?.triggerFind();
+  }
+
+  closeFindWidget(): void {
+    this.editorComponent()?.closeFindWidget();
+  }
+
+  isFindWidgetVisible(): boolean {
+    return this.editorComponent()?.isFindWidgetVisible() ?? false;
+  }
 
   readonly rootName = computed<string>(() => {
     const raw = this.downloadFileName().trim();
