@@ -40,19 +40,18 @@ export const routes: Routes = [
     path: 'about',
     loadComponent: () =>
       import('./pages/about-page/about-page.component').then((m) => m.AboutPageComponent),
-    title: 'About JsonLens — High-Performance Client-Side JSON Suite & FAQs',
+    title: 'About JsonLens & Creator — High-Performance Client-Side JSON Suite & FAQs',
   },
   {
     path: 'creator',
-    loadComponent: () =>
-      import('./pages/creator-page/creator-page.component').then((m) => m.CreatorPageComponent),
-    title: 'Meet the Creator — Shawon | JsonLens',
+    redirectTo: 'about',
+    pathMatch: 'full',
   },
   {
     path: 'support',
     loadComponent: () =>
       import('./pages/support-page/support-page.component').then((m) => m.SupportPageComponent),
-    title: 'Support JsonLens — Open Source Donations & Sponsorship',
+    title: 'Support JsonLens — Open Source Sponsorship & Coming Soon Plans',
   },
   {
     path: '**',

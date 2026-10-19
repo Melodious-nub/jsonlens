@@ -40,3 +40,35 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
 }
+
+.brand-name {
+  font-family: var(--font-sans);
+  font-size: inherit;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  display: inline-flex;
+  align-items: center;
+
+  &__bracket {
+    color: var(--brand-bracket);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(56, 189, 248, 0.35);
+    margin: 0 1px;
+    transition: text-shadow var(--transition-fast), color var(--transition-fast);
+  }
+
+  &__json {
+    color: var(--text-primary);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+    transition: text-shadow var(--transition-fast);
+  }
+
+  &__lens {
+    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 12px rgba(129, 140, 248, 0.45));
+    transition: filter var(--transition-fast);
+  }
+}

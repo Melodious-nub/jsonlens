@@ -1,18 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ToastService } from '../../core/services/toast.service';
-import { ExportService } from '../../core/services/export.service';
 
-export interface SupportChannel {
-  id: string;
-  name: string;
+export interface PlannedSupportChannel {
+  icon: string;
+  title: string;
   badge: string;
-  accentColor: string;
-  accountType: string;
-  primaryValue: string;
-  primaryLabel: string;
-  extraDetails?: { label: string; value: string }[];
-  note?: string;
+  description: string;
+  highlights: string[];
 }
 
 @Component({
@@ -24,95 +18,72 @@ export interface SupportChannel {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SupportPageComponent {
-  private readonly toastService = inject(ToastService);
-  private readonly exportService = inject(ExportService);
-
-  readonly copiedKey = signal<string | null>(null);
-
-  readonly supportChannels: SupportChannel[] = [
+  readonly plannedChannels: PlannedSupportChannel[] = [
     {
-      id: 'bkash',
-      name: 'bKash',
-      badge: 'Mobile Banking',
-      accentColor: '#e2136e',
-      accountType: 'Personal (Send Money)',
-      primaryValue: '01700000000',
-      primaryLabel: 'bKash Number',
-      note: 'Instant fee-free transfer via bKash App',
-    },
-    {
-      id: 'nagad',
-      name: 'Nagad',
-      badge: 'Mobile Banking',
-      accentColor: '#f7941d',
-      accountType: 'Personal (Send Money)',
-      primaryValue: '01700000000',
-      primaryLabel: 'Nagad Number',
-      note: 'Instant send money via Nagad App / USSD',
-    },
-    {
-      id: 'rocket',
-      name: 'Rocket',
-      badge: 'DBBL MFS',
-      accentColor: '#8c3494',
-      accountType: 'Personal Account',
-      primaryValue: '01700000000-0',
-      primaryLabel: 'Rocket Account',
-      note: 'Dutch-Bangla Bank Mobile Financial Services',
-    },
-    {
-      id: 'brac',
-      name: 'BRAC Bank',
-      badge: 'Bank Transfer',
-      accentColor: '#0054a6',
-      accountType: 'Savings Account',
-      primaryValue: '150120XXXXXXXXXX',
-      primaryLabel: 'Account Number',
-      extraDetails: [
-        { label: 'Account Name', value: 'Md. Shawon' },
-        { label: 'Branch Name', value: 'Gulshan Branch, Dhaka' },
-        { label: 'Routing Number', value: '06026XXXX' },
+      icon: '☕',
+      title: 'Micro-Donations & Fuel Support',
+      badge: 'Coming Soon',
+      description:
+        'Instant, zero-fee direct micro-tips via local and international gateways to fuel ongoing development and keep the tool 100% ad-free.',
+      highlights: [
+        'bKash / Nagad / Rocket (Local MFS)',
+        'Stripe & Buy Me a Coffee (International)',
+        'Crypto & Binance Pay (0% Fee USDT)',
       ],
-      note: 'EFTN / NPSB / BEFTN instant bank transfer',
     },
     {
-      id: 'binance',
-      name: 'Binance Pay',
-      badge: 'Crypto (0% Fee)',
-      accentColor: '#f0b90b',
-      accountType: 'Binance Pay ID / USDT',
-      primaryValue: '827364129',
-      primaryLabel: 'Binance Pay ID',
-      extraDetails: [
-        { label: 'USDT (BEP-20)', value: '0x71C5A8B282d96696F2852277d33bEb4b31a8FB29' },
+      icon: '💖',
+      title: 'GitHub Sponsors & Tiered Recognition',
+      badge: 'In Preparation',
+      description:
+        'Monthly developer sponsorships with prominent placement in the project README, website supporters wall, and backer recognition.',
+      highlights: [
+        'JsonLens Official Backers Wall',
+        'Featured GitHub Sponsor profile badge',
+        'Priority voting on upcoming developer tools',
       ],
-      note: 'Instant zero-fee transfer via Binance App',
     },
     {
-      id: 'payoneer',
-      name: 'Payoneer',
-      badge: 'International',
-      accentColor: '#ff4800',
-      accountType: 'Make a Payment',
-      primaryValue: 'shawon.payoneer@gmail.com',
-      primaryLabel: 'Payoneer Email',
-      note: 'Zero fees between Payoneer accounts worldwide',
+      icon: '⚡',
+      title: 'Feature Bounties & Priority Delivery',
+      badge: 'Roadmap Idea',
+      description:
+        'Directly fund specific features, schema validators, or format converters you need for your daily workflow or engineering team.',
+      highlights: [
+        'JSON Schema Draft 2020-12 Full Validator',
+        'Protobuf & MessagePack Binary Viewers',
+        'Offline PWA & Native Desktop Package',
+      ],
+    },
+    {
+      icon: '🏢',
+      title: 'Enterprise & Team Integrations',
+      badge: 'Enterprise Idea',
+      description:
+        'Custom private on-premise deployments, company-wide internal schema pre-configurations, or tailored developer tooling for engineering organizations.',
+      highlights: [
+        'Air-Gapped On-Premises Artifacts',
+        'Custom Team Schema Pre-Configurations',
+        'Direct Consulting & Custom Feature Builds',
+      ],
     },
   ];
 
-  async copyText(text: string, label: string, key: string): Promise<void> {
-    const success = await this.exportService.copyToClipboard(text);
-    if (success) {
-      this.copiedKey.set(key);
-      this.toastService.show(`Copied ${label} to clipboard!`, 'success');
-
-      setTimeout(() => {
-        if (this.copiedKey() === key) {
-          this.copiedKey.set(null);
-        }
-      }, 2000);
-    } else {
-      this.toastService.show(`Failed to copy ${label}`, 'error');
-    }
-  }
+  readonly guarantees = [
+    {
+      icon: '🔒',
+      title: 'Zero Ads, Zero Telemetry — Forever',
+      desc: 'JsonLens will never monetize through advertisements, tracking scripts, or collecting sensitive user payloads.',
+    },
+    {
+      icon: '⚡',
+      title: '100% Client-Side Invariant',
+      desc: 'All development focuses on edge in-browser algorithms, Web Worker concurrency, and zero server storage.',
+    },
+    {
+      icon: '🌍',
+      title: 'Public Open-Source Core',
+      desc: 'The tool and its underlying algorithms remain transparent, MIT-friendly, and driven by developer community feedback.',
+    },
+  ];
 }
