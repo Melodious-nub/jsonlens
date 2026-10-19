@@ -20,6 +20,11 @@ import type * as MonacoType from 'monaco-editor';
 import { JsonError } from '../../../core/models/json-lens.model';
 import { ThemeService } from '../../../core/services/theme.service';
 
+interface MonacoFindControllerContribution extends MonacoType.editor.IEditorContribution {
+  closeFindWidget?: () => void;
+  getState?: () => { isRevealed?: boolean };
+}
+
 @Component({
   selector: 'app-monaco-editor',
   standalone: true,
@@ -175,7 +180,7 @@ export class MonacoEditorComponent {
         language: this.language(),
         theme: initialTheme,
         readOnly: this.readOnly(),
-        automaticLayout: true,
+        automaticLayout: false,
         minimap: { enabled: this.minimap() },
         wordWrap: this.wordWrap(),
         lineNumbers: this.lineNumbers(),
@@ -198,6 +203,29 @@ export class MonacoEditorComponent {
       });
 
       this.editorInstance.set(this.editor);
+
+      // Dedicated ResizeObserver replacing automaticLayout polling
+      let layoutRafId: number | null = null;
+      let resizeObserver: ResizeObserver | null = null;
+
+      if (typeof ResizeObserver !== 'undefined') {
+        resizeObserver = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+              if (layoutRafId !== null) {
+                cancelAnimationFrame(layoutRafId);
+              }
+              layoutRafId = requestAnimationFrame(() => {
+                layoutRafId = null;
+                if (this.editor) {
+                  this.editor.layout();
+                }
+              });
+            }
+          }
+        });
+        resizeObserver.observe(container);
+      }
 
       // Register keyboard shortcut actions within Monaco editor
       this.editor.addAction({
@@ -264,11 +292,25 @@ export class MonacoEditorComponent {
 
       // Cleanup
       this.destroyRef.onDestroy(() => {
+        if (layoutRafId !== null) {
+          cancelAnimationFrame(layoutRafId);
+          layoutRafId = null;
+        }
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+          resizeObserver = null;
+        }
         container.removeEventListener('mouseenter', onContainerMouseOver, true);
         container.removeEventListener('mouseover', onContainerMouseOver, true);
         this.editorInstance.set(null);
         changeDisposable.dispose();
+
+        // Memory audit: dispose model and editor instances cleanly
+        const model = this.editor?.getModel();
         this.editor?.dispose();
+        if (model && !model.isDisposed()) {
+          model.dispose();
+        }
         this.editor = null;
       });
     } catch (err) {
@@ -307,7 +349,9 @@ export class MonacoEditorComponent {
   closeFindWidget(): void {
     if (!this.editor) return;
     try {
-      const controller = (this.editor as any).getContribution('editor.contrib.findController');
+      const controller = this.editor.getContribution<MonacoFindControllerContribution>(
+        'editor.contrib.findController',
+      );
       if (controller?.closeFindWidget) {
         controller.closeFindWidget();
       }
@@ -330,7 +374,9 @@ export class MonacoEditorComponent {
   isFindWidgetVisible(): boolean {
     if (!this.editor) return false;
     try {
-      const controller = (this.editor as any).getContribution('editor.contrib.findController');
+      const controller = this.editor.getContribution<MonacoFindControllerContribution>(
+        'editor.contrib.findController',
+      );
       if (controller?.getState) {
         return !!controller.getState()?.isRevealed;
       }

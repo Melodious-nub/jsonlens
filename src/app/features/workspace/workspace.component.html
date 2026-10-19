@@ -5,6 +5,9 @@
     class="workspace__panels"
     [class.is-resizing]="isDragging()"
     [class.workspace__panels--mobile-output]="mobilePane() === 'output'"
+    appSwipeGesture
+    (swipeLeft)="onSwipeLeft()"
+    (swipeRight)="onSwipeRight()"
   >
     <!-- Left Pane: Input Editor & Drop Zone -->
     <div
@@ -166,115 +169,19 @@
           <lucide-icon [img]="shareIcon" size="14" />
         </button>
 
-        @if (isShareMenuOpen() && shareData(); as data) {
-          <!-- Responsive Mobile Backdrop -->
-          <div
-            class="share-popover__backdrop"
-            (click)="closeShareMenu()"
-            aria-hidden="true"
-          ></div>
-
-          <div
-            class="share-popover animate-scale-in"
-            [class.share-popover--flip-left]="splitPercent() > 65"
-            role="dialog"
-            aria-label="Share Workspace Dialog"
-          >
-            <!-- Popover Header -->
-            <div class="share-popover__header">
-              <div class="share-popover__title">
-                <lucide-icon [img]="shareIcon" size="13" class="share-popover__title-icon" />
-                <span>Share Workspace</span>
-              </div>
-              <button
-                type="button"
-                class="share-popover__close-btn focus-ring"
-                (click)="closeShareMenu()"
-                title="Close share dialog"
-                aria-label="Close share dialog"
-              >
-                <lucide-icon [img]="closeIcon" size="13" />
-              </button>
-            </div>
-
-            <!-- Popover Body -->
-            <div class="share-popover__body">
-              <!-- Payload Compression Metric Badge -->
-              <div class="share-popover__stat-pill">
-                <span class="stat-pill__lightning">⚡</span>
-                <span class="stat-pill__text">
-                  {{ formatBytes(data.originalBytes) }} → {{ formatBytes(data.compressedBytes) }}
-                  @if (data.percentSaved > 0) {
-                    <strong class="stat-pill__badge">-{{ data.percentSaved }}%</strong>
-                  }
-                </span>
-                <span class="stat-pill__tag">Compressed</span>
-              </div>
-
-              <!-- URL Input & Copy Action Bar -->
-              <div class="share-popover__link-box">
-                <div class="share-popover__input-wrap">
-                  <lucide-icon [img]="linkIcon" size="13" class="share-popover__link-icon" />
-                  <input
-                    type="text"
-                    readonly
-                    [value]="data.url"
-                    class="share-popover__input"
-                    (click)="onSelectInput($event)"
-                    aria-label="Share URL"
-                  />
-                </div>
-                <button
-                  type="button"
-                  class="share-popover__copy-btn focus-ring"
-                  [class.share-popover__copy-btn--copied]="isShareCopied()"
-                  (click)="copyShareUrl()"
-                  [title]="isShareCopied() ? 'Copied to clipboard!' : 'Copy shareable link'"
-                  [attr.aria-label]="isShareCopied() ? 'Copied to clipboard' : 'Copy link to clipboard'"
-                >
-                  <lucide-icon [img]="isShareCopied() ? checkIcon : copyIcon" size="14" />
-                </button>
-              </div>
-
-              <!-- QR Code Section: Compact View & Download Actions -->
-              <div class="share-popover__qr-bar">
-                <div class="qr-bar__title">
-                  <lucide-icon [img]="qrCodeIcon" size="13" class="qr-bar__icon" />
-                  <span>QR Code</span>
-                </div>
-                <div class="qr-bar__actions">
-                  <button
-                    type="button"
-                    class="qr-btn qr-btn--view focus-ring"
-                    (click)="onViewQr()"
-                    title="Open QR Code image previewer"
-                    aria-label="View QR code image preview"
-                  >
-                    <lucide-icon [img]="viewQrIcon" size="12" />
-                    <span>View</span>
-                  </button>
-                  <button
-                    type="button"
-                    class="qr-btn qr-btn--download focus-ring"
-                    (click)="downloadQrImage()"
-                    title="Download QR code image"
-                    aria-label="Download QR code image"
-                  >
-                    <lucide-icon [img]="downloadQrIcon" size="12" />
-                    <span>Download</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Popover Footer -->
-            <div class="share-popover__footer">
-              <lucide-icon [img]="shieldIcon" size="12" class="shield-icon" />
-              <span>100% Client-Side Privacy. No data is stored on private servers.</span>
-            </div>
-          </div>
-        }
-
+        <app-share-dialog
+          [(isOpen)]="isShareMenuOpen"
+          [splitPercent]="splitPercent()"
+          [shareData]="shareData()"
+          [isShareCopied]="isShareCopied()"
+          [(isQrPreviewOpen)]="isQrPreviewOpen"
+          [qrCodeDataUrl]="qrCodeDataUrl()"
+          (copyRequested)="copyShareUrl()"
+          (viewQrRequested)="onViewQr()"
+          (downloadQrRequested)="downloadQrImage()"
+          (closeRequested)="closeShareMenu()"
+          (closeQrPreviewRequested)="closeQrPreview()"
+        />
       </div>
 
       <div class="rail-divider"></div>
@@ -295,15 +202,16 @@
 
       <div
         class="rail-grip"
-        (pointerdown)="onGripPointerDown($event)"
-        (dblclick)="onGripDblClick($event)"
+        appResizableSplitter
+        [container]="containerRef()?.nativeElement!"
+        direction="horizontal"
+        [minPrimaryPx]="340"
+        [minSecondaryPx]="360"
+        [(splitPercent)]="splitPercent"
+        [(isDragging)]="isDragging"
+        (resetRequested)="resetSplit()"
+        (splitChange)="onSplitChange($event)"
         title="Drag to resize panels (double-click to center 50/50)"
-        role="separator"
-        aria-orientation="vertical"
-        [attr.aria-valuenow]="splitPercent()"
-        aria-valuemin="20"
-        aria-valuemax="80"
-        tabindex="0"
         aria-label="Resize panels splitter"
       >
         <span class="rail-grip-line"></span>
@@ -436,15 +344,4 @@
   <!-- Bottom Diagnostics & Stats Bar -->
   <app-status-bar [activeLens]="activeLens()" [mobilePane]="mobilePane()" />
 
-  <!-- Full-Screen Image Previewer Lightbox for Workspace QR Code -->
-  <app-image-previewer
-    [isOpen]="isQrPreviewOpen()"
-    [src]="qrCodeDataUrl()"
-    title="Workspace QR Code"
-    subtitle="Scan with mobile camera or download high-res PNG"
-    alt="Workspace QR Code Preview"
-    filename="jsonlens-workspace-qr.png"
-    (closed)="closeQrPreview()"
-    (download)="downloadQrImage()"
-  />
 </section>

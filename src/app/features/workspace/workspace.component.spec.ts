@@ -233,5 +233,29 @@ describe('WorkspaceComponent', () => {
     comp.setMobilePane('input');
     expect(comp.mobilePane()).toBe('input');
   });
+
+  it('should switch mobile pane on swipe left and right gestures', () => {
+    const fixture = TestBed.createComponent(WorkspaceComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(comp.mobilePane()).toBe('input');
+
+    // Swipe left moves to output drawer
+    comp.onSwipeLeft();
+    expect(comp.mobilePane()).toBe('output');
+
+    // Swipe left again while already on output should remain on output
+    comp.onSwipeLeft();
+    expect(comp.mobilePane()).toBe('output');
+
+    // Swipe right returns to input editor
+    comp.onSwipeRight();
+    expect(comp.mobilePane()).toBe('input');
+
+    // Swipe right again while already on input should remain on input
+    comp.onSwipeRight();
+    expect(comp.mobilePane()).toBe('input');
+  });
 });
 

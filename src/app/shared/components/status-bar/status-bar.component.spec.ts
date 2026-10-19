@@ -7,6 +7,9 @@ import { TypeGenService } from '../../../core/services/type-gen.service';
 
 describe('StatusBarComponent', () => {
   beforeEach(async () => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.clear();
+    }
     await TestBed.configureTestingModule({
       imports: [StatusBarComponent],
       providers: [JsonEngineService, DiffService, TypeGenService],

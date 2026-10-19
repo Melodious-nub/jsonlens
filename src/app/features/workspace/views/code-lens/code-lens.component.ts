@@ -25,6 +25,7 @@ import {
   stripNullProperties,
   unflattenJsonObject,
 } from '../../../../shared/utils/json-tree.util';
+import { triggerHaptic } from '../../../../shared/utils/haptics.util';
 
 export type OutputSortOption = 'default' | 'asc' | 'desc';
 export type OutputTransformOption = 'default' | 'flatten' | 'unflatten' | 'stripNulls';
@@ -239,6 +240,7 @@ export class CodeLensComponent {
 
     try {
       await navigator.clipboard.writeText(text);
+      triggerHaptic(8);
       this.isCopied.set(true);
       this.toast.show('Formatted JSON copied to clipboard', 'success');
       setTimeout(() => this.isCopied.set(false), 1800);

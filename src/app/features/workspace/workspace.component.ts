@@ -24,7 +24,10 @@ import { StatusBarComponent } from '../../shared/components/status-bar/status-ba
 import { MonacoEditorComponent } from '../../shared/components/monaco-wrapper/monaco-editor.component';
 import { DropZoneDirective } from '../../shared/directives/drop-zone.directive';
 import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive';
-import { ImagePreviewerComponent } from '../../shared/components/image-previewer/image-previewer.component';
+import { ResizableSplitterDirective } from '../../shared/directives/resizable-splitter.directive';
+import { SwipeGestureDirective } from '../../shared/directives/swipe-gesture.directive';
+import { triggerHaptic } from '../../shared/utils/haptics.util';
+import { ShareDialogComponent } from './components/share-dialog/share-dialog.component';
 import { CodeLensComponent } from './views/code-lens/code-lens.component';
 import { TreeLensComponent } from './views/tree-lens/tree-lens.component';
 import { TypeLensComponent } from './views/type-lens/type-lens.component';
@@ -66,12 +69,14 @@ import {
     MonacoEditorComponent,
     DropZoneDirective,
     ClickOutsideDirective,
+    ResizableSplitterDirective,
+    SwipeGestureDirective,
+    ShareDialogComponent,
     CodeLensComponent,
     TreeLensComponent,
     TypeLensComponent,
     DiffLensComponent,
     LucideAngularModule,
-    ImagePreviewerComponent,
   ],
   templateUrl: './workspace.component.html',
   styleUrl: './workspace.component.scss',
@@ -151,14 +156,6 @@ export class WorkspaceComponent {
   readonly treeLens = viewChild<TreeLensComponent>('treeLens');
   readonly typeLens = viewChild<TypeLensComponent>('typeLens');
 
-  private moveListener: ((e: PointerEvent) => void) | null = null;
-  private upListener: ((e: PointerEvent) => void) | null = null;
-  private cachedRect: DOMRect | null = null;
-  private cachedLowerBound = 25;
-  private cachedUpperBound = 75;
-  private lastClientX = 0;
-  private rafId: number | null = null;
-
   constructor() {
     if (this.isBrowser) {
       const savedSplit = this.storage.getItem<number>('jsonlens_split_percent', 50);
@@ -232,10 +229,6 @@ export class WorkspaceComponent {
         this.activeLens.set(savedLens);
       }
     });
-
-    this.destroyRef.onDestroy(() => {
-      this.cleanupPointerListeners();
-    });
   }
 
   setActivePane(pane: 'input' | 'output'): void {
@@ -246,6 +239,7 @@ export class WorkspaceComponent {
 
   toggleMobilePane(): void {
     const next = this.mobilePane() === 'input' ? 'output' : 'input';
+    triggerHaptic(12);
     this.mobilePane.set(next);
     this.setActivePane(next);
     this.triggerEditorLayout();
@@ -253,9 +247,22 @@ export class WorkspaceComponent {
 
   setMobilePane(pane: 'input' | 'output'): void {
     if (this.mobilePane() !== pane) {
+      triggerHaptic(12);
       this.mobilePane.set(pane);
       this.setActivePane(pane);
       this.triggerEditorLayout();
+    }
+  }
+
+  onSwipeLeft(): void {
+    if (this.mobilePane() === 'input') {
+      this.setMobilePane('output');
+    }
+  }
+
+  onSwipeRight(): void {
+    if (this.mobilePane() === 'output') {
+      this.setMobilePane('input');
     }
   }
 
@@ -300,8 +307,24 @@ export class WorkspaceComponent {
   }
 
   onAutoRepair(): void {
+    if (this.engine.rawInput().length >= 250 * 1024 && this.engine.isWorkerAvailable()) {
+      this.toast.show('Repairing large JSON in background...', 'info');
+      this.engine.autoRepairAsync().then((repaired) => {
+        if (repaired) {
+          triggerHaptic([8, 30, 12]);
+          this.toast.show('JSON syntax automatically repaired!', 'success');
+        } else if (this.engine.isValid()) {
+          this.toast.show('JSON is already valid, no repairs needed.', 'info');
+        } else {
+          this.toast.show('Could not automatically repair syntax error.', 'error');
+        }
+      });
+      return;
+    }
+
     const repaired = this.engine.autoRepair();
     if (repaired) {
+      triggerHaptic([8, 30, 12]);
       this.toast.show('JSON syntax automatically repaired!', 'success');
     } else {
       if (this.engine.isValid()) {
@@ -429,6 +452,7 @@ export class WorkspaceComponent {
 
     const success = await this.exportService.copyToClipboard(data.url);
     if (success) {
+      triggerHaptic(8);
       this.isShareCopied.set(true);
       this.toast.show('Shareable link copied to clipboard!', 'success');
       setTimeout(() => this.isShareCopied.set(false), 2500);
@@ -567,117 +591,10 @@ export class WorkspaceComponent {
     this.toast.show('Split reset to center (50/50)', 'success');
   }
 
-  onGripPointerDown(event: PointerEvent): void {
-    this.onDividerPointerDown(event);
-  }
-
-  onGripDblClick(_event: MouseEvent): void {
-    this.resetSplit();
-  }
-
-  onRailPointerDown(event: PointerEvent): void {
-    this.onGripPointerDown(event);
-  }
-
-  onRailDblClick(event: MouseEvent): void {
-    this.onGripDblClick(event);
-  }
-
-  onDividerPointerDown(event: PointerEvent): void {
-    if (!this.isBrowser) return;
-
-    event.preventDefault();
-    this.isDragging.set(true);
-
-    const container = this.containerRef()?.nativeElement;
-    if (container) {
-      this.cachedRect = container.getBoundingClientRect();
-      const rectWidth = this.cachedRect.width;
-
-      if (rectWidth > 0) {
-        // Minimum left width: 340px (Valid/Invalid badge meets Auto-Fix button without line breaks)
-        const minLeftWidth = 340;
-        // Minimum right width: 360px (Code, Tree, Types, Diff tabs end with comfortable margin)
-        const minRightWidth = 360;
-
-        const minLeftPercent = (minLeftWidth / rectWidth) * 100;
-        const maxLeftPercent = ((rectWidth - minRightWidth) / rectWidth) * 100;
-
-        this.cachedLowerBound = Math.min(minLeftPercent, maxLeftPercent);
-        this.cachedUpperBound = Math.max(minLeftPercent, maxLeftPercent);
-      }
-    }
-
-    const target = event.currentTarget as HTMLElement | null;
-    if (target && target.setPointerCapture) {
-      target.setPointerCapture(event.pointerId);
-    }
-
-    this.lastClientX = event.clientX;
-    this.moveListener = (e: PointerEvent) => this.onPointerMove(e);
-    this.upListener = (e: PointerEvent) => this.onPointerUp(e, target, event.pointerId);
-
-    window.addEventListener('pointermove', this.moveListener, { passive: true });
-    window.addEventListener('pointerup', this.upListener);
-  }
-
-  private onPointerMove(event: PointerEvent): void {
-    if (!this.cachedRect || this.cachedRect.width <= 0) return;
-
-    this.lastClientX = event.clientX;
-    if (this.rafId !== null) {
-      return;
-    }
-
-    this.rafId = requestAnimationFrame(() => {
-      this.rafId = null;
-      if (!this.cachedRect || this.cachedRect.width <= 0) return;
-
-      const pointerOffset = this.lastClientX - this.cachedRect.left;
-      const rawPercent = (pointerOffset / this.cachedRect.width) * 100;
-      const clampedPercent = Math.min(
-        Math.max(rawPercent, this.cachedLowerBound),
-        this.cachedUpperBound,
-      );
-
-      // 0.1% precision for buttery smooth, fluid subpixel motion
-      this.splitPercent.set(Math.round(clampedPercent * 10) / 10);
-    });
-  }
-
-  private onPointerUp(
-    _event: PointerEvent,
-    target: HTMLElement | null,
-    pointerId: number,
-  ): void {
-    this.isDragging.set(false);
-    this.cachedRect = null;
+  onSplitChange(percent: number): void {
+    this.splitPercent.set(percent);
     if (this.isBrowser) {
-      this.storage.setItem('jsonlens_split_percent', this.splitPercent());
+      this.storage.setItem('jsonlens_split_percent', percent);
     }
-    if (target && target.releasePointerCapture) {
-      try {
-        target.releasePointerCapture(pointerId);
-      } catch {
-        // Safe fallback
-      }
-    }
-    this.cleanupPointerListeners();
-  }
-
-  private cleanupPointerListeners(): void {
-    if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
-    }
-    if (this.moveListener) {
-      window.removeEventListener('pointermove', this.moveListener);
-      this.moveListener = null;
-    }
-    if (this.upListener) {
-      window.removeEventListener('pointerup', this.upListener);
-      this.upListener = null;
-    }
-    this.cachedRect = null;
   }
 }

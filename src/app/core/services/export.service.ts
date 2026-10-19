@@ -2,6 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { JsonStats, JsonValue } from '../models/json-lens.model';
 import { flattenJsonObject } from '../../shared/utils/json-tree.util';
+import { triggerHaptic } from '../../shared/utils/haptics.util';
 
 @Injectable({
   providedIn: 'root',
@@ -107,6 +108,7 @@ export class ExportService {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(text);
+        triggerHaptic(8);
         return true;
       }
       // Fallback
@@ -119,6 +121,9 @@ export class ExportService {
       textArea.select();
       const success = document.execCommand('copy');
       document.body.removeChild(textArea);
+      if (success) {
+        triggerHaptic(8);
+      }
       return success;
     } catch {
       return false;

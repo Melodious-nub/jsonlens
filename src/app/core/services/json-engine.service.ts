@@ -16,6 +16,8 @@ import {
   ParseResult,
   SortOrder,
   TreeNode,
+  DiffItem,
+  DiffSummary,
 } from '../models/json-lens.model';
 import {
   buildTreeNode,
@@ -29,7 +31,10 @@ import {
 import { JsonRepairService } from './json-repair.service';
 import { StorageService } from './storage.service';
 import { UrlShareService } from './url-share.service';
-import { WorkerParseRequest, WorkerParseResponse } from '../workers/json.worker';
+import {
+  WorkerParseRequest,
+  WorkerResponse,
+} from '../workers/json.worker';
 
 const LARGE_PAYLOAD_THRESHOLD = 2 * 1024 * 1024; // 2MB
 
@@ -78,6 +83,7 @@ export class JsonEngineService {
   private currentWorkerTaskId = 0;
   private saveTimeout: ReturnType<typeof setTimeout> | null = null;
   private tickScheduled = false;
+  private readonly pendingWorkerCallbacks = new Map<string, (res: WorkerResponse) => void>();
 
   // Primary Signals
   readonly rawInput = signal<string>(DEFAULT_SAMPLE_JSON);
@@ -286,6 +292,76 @@ export class JsonEngineService {
     return false;
   }
 
+  autoRepairAsync(): Promise<boolean> {
+    const input = this.rawInput();
+    const worker = this.worker;
+    if (!worker || input.length < 250 * 1024) {
+      return Promise.resolve(this.autoRepair());
+    }
+
+    return new Promise<boolean>((resolve) => {
+      this.isProcessing.set(true);
+      const taskId = `repair-${++this.currentWorkerTaskId}`;
+
+      this.pendingWorkerCallbacks.set(taskId, (response: WorkerResponse) => {
+        this.isProcessing.set(false);
+        if (response.type === 'repair' && response.success) {
+          if (response.wasModified) {
+            this.setInput(response.repaired);
+            resolve(true);
+            return;
+          }
+        }
+        resolve(false);
+      });
+
+      worker.postMessage({
+        id: taskId,
+        type: 'repair',
+        input,
+      });
+    });
+  }
+
+  computeDiffWorker(
+    left: unknown,
+    right: unknown,
+    callback: (result: { diffItems: DiffItem[]; summary: DiffSummary } | null) => void,
+  ): () => void {
+    const worker = this.worker;
+    if (!worker) {
+      callback(null);
+      return () => {};
+    }
+
+    const taskId = `diff-${++this.currentWorkerTaskId}`;
+    this.pendingWorkerCallbacks.set(taskId, (response: WorkerResponse) => {
+      if (response.type === 'diff' && response.success) {
+        callback({
+          diffItems: response.diffItems as DiffItem[],
+          summary: response.summary as DiffSummary,
+        });
+      } else {
+        callback(null);
+      }
+    });
+
+    worker.postMessage({
+      id: taskId,
+      type: 'diff',
+      left,
+      right,
+    });
+
+    return () => {
+      this.pendingWorkerCallbacks.delete(taskId);
+    };
+  }
+
+  isWorkerAvailable(): boolean {
+    return this.worker !== null;
+  }
+
   sortKeys(order: 'asc' | 'desc'): void {
     const res = this.parsedResult();
     if (res.success && res.data !== null) {
@@ -342,35 +418,48 @@ export class JsonEngineService {
         { type: 'module' },
       );
 
-      this.worker.onmessage = ({ data }: MessageEvent<WorkerParseResponse>) => {
-        if (parseInt(data.id, 10) !== this.currentWorkerTaskId) {
-          return; // Ignore stale results
+      this.worker.onmessage = ({ data }: MessageEvent<WorkerResponse>) => {
+        // 1. First check if there is an explicit task callback registered (e.g. repair or diff)
+        const callback = this.pendingWorkerCallbacks.get(data.id);
+        if (callback) {
+          this.pendingWorkerCallbacks.delete(data.id);
+          callback(data);
+          this.scheduleAppTick();
+          return;
         }
 
-        this.isProcessing.set(false);
+        // 2. Otherwise handle standard live parsing task
+        if (data.type === 'parse') {
+          if (parseInt(data.id, 10) !== this.currentWorkerTaskId) {
+            return; // Ignore stale results
+          }
 
-        if (data.success) {
-          this.workerResult.set({
-            success: true,
-            data: data.data as JsonValue,
-            formatted: data.formatted,
-            minified: data.minified,
-          });
-          this.workerStats.set(data.stats as JsonStats);
-          this.workerError.set(null);
-        } else {
-          this.workerError.set(data.error as JsonError);
-          this.workerResult.set({
-            success: false,
-            data: null,
-            formatted: this.rawInput(),
-            minified: this.rawInput(),
-          });
+          this.isProcessing.set(false);
+
+          if (data.success) {
+            this.workerResult.set({
+              success: true,
+              data: data.data as JsonValue,
+              formatted: data.formatted,
+              minified: data.minified,
+            });
+            this.workerStats.set(data.stats as JsonStats);
+            this.workerError.set(null);
+          } else {
+            this.workerError.set(data.error as JsonError);
+            this.workerResult.set({
+              success: false,
+              data: null,
+              formatted: this.rawInput(),
+              minified: this.rawInput(),
+            });
+          }
+          this.scheduleAppTick();
         }
-        this.scheduleAppTick();
       };
 
       this.destroyRef.onDestroy(() => {
+        this.pendingWorkerCallbacks.clear();
         this.worker?.terminate();
         this.worker = null;
       });
@@ -389,6 +478,7 @@ export class JsonEngineService {
 
     const request: WorkerParseRequest = {
       id: String(this.currentWorkerTaskId),
+      type: 'parse',
       input,
       indent: this.indentValue(),
     };
