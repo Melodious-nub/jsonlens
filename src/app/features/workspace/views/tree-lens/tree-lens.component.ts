@@ -2,8 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
+  ElementRef,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { TreeNode } from '../../../../core/models/json-lens.model';
 import { JsonEngineService } from '../../../../core/services/json-engine.service';
@@ -44,6 +47,27 @@ export class TreeLensComponent {
 
   readonly searchQuery = signal<string>('');
   readonly selectedNode = signal<TreeNode | null>(null);
+  readonly searchInputRef = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+
+  private readonly destroyRef = inject(DestroyRef);
+  private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.searchDebounceTimer) {
+        clearTimeout(this.searchDebounceTimer);
+        this.searchDebounceTimer = null;
+      }
+    });
+  }
+
+  focusSearch(): void {
+    const input = this.searchInputRef()?.nativeElement;
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  }
 
   readonly treeData = computed(() => this.engine.treeData());
   readonly isValid = computed(() => this.engine.isValid());
@@ -57,10 +81,24 @@ export class TreeLensComponent {
 
   onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.searchQuery.set(input.value);
+    const value = input.value;
+    if (this.searchDebounceTimer) {
+      clearTimeout(this.searchDebounceTimer);
+    }
+    if (!value.trim()) {
+      this.searchQuery.set('');
+      return;
+    }
+    this.searchDebounceTimer = setTimeout(() => {
+      this.searchQuery.set(value);
+    }, 120);
   }
 
   clearSearch(): void {
+    if (this.searchDebounceTimer) {
+      clearTimeout(this.searchDebounceTimer);
+      this.searchDebounceTimer = null;
+    }
     this.searchQuery.set('');
   }
 

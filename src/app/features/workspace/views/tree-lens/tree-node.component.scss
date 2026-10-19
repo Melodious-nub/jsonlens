@@ -24,6 +24,8 @@
     position: relative;
     user-select: none;
     transition: background var(--transition-fast);
+    content-visibility: auto;
+    contain-intrinsic-size: 0 26px;
 
     &:hover {
       background: var(--surface-800);

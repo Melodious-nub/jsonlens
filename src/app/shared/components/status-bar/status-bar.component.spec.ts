@@ -7,6 +7,9 @@ import { TypeGenService } from '../../../core/services/type-gen.service';
 
 describe('StatusBarComponent', () => {
   beforeEach(async () => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.clear();
+    }
     await TestBed.configureTestingModule({
       imports: [StatusBarComponent],
       providers: [JsonEngineService, DiffService, TypeGenService],
@@ -39,6 +42,17 @@ describe('StatusBarComponent', () => {
 
     comp.typeGen.setTarget('go');
     expect(comp.typeTargetLabel()).toBe('Go');
+  });
+
+  it('should format indent label and accept mobilePane input', () => {
+    const fixture = TestBed.createComponent(StatusBarComponent);
+    const comp = fixture.componentInstance;
+    expect(comp.mobilePane()).toBe('input');
+    expect(comp.indentLabel()).toBe('2 spaces');
+
+    fixture.componentRef.setInput('mobilePane', 'output');
+    fixture.detectChanges();
+    expect(comp.mobilePane()).toBe('output');
   });
 });
 

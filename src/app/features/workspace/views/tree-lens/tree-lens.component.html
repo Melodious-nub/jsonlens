@@ -3,11 +3,13 @@
     <div class="tree-lens__search">
       <lucide-icon [img]="searchIcon" class="search-icon" size="14" />
       <input
+        #searchInput
         type="text"
         class="search-input"
         placeholder="Filter keys, values, or JSONPath..."
         [value]="searchQuery()"
         (input)="onSearchInput($event)"
+        (keydown.escape)="clearSearch()"
         aria-label="Filter tree by key or value"
       />
       @if (searchQuery().trim()) {

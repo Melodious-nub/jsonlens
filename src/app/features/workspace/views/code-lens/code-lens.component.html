@@ -1,8 +1,8 @@
 <div class="code-lens">
   <div class="code-lens__header">
     <div class="code-lens__actions">
-      <!-- Indent Dropdown -->
-      <div class="dropdown-wrapper" appClickOutside (clickOutside)="isIndentMenuOpen.set(false)">
+      <!-- Indent Dropdown (Hidden on mobile to optimize header toolbar space) -->
+      <div class="dropdown-wrapper dropdown-wrapper--indent" appClickOutside (clickOutside)="isIndentMenuOpen.set(false)">
         <button
           type="button"
           class="action-btn action-btn--dropdown focus-ring"
@@ -194,6 +194,7 @@
 
   <div class="code-lens__editor-container">
     <app-monaco-editor
+      #editorComponent
       [content]="formattedJson()"
       [readOnly]="true"
       language="json"

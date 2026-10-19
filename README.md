@@ -85,9 +85,14 @@ A state-of-the-art visual experience:
 - **Elastic Icon Morph:** Micro-animated Sun and Moon icons with a spring bounce and hover rotation.
 - **Zero Layout Thrashing:** Leverages the native browser View Transition API on the compositor thread.
 
-### 🔗 Zero-Server URL Sharing & Persistence
-- **Client-Side URL Hash Compression:** Compresses JSON payloads into URL hash fragments using LZ-String compression (`#payload=...`). The hash fragment is never sent in HTTP headers, keeping shared links 100% private.
-- **Local Persistence:** Working sessions and resizable split layouts automatically restore across browser reloads via LocalStorage.
+### 🔗 Instant Developer Sharing & Mobile QR Code (Zero-Server Workspaces)
+Collaborate effortlessly with teammates and test payloads across any device:
+- **Shortened, Compact Share Links:** Pre-minifies JSON before LZ-compression to strip redundant indentation and uses a compact `#d=` hash, reducing URL character length by **40%–76%**.
+- **Live Compression Metrics & 1-Click Copy:** Sleek, fixed-layout Share popover displays live payload compression savings (`1.4 KB → 340 B (-76%) Compressed`) with an icon-only clipboard copy button and visual checkmark state.
+- **Interactive QR Image Previewer Lightbox:** Click **View** to open a dedicated full-viewport image previewer with smooth mouse-wheel zoom (40% to 350%), drag-to-pan canvas, double-click zoom toggle, and keyboard shortcuts (`Esc`, `+`, `-`, `0`).
+- **High-Resolution PNG Download:** Click **Download** to instantly export a crisp, 512px vector-derived QR code image for documentation, issue tracking, or scanning on mobile devices.
+- **100% Client-Side Privacy (Zero Server Storage):** Encoded entirely inside the browser's URL hash fragment (`#d=...`). RFC specifications mandate that hash fragments are *never* transmitted to any web server or database. Your sensitive data stays 100% private on your client device.
+- **Local Persistence & Session Restore:** Never lose your work. Your active JSON payload, selected indentation, and custom split-panel widths automatically persist across browser reloads via LocalStorage.
 
 ---
 
@@ -98,7 +103,7 @@ A state-of-the-art visual experience:
 - **Change Detection:** `ChangeDetectionStrategy.OnPush` enforced across all components
 - **Editor Engine:** Monaco Editor 0.57+ (GPU-accelerated, virtualized scrolling)
 - **Off-Thread Processing:** Dedicated Web Worker for background parsing of payloads over 2MB
-- **Testing:** Vitest & Angular Unit Testing (100% passing test suites across 24 modules)
+- **Testing:** Vitest & Angular Unit Testing (100% passing test suites across 26 modules / 116 unit tests)
 - **Styling:** Vanilla CSS Custom Properties & SCSS design tokens (Zero runtime overhead)
 - **Transitions:** Native View Transitions API with circular `clip-path` wave animation
 
@@ -111,7 +116,7 @@ A state-of-the-art visual experience:
 3. **Inspect the Tree:** Switch to the **Tree** tab to search, auto-expand matching branches, and copy exact JSONPath queries.
 4. **Generate Types:** Open the **Types** tab, pick your target language (TypeScript, Go, Python, Rust, etc.), and click **Copy** or **Download**.
 5. **Compare Changes:** Open the **Diff** tab to view side-by-side AST differences in real time.
-6. **Share Securely:** Click **Share** in the navbar to generate an in-memory compressed URL link with zero server storage.
+6. **Share & Collaborate:** Click **Share** in the central command rail to copy a zero-server workspace link, click **View** to open the interactive QR code image previewer, or click **Download** to save the QR code image for mobile testing.
 
 ---
 
@@ -119,11 +124,15 @@ A state-of-the-art visual experience:
 
 | Shortcut | Action |
 | :--- | :--- |
-| `Alt + F` | Format JSON (Prettify) |
+| `Alt + F` / `Shift + Alt + F` | Format JSON (Prettify) |
 | `Alt + M` | Minify JSON (Compact Single-Line) |
 | `Alt + R` | Auto-Fix Broken JSON Syntax |
+| `Ctrl + F` / `Cmd + F` | Search / Find in Editor & Filter Tree |
 | `Double Click Splitter` | Reset Resizable Panels to Center (50% / 50%) |
-| `Esc` | Close Active Dialog / Dropdown |
+| `Esc` | Close Active Dialog / Search / Image Lightbox |
+| `+` / `-` | Zoom In / Zoom Out (In Image Previewer) |
+| `0` | Reset Zoom & Pan to 100% (In Image Previewer) |
+| `Double Click Image` | Toggle Zoom (In Image Previewer) |
 
 ---
 

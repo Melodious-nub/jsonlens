@@ -15,6 +15,7 @@ import { LensTab } from '../../../core/models/json-lens.model';
 })
 export class StatusBarComponent {
   readonly activeLens = input<LensTab>('code');
+  readonly mobilePane = input<'input' | 'output'>('input');
 
   readonly engine = inject(JsonEngineService);
   readonly diff = inject(DiffService);
@@ -23,6 +24,21 @@ export class StatusBarComponent {
   readonly lineCount = computed(() => {
     const formatted = this.engine.parsedResult().formatted;
     return formatted ? formatted.split('\n').length : 0;
+  });
+
+  readonly indentLabel = computed(() => {
+    switch (this.engine.indentOption()) {
+      case '2-spaces':
+        return '2 spaces';
+      case '4-spaces':
+        return '4 spaces';
+      case 'tabs':
+        return 'Tabs';
+      case 'minified':
+        return 'Minified';
+      default:
+        return this.engine.indentOption();
+    }
   });
 
   readonly generatedTypesCode = computed(() => {

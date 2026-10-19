@@ -15,14 +15,18 @@ export function buildTreeNode(
   key = 'root',
   path = '$',
   id = 'root',
+  depth = 0,
+  maxAutoExpandDepth = 3,
 ): TreeNode {
   if (data === null) {
     return { id, key, path, type: 'null', value: null };
   }
 
+  const isAutoExpanded = depth <= maxAutoExpandDepth;
+
   if (Array.isArray(data)) {
     const children: TreeNode[] = data.map((item, index) =>
-      buildTreeNode(item, `[${index}]`, `${path}[${index}]`, `${id}.${index}`),
+      buildTreeNode(item, `[${index}]`, `${path}[${index}]`, `${id}.${index}`, depth + 1, maxAutoExpandDepth),
     );
     return {
       id,
@@ -31,7 +35,7 @@ export function buildTreeNode(
       type: 'array',
       children,
       childCount: data.length,
-      isExpanded: true,
+      isExpanded: isAutoExpanded,
     };
   }
 
@@ -39,7 +43,7 @@ export function buildTreeNode(
     const entries = Object.entries(data);
     const children: TreeNode[] = entries.map(([childKey, childValue], index) => {
       const childPath = path === '$' ? childKey : `${path}.${childKey}`;
-      return buildTreeNode(childValue, childKey, childPath, `${id}.${index}`);
+      return buildTreeNode(childValue, childKey, childPath, `${id}.${index}`, depth + 1, maxAutoExpandDepth);
     });
     return {
       id,
@@ -48,7 +52,7 @@ export function buildTreeNode(
       type: 'object',
       children,
       childCount: entries.length,
-      isExpanded: true,
+      isExpanded: isAutoExpanded,
     };
   }
 

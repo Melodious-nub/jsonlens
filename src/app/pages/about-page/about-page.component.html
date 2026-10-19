@@ -3,7 +3,7 @@
     <!-- Breadcrumb / Back Link -->
     <nav class="page-nav" aria-label="Breadcrumb">
       <a routerLink="/" class="back-link focus-ring">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="back-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="back-icon" aria-hidden="true">
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>
@@ -15,23 +15,31 @@
     <header class="page-header">
       <div class="header-badge">
         <span class="badge-pill">🔒 100% Client-Side</span>
-        <span class="badge-pill">⚡ Sub-Millisecond</span>
-        <span class="badge-pill">🛡️ Zero Telemetry</span>
+        <span class="badge-pill">⚡ Sub-Millisecond & Zero-Latency</span>
+        <span class="badge-pill">🛡️ Zero Telemetry & No Trackers</span>
       </div>
-      <h1 class="page-title">About &#123;JsonLens&#125;</h1>
+      <h1 class="page-title">
+        About <span class="brand-name"><span class="brand-name__bracket">&#123;</span><span class="brand-name__json">Json</span><span class="brand-name__lens">Lens</span><span class="brand-name__bracket">&#125;</span></span>
+      </h1>
       <p class="page-lead">
-        A zero-latency, privacy-first developer workspace engineered for developers who refuse to compromise on speed or expose confidential payloads to cloud servers.
+        A zero-latency, privacy-first developer workspace engineered for engineers who refuse to compromise on speed or expose confidential enterprise payloads to remote servers.
       </p>
     </header>
 
-    <!-- Mission & Overview -->
+    <!-- Story Behind JsonLens & Mission -->
     <section class="section-card">
-      <h2 class="section-title">The Privacy Crisis in Developer Tools</h2>
+      <div class="section-header-row">
+        <span class="section-kicker">The Story Behind <span class="brand-name"><span class="brand-name__bracket">&#123;</span><span class="brand-name__json">Json</span><span class="brand-name__lens">Lens</span><span class="brand-name__bracket">&#125;</span></span></span>
+        <h2 class="section-title">The Privacy Crisis in Developer Tools</h2>
+      </div>
       <p class="section-text">
-        Every day, software engineers paste sensitive API payloads, customer records, database dumps, and JWT tokens into online formatters and validators. Most popular online tools silently transmit this data to backend cloud servers for parsing, logging, and third-party analytics.
+        Every day, software engineers handle confidential payloads—such as authorization tokens, enterprise database exports, production API responses, and customer PII—pasting them into online formatters and validators. Most popular web-based formatters silently transmit this sensitive data to backend cloud servers for logging, remote parsing, and third-party advertising analytics.
       </p>
       <p class="section-text">
-        <strong>JsonLens</strong> was built with a strict invariant: <em>zero data transmission</em>. Every single algorithm — syntax auto-repair, recursive tree traversal, TypeScript interface generation, and AST diffing — executes entirely inside your browser's local memory.
+        Furthermore, when dealing with multi-megabyte payloads, traditional formatters freeze, crash browser tabs, or clutter the screen with distracting ads.
+      </p>
+      <p class="section-text">
+        <strong><span class="brand-name"><span class="brand-name__bracket">&#123;</span><span class="brand-name__json">Json</span><span class="brand-name__lens">Lens</span><span class="brand-name__bracket">&#125;</span></span></strong> was engineered to solve this problem with an uncompromising invariant: <em>zero data collection and zero server transmission</em>. Every single algorithm—syntax auto-repair, recursive tree traversal, TypeScript and multi-language type synthesis, and side-by-side AST diffing—executes 100% inside your local browser memory sandbox.
       </p>
     </section>
 
@@ -41,7 +49,7 @@
       <div class="features-grid">
         @for (feature of features; track feature.title) {
           <article class="feature-card">
-            <span class="feature-card__icon">{{ feature.icon }}</span>
+            <span class="feature-card__icon" aria-hidden="true">{{ feature.icon }}</span>
             <h3 class="feature-card__title">{{ feature.title }}</h3>
             <p class="feature-card__desc">{{ feature.description }}</p>
           </article>
@@ -51,42 +59,332 @@
 
     <!-- Architecture & Performance -->
     <section class="section-card">
-      <h2 class="section-title">Architecture & Performance</h2>
+      <h2 class="section-title">Desktop-Grade Architecture & Performance</h2>
       <div class="arch-points">
         <div class="arch-point">
-          <span class="arch-dot"></span>
+          <span class="arch-dot" aria-hidden="true"></span>
           <div>
             <strong>Angular 22 Signals & Zoneless Reactivity:</strong>
-            <p>Direct fine-grained signal subscriptions ensure 0ms unnecessary change detection overhead.</p>
+            <p>Direct fine-grained reactivity ensures zero unnecessary change detection overhead, maximum frame rates, and instantaneous UI response.</p>
           </div>
         </div>
         <div class="arch-point">
-          <span class="arch-dot"></span>
+          <span class="arch-dot" aria-hidden="true"></span>
+          <div>
+            <strong>Off-Thread Multi-Task Web Worker:</strong>
+            <p>Dedicated background web workers process heavy syntax repairs, large file diffs, and complex parsing off the main UI thread—preventing any stutter or frame drops.</p>
+          </div>
+        </div>
+        <div class="arch-point">
+          <span class="arch-dot" aria-hidden="true"></span>
           <div>
             <strong>Monaco Editor Virtualization:</strong>
-            <p>Industry-standard code editor rendering only visible lines in the viewport, supporting massive payloads smoothly.</p>
+            <p>Powered by the industry-standard VS Code editor engine, rendering only visible lines in the viewport and supporting massive JSON files effortlessly.</p>
           </div>
         </div>
         <div class="arch-point">
-          <span class="arch-dot"></span>
+          <span class="arch-dot" aria-hidden="true"></span>
           <div>
-            <strong>Pure In-Memory AST Algorithms:</strong>
-            <p>Recursive descent AST traversals for instantaneous diffing, dot-notation flattening, and type synthesis without third-party network bloat.</p>
+            <strong>GPU-Accelerated Circular Ripple Theme Transitions:</strong>
+            <p>Native View Transitions API with circular expansion radiating from the toggle button, delivering zero layout thrashing on theme switch.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Frequently Asked Questions -->
-    <section class="faq-section">
-      <h2 class="section-title">Frequently Asked Questions</h2>
-      <div class="faq-list">
-        @for (faq of faqs; track faq.question) {
-          <article class="faq-card">
-            <h3 class="faq-card__question">{{ faq.question }}</h3>
-            <p class="faq-card__answer">{{ faq.answer }}</p>
-          </article>
+    <!-- Frequently Asked Questions (Interactive Accordion) -->
+    <section class="faq-section" aria-label="Frequently Asked Questions">
+      <div class="faq-section__header">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle">Everything you need to know about JsonLens privacy, performance, and architecture.</p>
+      </div>
+
+      <div class="faq-accordion">
+        @for (faq of faqs; track faq.question; let i = $index) {
+          <div class="faq-item" [class.faq-item--open]="isFaqOpen(i)">
+            <button
+              type="button"
+              class="faq-header focus-ring"
+              (click)="toggleFaq(i)"
+              [attr.aria-expanded]="isFaqOpen(i)"
+              [attr.aria-controls]="'faq-panel-' + i"
+              [id]="'faq-button-' + i"
+            >
+              <div class="faq-header__left">
+                <span class="faq-category">{{ faq.category }}</span>
+                <span class="faq-question">{{ faq.question }}</span>
+              </div>
+              <div class="faq-chevron" [class.faq-chevron--rotated]="isFaqOpen(i)">
+                <lucide-icon [img]="chevronDownIcon" size="18" aria-hidden="true" />
+              </div>
+            </button>
+
+            @if (isFaqOpen(i)) {
+              <div
+                class="faq-body"
+                [id]="'faq-panel-' + i"
+                role="region"
+                [attr.aria-labelledby]="'faq-button-' + i"
+              >
+                <p class="faq-answer">{{ faq.answer }}</p>
+              </div>
+            }
+          </div>
         }
+      </div>
+    </section>
+
+    <!-- Meet the Creator Section -->
+    <section id="creator" class="creator-section" aria-label="About the Creator">
+      <div class="section-divider-heading">
+        <span class="divider-line"></span>
+        <span class="divider-pill">👨‍💻 Meet the Creator</span>
+        <span class="divider-line"></span>
+      </div>
+
+      <div class="creator-hero-card">
+        <div class="creator-avatar">
+          <img
+            [src]="creatorAvatarUrl"
+            [alt]="creatorName"
+            class="creator-avatar__image"
+            width="88"
+            height="88"
+            loading="eager"
+          />
+        </div>
+
+        <div class="creator-info">
+          <span class="role-badge">{{ creatorRole }}</span>
+          <h2 class="creator-name">{{ creatorName }}</h2>
+          <p class="creator-bio">
+            Passionate software engineer and open-source craftsman crafting lightning-fast, privacy-first web tools. Focused on modern Angular Signals architecture, client-side performance, and ergonomic developer experiences. Built JsonLens to solve the daily privacy and latency crisis in developer workspaces—giving engineers a 100% in-browser, zero-telemetry suite to format, auto-repair, diff, and generate types without risking proprietary enterprise payloads.
+          </p>
+
+          <!-- Creator Connect & Actions -->
+          <div class="creator-connect-grid">
+            <a
+              href="https://www.linkedin.com/in/shawon-taluckder"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="connect-badge connect-badge--linkedin focus-ring"
+              title="Connect on LinkedIn"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" class="connect-icon" aria-hidden="true">
+                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77Z" />
+              </svg>
+              <span>LinkedIn</span>
+            </a>
+
+            <a
+              href="https://github.com/Melodious-nub"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="connect-badge connect-badge--github focus-ring"
+              title="View GitHub Profile"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" class="connect-icon" aria-hidden="true">
+                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z" />
+              </svg>
+              <span>GitHub</span>
+            </a>
+
+            <a
+              href="https://www.fiverr.com/talukder_shawon/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="connect-badge connect-badge--fiverr focus-ring"
+              title="Collaborate on Fiverr"
+            >
+              <span class="fiverr-mark" aria-hidden="true">fi</span>
+              <span>Fiverr</span>
+            </a>
+
+            <button
+              type="button"
+              class="connect-badge connect-badge--email focus-ring"
+              (click)="onCopyEmail()"
+              aria-label="Copy creator email address"
+              [title]="creatorEmail"
+            >
+              @if (isEmailCopied()) {
+                <lucide-icon [img]="checkIcon" size="14" class="connect-icon connect-icon--success" aria-hidden="true" />
+                <span class="copy-success">✓ Copied</span>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="connect-icon" aria-hidden="true">
+                  <rect width="20" height="16" x="2" y="4" rx="2" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg>
+                <span>Copy Email</span>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Open Source Projects -->
+      <div class="creator-projects-wrap">
+        <div class="projects-section-header">
+          <h3 class="section-title">📱 Open Source & Released Apps</h3>
+          <p class="section-subtitle">
+            A portfolio of privacy-first, offline-ready open-source applications built with modern software architecture.
+          </p>
+        </div>
+
+        <div class="projects-grid">
+          @for (project of creatorProjects; track project.title) {
+            <article class="project-card">
+              <div class="project-card__header">
+                <div class="project-title-row">
+                  <span class="project-icon" aria-hidden="true">{{ project.icon }}</span>
+                  <div class="project-name-group">
+                    <h4 class="project-title">{{ project.title }}</h4>
+                    <span class="project-badge">{{ project.badge }}</span>
+                  </div>
+                </div>
+                <span class="project-tag">{{ project.tag }}</span>
+              </div>
+
+              <p class="project-desc">{{ project.description }}</p>
+
+              <div class="project-highlights">
+                <span class="highlights-label">Key Highlights:</span>
+                <ul class="highlights-list">
+                  @for (item of project.highlights; track item) {
+                    <li>
+                      <span class="bullet" aria-hidden="true">✓</span>
+                      <span>{{ item }}</span>
+                    </li>
+                  }
+                </ul>
+              </div>
+
+              <div class="project-actions">
+                <a
+                  [href]="project.sourceUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="project-action-btn project-action-btn--source focus-ring"
+                  [attr.aria-label]="'View Source Code for ' + project.title"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" class="action-icon" aria-hidden="true">
+                    <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z" />
+                  </svg>
+                  <span>View Source</span>
+                  <lucide-icon [img]="externalIcon" size="12" aria-hidden="true" />
+                </a>
+
+                @if (project.releaseUrl) {
+                  <a
+                    [href]="project.releaseUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="project-action-btn project-action-btn--release focus-ring"
+                    [attr.aria-label]="project.releaseLabel + ' for ' + project.title"
+                  >
+                    <lucide-icon [img]="downloadIcon" size="13" aria-hidden="true" />
+                    <span>{{ project.releaseLabel }}</span>
+                  </a>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      </div>
+
+      <!-- Direct Contact Form -->
+      <div class="contact-card">
+        <h3 class="section-title">Get in Touch with Shawon</h3>
+        <p class="contact-subtitle">Have a feature suggestion, partnership inquiry, or found a bug? Send a message directly.</p>
+
+        <form class="contact-form" (submit)="$event.preventDefault(); onSendContact()">
+          <!-- Honeypot anti-spam field (hidden from real users) -->
+          <input
+            type="text"
+            name="_honey"
+            class="honeypot-field"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+            [value]="contactHoneypot()"
+            (input)="onInputChange('honey', $event)"
+          />
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="contact-name" class="field-label">Your Name</label>
+              <input
+                id="contact-name"
+                type="text"
+                class="field-input focus-ring"
+                [value]="contactName()"
+                (input)="onInputChange('name', $event)"
+                placeholder="e.g. Alex"
+                [disabled]="isSubmitting()"
+                required
+              />
+            </div>
+
+            <div class="form-field">
+              <label for="contact-email" class="field-label">Your Email</label>
+              <input
+                id="contact-email"
+                type="email"
+                class="field-input focus-ring"
+                [value]="contactEmail()"
+                (input)="onInputChange('email', $event)"
+                placeholder="e.g. alex@company.com"
+                [disabled]="isSubmitting()"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="contact-subject" class="field-label">Subject</label>
+            <input
+              id="contact-subject"
+              type="text"
+              class="field-input focus-ring"
+              [value]="contactSubject()"
+              (input)="onInputChange('subject', $event)"
+              placeholder="Feature Request / Inquiry"
+              [disabled]="isSubmitting()"
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="contact-message" class="field-label">Message</label>
+            <textarea
+              id="contact-message"
+              rows="4"
+              class="field-textarea focus-ring"
+              [value]="contactMessage()"
+              (input)="onInputChange('message', $event)"
+              placeholder="Share your thoughts or question..."
+              [disabled]="isSubmitting()"
+              required
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            class="submit-btn focus-ring"
+            [disabled]="isSubmitting()"
+            [attr.aria-busy]="isSubmitting()"
+          >
+            @if (isSubmitting()) {
+              <span class="spinner" aria-hidden="true"></span>
+              <span>Sending Message...</span>
+            } @else {
+              <span>Send Direct Message</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon" aria-hidden="true">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+            }
+          </button>
+        </form>
       </div>
     </section>
   </div>

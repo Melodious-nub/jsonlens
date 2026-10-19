@@ -14,3 +14,114 @@
   color: #a5b4fc !important;
   font-weight: 600 !important;
 }
+
+/* Monaco Editor Overlay Widgets Container (Ensures find widget is positioned correctly at bottom) */
+.monaco-editor .overlayWidgets {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+
+  > * {
+    pointer-events: auto !important;
+  }
+}
+
+/* Monaco Editor Find Widget (Ctrl + F) & Close Cross Button Styling */
+.monaco-editor .find-widget {
+  top: auto !important;
+  bottom: 14px !important;
+  right: 20px !important;
+  margin-top: 0 !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--surface-850) !important;
+  border: 1px solid var(--border-default) !important;
+  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.5), 0 4px 10px -2px rgba(0, 0, 0, 0.3) !important;
+  color: var(--text-primary) !important;
+  z-index: 50 !important;
+  transform: translateY(calc(100% + 20px)) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease !important;
+
+  &.visible {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  .monaco-inputbox {
+    background: var(--surface-950) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: var(--radius-xs) !important;
+    color: var(--text-primary) !important;
+
+    .input {
+      color: var(--text-primary) !important;
+    }
+  }
+
+  /* Close "X" Cross Button */
+  .button.codicon-widget-close,
+  .close-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 22px !important;
+    height: 22px !important;
+    position: absolute !important;
+    top: 6px !important;
+    right: 6px !important;
+    cursor: pointer !important;
+    border-radius: var(--radius-xs) !important;
+    color: var(--text-secondary) !important;
+    transition: all var(--transition-fast) !important;
+    z-index: 10 !important;
+
+    &:hover {
+      color: var(--text-primary) !important;
+      background-color: var(--surface-700) !important;
+    }
+
+    &:before {
+      content: "✕" !important;
+      font-family: var(--font-sans), sans-serif !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      display: inline-block !important;
+      line-height: 1 !important;
+    }
+  }
+
+  /* Navigation & Option Buttons (Previous, Next, Case, Word, Regex) */
+  .button {
+    color: var(--text-secondary) !important;
+    border-radius: var(--radius-xs) !important;
+    transition: all var(--transition-fast) !important;
+
+    &:hover:not(.disabled) {
+      color: var(--text-primary) !important;
+      background-color: var(--surface-750) !important;
+    }
+
+    &.checked {
+      background-color: color-mix(in srgb, var(--accent-primary) 25%, transparent) !important;
+      border: 1px solid var(--accent-primary) !important;
+      color: var(--accent-primary) !important;
+    }
+  }
+}
+
+/* Suppress Monaco hover popup and native tooltips for the find widget close button */
+.monaco-hover:has(.codicon-widget-close),
+.monaco-hover:has([class*="widget-close"]),
+.monaco-hover:has([aria-label*="Close (Escape)"]) {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

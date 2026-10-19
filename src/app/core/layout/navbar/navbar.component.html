@@ -1,7 +1,7 @@
-<header class="navbar" role="banner">
+<header class="navbar" role="banner" appClickOutside (clickOutside)="closeMobileMenu()">
   <!-- Clean Professional Brand Mark -->
   <div class="navbar__brand">
-    <a routerLink="/" class="brand-link focus-ring" aria-label="JsonLens Home">
+    <a routerLink="/" (click)="closeMobileMenu()" class="brand-link focus-ring" aria-label="JsonLens Home">
       <span class="brand-name">
         <span class="brand-name__bracket">&#123;</span><span class="brand-name__json">Json</span><span class="brand-name__lens">Lens</span><span class="brand-name__bracket">&#125;</span>
       </span>
@@ -10,12 +10,13 @@
 
   <div class="navbar__spacer"></div>
 
-  <!-- Right End Navigation & Quick Actions -->
-  <div class="navbar__right">
+  <!-- Desktop Navigation & Quick Actions (>= 768px) -->
+  <div class="navbar__right navbar__right--desktop">
     <nav class="navbar__nav" aria-label="Site Navigation">
       <a routerLink="/about" class="nav-item focus-ring" routerLinkActive="nav-item--active">About</a>
-      <a routerLink="/creator" class="nav-item focus-ring" routerLinkActive="nav-item--active">Creator</a>
-      <a routerLink="/support" class="nav-item nav-item--support focus-ring" routerLinkActive="nav-item--active">Support</a>
+      <a routerLink="/support" class="nav-item nav-item--support focus-ring" routerLinkActive="nav-item--active">
+        <span>Support</span>
+      </a>
     </nav>
 
     <div class="navbar__divider" role="separator" aria-orientation="vertical"></div>
@@ -61,5 +62,104 @@
       </a>
     </div>
   </div>
-</header>
 
+  <!-- Mobile Quick Action & Hamburger Toggle (< 768px) -->
+  <div class="navbar__right navbar__right--mobile">
+    <button
+      type="button"
+      class="icon-btn focus-ring theme-toggle-btn"
+      (click)="onToggleTheme($event)"
+      [attr.aria-label]="themeService.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+      [title]="themeService.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+    >
+      @if (themeService.theme() === 'dark') {
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon theme-icon-spin" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2" />
+          <path d="M12 20v2" />
+          <path d="m4.93 4.93 1.41 1.41" />
+          <path d="m17.66 17.66 1.41 1.41" />
+          <path d="M2 12h2" />
+          <path d="M20 12h2" />
+          <path d="m6.34 17.66-1.41 1.41" />
+          <path d="m19.07 4.93-1.41 1.41" />
+        </svg>
+      } @else {
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon theme-icon-spin" aria-hidden="true">
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+        </svg>
+      }
+    </button>
+
+    <button
+      type="button"
+      class="icon-btn focus-ring navbar__menu-toggle"
+      [class.navbar__menu-toggle--active]="isMobileMenuOpen()"
+      (click)="toggleMobileMenu()"
+      aria-label="Toggle navigation menu"
+      [attr.aria-expanded]="isMobileMenuOpen()"
+      aria-controls="mobile-nav-drawer"
+    >
+      <lucide-icon [img]="isMobileMenuOpen() ? closeIcon : menuIcon" size="18" />
+    </button>
+  </div>
+
+  <!-- Mobile Collapsible Menu Drawer -->
+  @if (isMobileMenuOpen()) {
+    <div class="navbar__mobile-backdrop" (click)="closeMobileMenu()" aria-hidden="true"></div>
+    <nav id="mobile-nav-drawer" class="navbar__mobile-drawer" aria-label="Mobile Navigation">
+      <div class="navbar__mobile-nav-list">
+        <a
+          routerLink="/"
+          (click)="closeMobileMenu()"
+          class="mobile-nav-item focus-ring"
+          routerLinkActive="mobile-nav-item--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <lucide-icon [img]="codeIcon" size="16" class="mobile-item-icon" />
+          <span class="mobile-item-label">Workspace</span>
+        </a>
+
+        <a
+          routerLink="/about"
+          (click)="closeMobileMenu()"
+          class="mobile-nav-item focus-ring"
+          routerLinkActive="mobile-nav-item--active"
+        >
+          <lucide-icon [img]="infoIcon" size="16" class="mobile-item-icon" />
+          <span class="mobile-item-label">About & Creator</span>
+        </a>
+
+        <a
+          routerLink="/support"
+          (click)="closeMobileMenu()"
+          class="mobile-nav-item mobile-nav-item--support focus-ring"
+          routerLinkActive="mobile-nav-item--active"
+        >
+          <div class="mobile-item-left">
+            <lucide-icon [img]="heartIcon" size="16" class="mobile-item-icon" />
+            <span class="mobile-item-label">Support</span>
+          </div>
+        </a>
+
+        <div class="mobile-nav-divider" role="separator"></div>
+
+        <a
+          href="https://github.com/Melodious-nub/jsonlens"
+          target="_blank"
+          rel="noopener noreferrer"
+          (click)="closeMobileMenu()"
+          class="mobile-nav-item mobile-nav-item--github focus-ring"
+        >
+          <div class="mobile-item-left">
+            <svg viewBox="0 0 24 24" fill="currentColor" class="mobile-item-icon mobile-item-icon--svg" aria-hidden="true">
+              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z" />
+            </svg>
+            <span class="mobile-item-label">GitHub Repository</span>
+          </div>
+          <lucide-icon [img]="externalIcon" size="14" class="mobile-external-icon" />
+        </a>
+      </div>
+    </nav>
+  }
+</header>

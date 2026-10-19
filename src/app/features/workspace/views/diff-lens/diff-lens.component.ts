@@ -2,7 +2,6 @@ import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   ElementRef,
   inject,
   PLATFORM_ID,
@@ -23,10 +22,12 @@ import {
   FolderOpen,
 } from 'lucide-angular';
 
+import { ResizableSplitterDirective } from '../../../../shared/directives/resizable-splitter.directive';
+
 @Component({
   selector: 'app-diff-lens',
   standalone: true,
-  imports: [MonacoEditorComponent, LucideAngularModule],
+  imports: [MonacoEditorComponent, LucideAngularModule, ResizableSplitterDirective],
   templateUrl: './diff-lens.component.html',
   styleUrl: './diff-lens.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,7 +39,6 @@ export class DiffLensComponent {
   private readonly storage = inject(StorageService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
-  private readonly destroyRef = inject(DestroyRef);
 
   readonly swapIcon = ArrowLeftRight;
   readonly folderOpenIcon = FolderOpen;
@@ -60,21 +60,11 @@ export class DiffLensComponent {
   readonly splitPercent = signal<number>(50);
   readonly isDragging = signal<boolean>(false);
 
-  private cachedRect: DOMRect | null = null;
-  private rafId: number | null = null;
-  private moveListener: ((e: PointerEvent) => void) | null = null;
-  private upListener: ((e: PointerEvent) => void) | null = null;
-  private lastClientY = 0;
-
   constructor() {
     if (this.isBrowser) {
       const saved = this.storage.getItem<number>('jsonlens_diff_split_percent', 50);
       this.splitPercent.set(saved);
     }
-
-    this.destroyRef.onDestroy(() => {
-      this.cleanupPointerListeners();
-    });
   }
 
   onSecondaryInput(val: string): void {
@@ -111,99 +101,23 @@ export class DiffLensComponent {
     input.value = '';
   }
 
-  onGripPointerDown(event: PointerEvent): void {
-    if (!this.isBrowser) return;
-
-    event.preventDefault();
-    this.isDragging.set(true);
-
-    const container = this.diffBodyRef()?.nativeElement;
-    if (container) {
-      this.cachedRect = container.getBoundingClientRect();
-    }
-
-    const target = event.currentTarget as HTMLElement | null;
-    if (target && target.setPointerCapture) {
-      try {
-        target.setPointerCapture(event.pointerId);
-      } catch {
-        // Safe fallback
-      }
-    }
-
-    this.lastClientY = event.clientY;
-    this.moveListener = (e: PointerEvent) => this.onPointerMove(e);
-    this.upListener = (e: PointerEvent) => this.onPointerUp(e, target, event.pointerId);
-
-    window.addEventListener('pointermove', this.moveListener, { passive: true });
-    window.addEventListener('pointerup', this.upListener);
-  }
-
-  onHeaderPointerDown(event: PointerEvent): void {
-    this.onGripPointerDown(event);
-  }
-
-  private onPointerMove(event: PointerEvent): void {
-    if (!this.cachedRect || this.cachedRect.height <= 0) return;
-
-    this.lastClientY = event.clientY;
-    if (this.rafId !== null) return;
-
-    this.rafId = requestAnimationFrame(() => {
-      this.rafId = null;
-      if (!this.cachedRect || this.cachedRect.height <= 0) return;
-
-      const offset = this.lastClientY - this.cachedRect.top;
-      const rawPercent = (offset / this.cachedRect.height) * 100;
-      // Clamped between 15% and 85% so neither section is crushed
-      const clampedPercent = Math.min(Math.max(rawPercent, 15), 85);
-
-      this.splitPercent.set(Math.round(clampedPercent * 10) / 10);
-    });
-  }
-
-  private onPointerUp(
-    _event: PointerEvent,
-    target: HTMLElement | null,
-    pointerId: number,
-  ): void {
-    this.isDragging.set(false);
-    this.cachedRect = null;
+  onSplitChange(val: number): void {
+    this.splitPercent.set(val);
     if (this.isBrowser) {
-      this.storage.setItem('jsonlens_diff_split_percent', this.splitPercent());
+      this.storage.setItem('jsonlens_diff_split_percent', val);
     }
-    if (target && target.releasePointerCapture) {
-      try {
-        target.releasePointerCapture(pointerId);
-      } catch {
-        // Safe fallback
-      }
-    }
-    this.cleanupPointerListeners();
   }
 
-  private cleanupPointerListeners(): void {
-    if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
-    }
-    if (this.moveListener) {
-      window.removeEventListener('pointermove', this.moveListener);
-      this.moveListener = null;
-    }
-    if (this.upListener) {
-      window.removeEventListener('pointerup', this.upListener);
-      this.upListener = null;
-    }
-    this.cachedRect = null;
-  }
-
-  onGripDblClick(_event: MouseEvent): void {
+  onResetSplit(): void {
     this.splitPercent.set(50);
     if (this.isBrowser) {
       this.storage.setItem('jsonlens_diff_split_percent', 50);
     }
     this.toast.show('Diff panels reset to center (50/50)', 'info');
+  }
+
+  onGripDblClick(_event?: MouseEvent): void {
+    this.onResetSplit();
   }
 
   onHeaderDblClick(event: MouseEvent): void {
@@ -213,16 +127,10 @@ export class DiffLensComponent {
   onGripKeyDown(event: KeyboardEvent): void {
     if (event.key === 'ArrowUp') {
       event.preventDefault();
-      this.splitPercent.update((p) => Math.max(15, p - 5));
-      if (this.isBrowser) {
-        this.storage.setItem('jsonlens_diff_split_percent', this.splitPercent());
-      }
+      this.onSplitChange(Math.max(15, this.splitPercent() - 5));
     } else if (event.key === 'ArrowDown') {
       event.preventDefault();
-      this.splitPercent.update((p) => Math.min(85, p + 5));
-      if (this.isBrowser) {
-        this.storage.setItem('jsonlens_diff_split_percent', this.splitPercent());
-      }
+      this.onSplitChange(Math.min(85, this.splitPercent() + 5));
     }
   }
 

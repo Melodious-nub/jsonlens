@@ -216,6 +216,14 @@
       letter-spacing: normal;
       text-transform: none;
     }
+
+    .changes-diffing {
+      font-size: 0.68rem;
+      color: var(--accent-primary);
+      font-weight: 500;
+      opacity: 0.85;
+      font-style: italic;
+    }
   }
 
   &__grip {
@@ -311,6 +319,8 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   transition: background var(--transition-fast);
+  content-visibility: auto;
+  contain-intrinsic-size: 0 32px;
 
   &--added {
     background: rgba(52, 211, 153, 0.08);

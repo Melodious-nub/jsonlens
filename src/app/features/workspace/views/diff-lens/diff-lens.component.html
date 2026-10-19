@@ -79,20 +79,23 @@
       <div class="changes-header">
         <div class="changes-header__left">
           <span class="changes-title">Detected Differences ({{ meaningfulDiffs().length }})</span>
+          @if (diff.isDiffing()) {
+            <span class="changes-diffing">Computing...</span>
+          }
         </div>
 
         <div
           class="changes-header__grip"
-          (pointerdown)="onGripPointerDown($event)"
-          (dblclick)="onGripDblClick($event)"
-          (keydown)="onGripKeyDown($event)"
+          appResizableSplitter
+          [container]="diffBodyRef()?.nativeElement!"
+          direction="vertical"
+          [minPercent]="15"
+          [maxPercent]="85"
+          [(splitPercent)]="splitPercent"
+          [(isDragging)]="isDragging"
+          (resetRequested)="onResetSplit()"
+          (splitChange)="onSplitChange($event)"
           title="Drag to resize panels (double-click to center 50/50)"
-          role="separator"
-          aria-orientation="horizontal"
-          [attr.aria-valuenow]="100 - splitPercent()"
-          aria-valuemin="15"
-          aria-valuemax="85"
-          tabindex="0"
           aria-label="Resize panels splitter"
         >
           <span class="diff-grip-line"></span>

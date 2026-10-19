@@ -1,7 +1,9 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
 import { JsonEngineService, DEFAULT_SAMPLE_JSON } from './json-engine.service';
 import { DiffItem, DiffSummary, JsonValue } from '../models/json-lens.model';
 import { deepDiffJson, summarizeDiff } from '../../shared/utils/json-diff.util';
+
+const DIFF_WORKER_THRESHOLD = 150 * 1024; // 150KB
 
 export const SAMPLE_MODIFIED_JSON = `{
   "name": "JsonLens",
@@ -40,11 +42,15 @@ export const SAMPLE_MODIFIED_JSON = `{
 })
 export class DiffService {
   private readonly engine = inject(JsonEngineService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly secondaryInput = signal<string>(SAMPLE_MODIFIED_JSON);
   readonly isSampleActive = signal<boolean>(true);
   readonly awaitingNewInput = signal<boolean>(false);
+  readonly isDiffing = signal<boolean>(false);
   private readonly lastPrimaryOnClear = signal<string>('');
+  private readonly workerDiffResult = signal<{ diffItems: DiffItem[]; summary: DiffSummary } | null>(null);
+  private cancelPendingWorkerDiff: (() => void) | null = null;
 
   constructor() {
     // Reactively synchronize secondary comparison with primary input:
@@ -72,6 +78,65 @@ export class DiffService {
         this.awaitingNewInput.set(false);
       }
     });
+
+    // Worker offloading for large diff comparisons (>= 150KB)
+    effect(() => {
+      const primaryRes = this.engine.parsedResult();
+      const secondaryRes = this.parsedSecondary();
+      const primaryData = primaryRes.data;
+      const secondaryData = secondaryRes.data;
+
+      if (primaryData === null || secondaryData === null) {
+        if (this.cancelPendingWorkerDiff) {
+          this.cancelPendingWorkerDiff();
+          this.cancelPendingWorkerDiff = null;
+        }
+        if (this.workerDiffResult() !== null) {
+          this.workerDiffResult.set(null);
+        }
+        if (this.isDiffing()) {
+          this.isDiffing.set(false);
+        }
+        return;
+      }
+
+      const totalSize = this.engine.rawInput().length + this.secondaryInput().length;
+      if (totalSize >= DIFF_WORKER_THRESHOLD && this.engine.isWorkerAvailable()) {
+        if (this.cancelPendingWorkerDiff) {
+          this.cancelPendingWorkerDiff();
+        }
+        this.isDiffing.set(true);
+        this.cancelPendingWorkerDiff = this.engine.computeDiffWorker(
+          primaryData,
+          secondaryData,
+          (res) => {
+            this.isDiffing.set(false);
+            this.cancelPendingWorkerDiff = null;
+            if (res) {
+              this.workerDiffResult.set(res);
+            }
+          },
+        );
+      } else {
+        if (this.cancelPendingWorkerDiff) {
+          this.cancelPendingWorkerDiff();
+          this.cancelPendingWorkerDiff = null;
+        }
+        if (this.workerDiffResult() !== null) {
+          this.workerDiffResult.set(null);
+        }
+        if (this.isDiffing()) {
+          this.isDiffing.set(false);
+        }
+      }
+    });
+
+    this.destroyRef.onDestroy(() => {
+      if (this.cancelPendingWorkerDiff) {
+        this.cancelPendingWorkerDiff();
+        this.cancelPendingWorkerDiff = null;
+      }
+    });
   }
 
   readonly parsedSecondary = computed<{ data: JsonValue | null; isValid: boolean }>(() => {
@@ -95,6 +160,13 @@ export class DiffService {
       return [];
     }
 
+    const workerResult = this.workerDiffResult();
+    const totalSize = this.engine.rawInput().length + this.secondaryInput().length;
+
+    if (totalSize >= DIFF_WORKER_THRESHOLD && workerResult) {
+      return workerResult.diffItems;
+    }
+
     return deepDiffJson(primaryData, secondaryData);
   });
 
@@ -103,6 +175,13 @@ export class DiffService {
   });
 
   readonly diffSummary = computed<DiffSummary>(() => {
+    const workerResult = this.workerDiffResult();
+    const totalSize = this.engine.rawInput().length + this.secondaryInput().length;
+
+    if (totalSize >= DIFF_WORKER_THRESHOLD && workerResult) {
+      return workerResult.summary;
+    }
+
     return summarizeDiff(this.diffItems());
   });
 

@@ -11,6 +11,7 @@ import {
   inject,
   input,
   model,
+  output,
   PLATFORM_ID,
   signal,
   viewChild,
@@ -18,6 +19,11 @@ import {
 import type * as MonacoType from 'monaco-editor';
 import { JsonError } from '../../../core/models/json-lens.model';
 import { ThemeService } from '../../../core/services/theme.service';
+
+interface MonacoFindControllerContribution extends MonacoType.editor.IEditorContribution {
+  closeFindWidget?: () => void;
+  getState?: () => { isRevealed?: boolean };
+}
 
 @Component({
   selector: 'app-monaco-editor',
@@ -46,6 +52,11 @@ export class MonacoEditorComponent {
   readonly minimap = input<boolean>(false);
   readonly wordWrap = input<'on' | 'off'>('on');
   readonly lineNumbers = input<'on' | 'off'>('on');
+
+  // Outputs for shortcut actions
+  readonly formatRequested = output<void>();
+  readonly minifyRequested = output<void>();
+  readonly autoRepairRequested = output<void>();
 
   private editor: MonacoType.editor.IStandaloneCodeEditor | null = null;
   private readonly editorInstance = signal<MonacoType.editor.IStandaloneCodeEditor | null>(null);
@@ -169,7 +180,7 @@ export class MonacoEditorComponent {
         language: this.language(),
         theme: initialTheme,
         readOnly: this.readOnly(),
-        automaticLayout: true,
+        automaticLayout: false,
         minimap: { enabled: this.minimap() },
         wordWrap: this.wordWrap(),
         lineNumbers: this.lineNumbers(),
@@ -186,9 +197,87 @@ export class MonacoEditorComponent {
           horizontalScrollbarSize: 8,
           useShadows: false,
         },
+        find: {
+          addExtraSpaceOnTop: false,
+        },
       });
 
       this.editorInstance.set(this.editor);
+
+      // Dedicated ResizeObserver replacing automaticLayout polling
+      let layoutRafId: number | null = null;
+      let resizeObserver: ResizeObserver | null = null;
+
+      if (typeof ResizeObserver !== 'undefined') {
+        resizeObserver = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+              if (layoutRafId !== null) {
+                cancelAnimationFrame(layoutRafId);
+              }
+              layoutRafId = requestAnimationFrame(() => {
+                layoutRafId = null;
+                if (this.editor) {
+                  this.editor.layout();
+                }
+              });
+            }
+          }
+        });
+        resizeObserver.observe(container);
+      }
+
+      // Register keyboard shortcut actions within Monaco editor
+      this.editor.addAction({
+        id: 'jsonlens.format',
+        label: 'Format JSON',
+        keybindings: [
+          monaco.KeyMod.Alt | monaco.KeyCode.KeyF,
+          monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF,
+        ],
+        run: () => {
+          this.formatRequested.emit();
+        },
+      });
+
+      this.editor.addAction({
+        id: 'jsonlens.minify',
+        label: 'Minify JSON',
+        keybindings: [
+          monaco.KeyMod.Alt | monaco.KeyCode.KeyM,
+        ],
+        run: () => {
+          this.minifyRequested.emit();
+        },
+      });
+
+      this.editor.addAction({
+        id: 'jsonlens.autoRepair',
+        label: 'Auto-Fix JSON Syntax',
+        keybindings: [
+          monaco.KeyMod.Alt | monaco.KeyCode.KeyR,
+        ],
+        run: () => {
+          this.autoRepairRequested.emit();
+        },
+      });
+
+      // Intercept hover on close button to prevent Monaco's hoverService popup & strip title
+      const onContainerMouseOver = (e: MouseEvent) => {
+        const target = e.target as HTMLElement | null;
+        const closeBtn = target?.closest<HTMLElement>(
+          '.button.codicon-widget-close, .close-button'
+        );
+        if (closeBtn) {
+          if (closeBtn.hasAttribute('title')) {
+            closeBtn.removeAttribute('title');
+          }
+          // Prevent Monaco's hoverService from scheduling a tooltip popup
+          e.stopImmediatePropagation();
+        }
+      };
+      container.addEventListener('mouseover', onContainerMouseOver, true);
+      container.addEventListener('mouseenter', onContainerMouseOver, true);
 
       // Listen to editor changes and update model signal
       const changeDisposable = this.editor.onDidChangeModelContent(() => {
@@ -203,13 +292,105 @@ export class MonacoEditorComponent {
 
       // Cleanup
       this.destroyRef.onDestroy(() => {
+        if (layoutRafId !== null) {
+          cancelAnimationFrame(layoutRafId);
+          layoutRafId = null;
+        }
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+          resizeObserver = null;
+        }
+        container.removeEventListener('mouseenter', onContainerMouseOver, true);
+        container.removeEventListener('mouseover', onContainerMouseOver, true);
         this.editorInstance.set(null);
         changeDisposable.dispose();
+
+        // Memory audit: dispose model and editor instances cleanly
+        const model = this.editor?.getModel();
         this.editor?.dispose();
+        if (model && !model.isDisposed()) {
+          model.dispose();
+        }
         this.editor = null;
       });
     } catch (err) {
       console.error('Failed to initialize Monaco Editor:', err);
+    }
+  }
+
+  triggerFind(): void {
+    if (!this.editor) return;
+    this.editor.focus();
+    const action = this.editor.getAction('actions.find');
+    if (action) {
+      action.run();
+    }
+    const container = this.editorContainer()?.nativeElement;
+    if (container) {
+      const findWidget = container.querySelector('.find-widget');
+      if (findWidget) {
+        findWidget.classList.add('visible');
+      }
+    }
+    this.stripCloseButtonTooltip();
+  }
+
+  private stripCloseButtonTooltip(): void {
+    const container = this.editorContainer()?.nativeElement;
+    if (!container) return;
+    const closeBtn = container.querySelector<HTMLElement>(
+      '.find-widget .button.codicon-widget-close, .find-widget .close-button'
+    );
+    if (closeBtn && closeBtn.hasAttribute('title')) {
+      closeBtn.removeAttribute('title');
+    }
+  }
+
+  closeFindWidget(): void {
+    if (!this.editor) return;
+    try {
+      const controller = this.editor.getContribution<MonacoFindControllerContribution>(
+        'editor.contrib.findController',
+      );
+      if (controller?.closeFindWidget) {
+        controller.closeFindWidget();
+      }
+    } catch {
+      // Fallback
+    }
+    const container = this.editorContainer()?.nativeElement;
+    const findWidget = container?.querySelector('.find-widget');
+    if (findWidget) {
+      findWidget.classList.remove('visible');
+    }
+    const closeBtn = container?.querySelector<HTMLElement>(
+      '.find-widget .button.codicon-widget-close, .find-widget .close-button'
+    );
+    if (closeBtn) {
+      closeBtn.click();
+    }
+  }
+
+  isFindWidgetVisible(): boolean {
+    if (!this.editor) return false;
+    try {
+      const controller = this.editor.getContribution<MonacoFindControllerContribution>(
+        'editor.contrib.findController',
+      );
+      if (controller?.getState) {
+        return !!controller.getState()?.isRevealed;
+      }
+    } catch {
+      // Fallback
+    }
+    const container = this.editorContainer()?.nativeElement;
+    const findWidget = container?.querySelector('.find-widget');
+    return !!(findWidget && findWidget.classList.contains('visible'));
+  }
+
+  layout(): void {
+    if (this.editor) {
+      this.editor.layout();
     }
   }
 
