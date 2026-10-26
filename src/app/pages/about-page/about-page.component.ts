@@ -1,8 +1,21 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, ChevronDown, Check, Copy, ExternalLink, Download } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  ChevronDown,
+  Check,
+  Copy,
+  ExternalLink,
+  Download,
+  Activity,
+  Users,
+  ShieldCheck,
+  Zap,
+} from 'lucide-angular';
 import { ToastService } from '../../core/services/toast.service';
 import { ExportService } from '../../core/services/export.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
 
 export interface CreatorProject {
   icon: string;
@@ -32,7 +45,7 @@ export interface ConnectLink {
 @Component({
   selector: 'app-about-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule],
+  imports: [RouterLink, LucideAngularModule, DecimalPipe],
   templateUrl: './about-page.component.html',
   styleUrl: './about-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,6 +53,13 @@ export interface ConnectLink {
 export class AboutPageComponent {
   private readonly toastService = inject(ToastService);
   private readonly exportService = inject(ExportService);
+  readonly analyticsService = inject(AnalyticsService);
+
+  // Live Telemetry metrics derived from AnalyticsService
+  readonly activeNow = computed(() => this.analyticsService.stats()?.active_now ?? 1);
+  readonly totalVisits = computed(() => this.analyticsService.stats()?.total_visits ?? 0);
+  readonly uniqueVisitors = computed(() => this.analyticsService.stats()?.unique_users ?? 0);
+  readonly isTelemetryLoading = computed(() => this.analyticsService.isLoading());
 
   readonly isEmailCopied = signal<boolean>(false);
   readonly openFaqs = signal<number[]>([0]); // First FAQ open by default
@@ -50,6 +70,10 @@ export class AboutPageComponent {
   readonly copyIcon = Copy;
   readonly externalIcon = ExternalLink;
   readonly downloadIcon = Download;
+  readonly activityIcon = Activity;
+  readonly usersIcon = Users;
+  readonly shieldCheckIcon = ShieldCheck;
+  readonly zapIcon = Zap;
 
   // Contact form signals
   readonly isSubmitting = signal<boolean>(false);
@@ -58,6 +82,12 @@ export class AboutPageComponent {
   readonly contactSubject = signal<string>('');
   readonly contactMessage = signal<string>('');
   readonly contactHoneypot = signal<string>('');
+
+  constructor() {
+    afterNextRender(() => {
+      this.analyticsService.recordVisit();
+    });
+  }
 
   readonly creatorName = 'Shawon Talukder';
   readonly creatorRole = 'Software Engineer at Green Delta Insurance PLC';

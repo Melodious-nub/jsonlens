@@ -223,6 +223,276 @@
   }
 }
 
+/* Live Telemetry Bento Grid (Linear / Vercel Minimalist Style) */
+.telemetry-section {
+  width: 100%;
+
+  .telemetry-card {
+    background: linear-gradient(180deg, rgba(24, 24, 27, 0.75) 0%, rgba(9, 9, 11, 0.9) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.35), transparent);
+    }
+  }
+
+  .telemetry-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+
+    .pulse-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+
+      .pulse-dot {
+        position: relative;
+        display: inline-flex;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+
+        .pulse-ring {
+          position: absolute;
+          inset: -3px;
+          border-radius: 50%;
+          background: rgba(16, 185, 129, 0.45);
+          animation: pulse-wave 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+      }
+
+      .pulse-label {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: #34d399;
+        text-transform: uppercase;
+      }
+    }
+
+    .telemetry-badge {
+      &__edge {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        background: var(--surface-800);
+        padding: 3px 10px;
+        border-radius: var(--radius-full);
+        border: 1px solid var(--border-subtle);
+      }
+    }
+  }
+
+  .telemetry-bento {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+
+    .bento-cell {
+      background: var(--surface-900);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      transition: all var(--transition-fast);
+      position: relative;
+
+      &:hover {
+        border-color: var(--border-default);
+        background: var(--surface-850);
+        transform: translateY(-2px);
+      }
+
+      &--active {
+        border-color: rgba(52, 211, 153, 0.2);
+        background: linear-gradient(180deg, rgba(52, 211, 153, 0.04) 0%, var(--surface-900) 100%);
+      }
+
+      &__top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .bento-live-badge {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+
+          .live-pulse-dot {
+            position: relative;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #34d399;
+            box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+            display: inline-block;
+
+            .live-pulse-ring {
+              position: absolute;
+              inset: -3px;
+              border-radius: 50%;
+              border: 1.5px solid rgba(52, 211, 153, 0.7);
+              animation: pulse-wave 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+            }
+          }
+        }
+
+        .bento-tag {
+          font-size: 0.72rem;
+          font-weight: 700;
+          color: var(--text-secondary);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .bento-icon-box {
+          width: 32px;
+          height: 32px;
+          border-radius: var(--radius-sm);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+
+          &--cyan {
+            background: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+          }
+
+          &--emerald {
+            background: rgba(52, 211, 153, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.25);
+          }
+
+          &--indigo {
+            background: rgba(99, 102, 241, 0.12);
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+          }
+        }
+      }
+
+      .bento-metric {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+
+        .bento-value {
+          font-size: 2.1rem;
+          font-weight: 800;
+          font-family: var(--font-mono);
+          color: var(--text-primary);
+          letter-spacing: -0.03em;
+          line-height: 1;
+
+          &--live {
+            color: #34d399;
+            text-shadow: 0 0 20px rgba(52, 211, 153, 0.25);
+          }
+
+          &--accent {
+            color: var(--brand-bracket);
+          }
+        }
+
+        .bento-skeleton--number {
+          height: 36px;
+          width: 100px;
+          border-radius: var(--radius-xs);
+          background: linear-gradient(90deg, var(--surface-800) 25%, var(--surface-700) 50%, var(--surface-800) 75%);
+          background-size: 200% 100%;
+          animation: skeleton-shimmer 1.5s infinite;
+        }
+      }
+
+      .bento-desc {
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        line-height: 1.45;
+        margin: 0;
+      }
+    }
+  }
+
+  .telemetry-footer {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-subtle);
+
+    .privacy-icon {
+      color: #34d399;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .privacy-text {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin: 0;
+
+      strong {
+        color: var(--text-secondary);
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+@keyframes pulse-wave {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 /* Interactive FAQ Accordion */
 .faq-section {
   display: flex;

@@ -143,4 +143,21 @@ describe('AboutPageComponent', () => {
 
     vi.unstubAllGlobals();
   });
+
+  it('should inject analyticsService and render live telemetry section', () => {
+    const fixture = TestBed.createComponent(AboutPageComponent);
+    const comp = fixture.componentInstance;
+    expect(comp.analyticsService).toBeTruthy();
+    expect(comp.activeNow()).toBeGreaterThanOrEqual(1);
+    expect(comp.totalVisits()).toBeGreaterThanOrEqual(0);
+    expect(comp.uniqueVisitors()).toBeGreaterThanOrEqual(0);
+
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.telemetry-section')).toBeTruthy();
+    expect(compiled.querySelector('.pulse-label')?.textContent).toContain('LIVE WORKSPACE TELEMETRY');
+    expect(compiled.textContent).toContain('Active Right Now');
+    expect(compiled.textContent).toContain('Total Visits');
+    expect(compiled.textContent).toContain('Unique Visitors');
+  });
 });

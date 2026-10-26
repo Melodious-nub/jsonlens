@@ -92,6 +92,97 @@
       </div>
     </section>
 
+    <!-- Live Telemetry & Community Impact Bento Section -->
+    <section class="telemetry-section" aria-label="Live Telemetry and Community Impact">
+      <div class="telemetry-card">
+        <!-- Header row with Live Pulse and Edge Tag -->
+        <div class="telemetry-header">
+          <div class="pulse-indicator">
+            <span class="pulse-dot">
+              <span class="pulse-ring"></span>
+            </span>
+            <span class="pulse-label">LIVE WORKSPACE TELEMETRY</span>
+          </div>
+          <div class="telemetry-badge">
+            <span class="telemetry-badge__edge">Cloudflare D1 Global Edge</span>
+          </div>
+        </div>
+
+        <!-- Bento Grid: 3 Telemetry Metric Cards -->
+        <div class="telemetry-bento">
+          <!-- Metric 1: Live Active Developers -->
+          <div class="bento-cell bento-cell--active">
+            <div class="bento-cell__top">
+              <div class="bento-live-badge">
+                <span class="live-pulse-dot">
+                  <span class="live-pulse-ring"></span>
+                </span>
+                <span class="bento-tag">Active Right Now</span>
+              </div>
+              <div class="bento-icon-box bento-icon-box--emerald">
+                <lucide-icon [img]="activityIcon" size="16" aria-hidden="true" />
+              </div>
+            </div>
+
+            <div class="bento-metric">
+              @if (isTelemetryLoading() && !analyticsService.stats()) {
+                <div class="bento-skeleton bento-skeleton--number"></div>
+              } @else {
+                <span class="bento-value bento-value--live">{{ activeNow() | number }}</span>
+              }
+            </div>
+            <p class="bento-desc">Engineers actively inspecting, formatting, or diffing JSON right now.</p>
+          </div>
+
+          <!-- Metric 2: Total Visits -->
+          <div class="bento-cell bento-cell--sessions">
+            <div class="bento-cell__top">
+              <span class="bento-tag">Total Visits</span>
+              <div class="bento-icon-box bento-icon-box--cyan">
+                <lucide-icon [img]="zapIcon" size="16" aria-hidden="true" />
+              </div>
+            </div>
+
+            <div class="bento-metric">
+              @if (isTelemetryLoading() && !analyticsService.stats()) {
+                <div class="bento-skeleton bento-skeleton--number"></div>
+              } @else {
+                <span class="bento-value">{{ totalVisits() | number }}</span>
+              }
+            </div>
+            <p class="bento-desc">Total workspace sessions, syntax repairs, and JSON views executed globally.</p>
+          </div>
+
+          <!-- Metric 3: Unique Visitors -->
+          <div class="bento-cell bento-cell--engineers">
+            <div class="bento-cell__top">
+              <span class="bento-tag">Unique Visitors</span>
+              <div class="bento-icon-box bento-icon-box--indigo">
+                <lucide-icon [img]="usersIcon" size="16" aria-hidden="true" />
+              </div>
+            </div>
+
+            <div class="bento-metric">
+              @if (isTelemetryLoading() && !analyticsService.stats()) {
+                <div class="bento-skeleton bento-skeleton--number"></div>
+              } @else {
+                <span class="bento-value">{{ uniqueVisitors() | number }}</span>
+              }
+            </div>
+            <p class="bento-desc">Unique developers and privacy-focused engineers adopting JsonLens worldwide.</p>
+          </div>
+        </div>
+
+        <!-- Privacy-First Assurance Notice -->
+        <div class="telemetry-footer">
+          <lucide-icon [img]="shieldCheckIcon" size="16" class="privacy-icon" aria-hidden="true" />
+          <p class="privacy-text">
+            <strong>Privacy Assurance:</strong> JsonLens never logs, inspects, or uploads your JSON payloads or personal IP. Only an atomic, anonymous session counter increments via serverless Cloudflare D1.
+          </p>
+        </div>
+      </div>
+    </section>
+
     <!-- Frequently Asked Questions (Interactive Accordion) -->
     <section class="faq-section" aria-label="Frequently Asked Questions">
       <div class="faq-section__header">
