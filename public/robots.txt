@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jsonlens.dev/sitemap.xml
+Sitemap: https://jsonlens.pages.dev/sitemap.xml

@@ -1,7 +1,7 @@
 # JsonLens - Privacy-First JSON Engineering Suite & Visual Developer Workspace
 
 [![Latest Release](https://img.shields.io/github/v/release/Melodious-nub/jsonlens?color=blue&label=Latest%20Version)](https://github.com/Melodious-nub/jsonlens/releases/latest)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Web%20App-brightgreen?logo=googlechrome)]()
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Web%20App-brightgreen?logo=googlechrome)](https://jsonlens.pages.dev)
 [![Angular Version](https://img.shields.io/badge/Angular-22.2-dd0031.svg?logo=angular)](https://angular.dev)
 [![Privacy](https://img.shields.io/badge/Privacy-100%25%20Client%20Side-brightgreen.svg)](#-privacy--security)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -14,7 +14,7 @@
 
 Access the full, high-performance in-browser developer suite:
 
-[![Launch Web App Button](https://img.shields.io/badge/Launch%20App-JsonLens%20Web%20App-success?style=for-the-badge&logo=googlechrome)]()
+[![Launch Web App Button](https://img.shields.io/badge/Launch%20App-JsonLens%20Web%20App-success?style=for-the-badge&logo=googlechrome)](https://jsonlens.pages.dev)
 
 > 💡 **Client-Side Guarantee:** Zero telemetry. Zero server uploads. Every operation executes 100% locally in your browser sandbox.
 
