@@ -10,19 +10,17 @@
 
 ---
 
-## 🖼️ Screenshots
+## 🖼️ JsonLens Screenshots
 
-### Main Workspace
-![JsonLens Main Workspace](docs/screenshots/main.png)
+<p align="center">
+  <img src="screenshots/main.png" width="49%" alt="JsonLens Main Workspace" />
+  <img src="screenshots/tree.png" width="49%" alt="JsonLens Interactive JSON Tree and JSONPath" />
+</p>
 
-### Interactive JSON Tree & JSONPath
-![JsonLens Tree View](screenshots/tree.png)
-
-### Side-by-Side JSON Diff
-![JsonLens Diff View](screenshots/diff.png)
-
-### Multi-Language Type Generator
-![JsonLens Type Generator](screenshots/types.png)
+<p align="center">
+  <img src="screenshots/diff.png" width="49%" alt="JsonLens Side-by-Side JSON Diff" />
+  <img src="screenshots/types.png" width="49%" alt="JsonLens Multi-Language Type Generator" />
+</p>
 
 ---
 
