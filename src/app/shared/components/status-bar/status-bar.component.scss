@@ -3,7 +3,9 @@
   align-items: center;
   justify-content: space-between;
   height: 28px;
+  height: calc(28px + env(safe-area-inset-bottom, 0px));
   padding: 0 var(--space-3);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--surface-900);
   border-top: 1px solid var(--border-default);
   font-size: 0.6875rem;
