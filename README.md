@@ -13,13 +13,13 @@
 ## 🖼️ JsonLens Screenshots
 
 <p align="center">
-  <img src="screenshots/main.png" width="49%" alt="JsonLens Main Workspace" />
-  <img src="screenshots/tree.png" width="49%" alt="JsonLens Interactive JSON Tree and JSONPath" />
+  <img src="screenshots/main.png" width="100%" alt="JsonLens Main Workspace" />
 </p>
 
 <p align="center">
-  <img src="screenshots/diff.png" width="49%" alt="JsonLens Side-by-Side JSON Diff" />
-  <img src="screenshots/types.png" width="49%" alt="JsonLens Multi-Language Type Generator" />
+  <img src="screenshots/tree.png" width="32%" alt="JsonLens Interactive JSON Tree and JSONPath" />
+  <img src="screenshots/diff.png" width="32%" alt="JsonLens Side-by-Side JSON Diff" />
+  <img src="screenshots/types.png" width="32%" alt="JsonLens Multi-Language Type Generator" />
 </p>
 
 ---
