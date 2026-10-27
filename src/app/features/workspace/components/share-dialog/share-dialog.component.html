@@ -108,15 +108,3 @@
     </div>
   </div>
 }
-
-<!-- Full-Screen Image Previewer Lightbox for Workspace QR Code -->
-<app-image-previewer
-  [isOpen]="isQrPreviewOpen()"
-  [src]="qrCodeDataUrl()"
-  title="Workspace QR Code"
-  subtitle="Scan with mobile camera or download high-res PNG"
-  alt="Workspace QR Code Preview"
-  filename="jsonlens-workspace-qr.png"
-  (closed)="onCloseQrPreview()"
-  (download)="onDownloadQr()"
-/>

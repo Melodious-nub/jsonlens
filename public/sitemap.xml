@@ -79,12 +79,4 @@
       <image:caption>Software Engineer at Green Delta Insurance PLC and open-source craftsman.</image:caption>
     </image:image>
   </url>
-
-  <!-- Support & Open Source Roadmap -->
-  <url>
-    <loc>https://jsonlens.pages.dev/support</loc>
-    <lastmod>2026-10-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
 </urlset>

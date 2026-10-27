@@ -55,4 +55,13 @@ describe('DiffLensComponent', () => {
     comp.onHeaderKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
     expect(comp.splitPercent()).toBe(50);
   });
+
+  it('should format secondary input when formatSecondary is called', () => {
+    const fixture = TestBed.createComponent(DiffLensComponent);
+    const comp = fixture.componentInstance;
+
+    comp.diff.setSecondaryInput('{"key":"value"}');
+    comp.formatSecondary();
+    expect(comp.secondaryInput()).toBe('{\n  "key": "value"\n}');
+  });
 });

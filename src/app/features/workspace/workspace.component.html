@@ -344,4 +344,15 @@
   <!-- Bottom Diagnostics & Stats Bar -->
   <app-status-bar [activeLens]="activeLens()" [mobilePane]="mobilePane()" />
 
+  <!-- Full-Screen Lightbox for Workspace QR Code (Root level for proper z-index stacking over header) -->
+  <app-image-previewer
+    [isOpen]="isQrPreviewOpen()"
+    [src]="qrCodeDataUrl()"
+    title="Workspace QR Code"
+    subtitle="Scan with mobile camera or download high-res PNG"
+    alt="Workspace QR Code Preview"
+    filename="jsonlens-workspace-qr.png"
+    (closed)="closeQrPreview()"
+    (download)="downloadQrImage()"
+  />
 </section>

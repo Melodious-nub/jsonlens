@@ -8,7 +8,6 @@ import {
 import { SharePayloadInfo } from '../../../../core/models/json-lens.model';
 import { formatBytes } from '../../../../shared/utils/format.util';
 import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
-import { ImagePreviewerComponent } from '../../../../shared/components/image-previewer/image-previewer.component';
 import {
   LucideAngularModule,
   Share2,
@@ -28,7 +27,6 @@ import {
   imports: [
     LucideAngularModule,
     ClickOutsideDirective,
-    ImagePreviewerComponent,
   ],
   templateUrl: './share-dialog.component.html',
   styleUrl: './share-dialog.component.scss',

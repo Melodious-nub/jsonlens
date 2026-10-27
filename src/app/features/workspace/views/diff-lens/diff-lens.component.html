@@ -14,6 +14,17 @@
       <button
         type="button"
         class="action-btn focus-ring"
+        (click)="formatSecondary()"
+        title="Format comparison JSON (indented)"
+        aria-label="Format comparison JSON"
+      >
+        <lucide-icon [img]="formatIcon" size="13" />
+        <span>Format</span>
+      </button>
+
+      <button
+        type="button"
+        class="action-btn focus-ring"
         (click)="swapInputs()"
         title="Swap Left and Right JSON"
         aria-label="Swap Left and Right JSON"

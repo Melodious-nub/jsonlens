@@ -14,9 +14,6 @@
   <div class="navbar__right navbar__right--desktop">
     <nav class="navbar__nav" aria-label="Site Navigation">
       <a routerLink="/about" class="nav-item focus-ring" routerLinkActive="nav-item--active">About</a>
-      <a routerLink="/support" class="nav-item nav-item--support focus-ring" routerLinkActive="nav-item--active">
-        <span>Support</span>
-      </a>
     </nav>
 
     <div class="navbar__divider" role="separator" aria-orientation="vertical"></div>
@@ -128,18 +125,6 @@
         >
           <lucide-icon [img]="infoIcon" size="16" class="mobile-item-icon" />
           <span class="mobile-item-label">About & Creator</span>
-        </a>
-
-        <a
-          routerLink="/support"
-          (click)="closeMobileMenu()"
-          class="mobile-nav-item mobile-nav-item--support focus-ring"
-          routerLinkActive="mobile-nav-item--active"
-        >
-          <div class="mobile-item-left">
-            <lucide-icon [img]="heartIcon" size="16" class="mobile-item-icon" />
-            <span class="mobile-item-label">Support</span>
-          </div>
         </a>
 
         <div class="mobile-nav-divider" role="separator"></div>

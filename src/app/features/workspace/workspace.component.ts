@@ -28,6 +28,7 @@ import { ResizableSplitterDirective } from '../../shared/directives/resizable-sp
 import { SwipeGestureDirective } from '../../shared/directives/swipe-gesture.directive';
 import { triggerHaptic } from '../../shared/utils/haptics.util';
 import { ShareDialogComponent } from './components/share-dialog/share-dialog.component';
+import { ImagePreviewerComponent } from '../../shared/components/image-previewer/image-previewer.component';
 import { CodeLensComponent } from './views/code-lens/code-lens.component';
 import { TreeLensComponent } from './views/tree-lens/tree-lens.component';
 import { TypeLensComponent } from './views/type-lens/type-lens.component';
@@ -72,6 +73,7 @@ import {
     ResizableSplitterDirective,
     SwipeGestureDirective,
     ShareDialogComponent,
+    ImagePreviewerComponent,
     CodeLensComponent,
     TreeLensComponent,
     TypeLensComponent,
