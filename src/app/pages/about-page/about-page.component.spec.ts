@@ -4,25 +4,30 @@ import { describe, expect, it, vi } from 'vitest';
 import { AboutPageComponent } from './about-page.component';
 import { ToastService } from '../../core/services/toast.service';
 import { ExportService } from '../../core/services/export.service';
+import { SeoService } from '../../core/services/seo.service';
 
 describe('AboutPageComponent', () => {
   let exportService: ExportService;
   let toastService: ToastService;
+  let seoService: SeoService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AboutPageComponent],
-      providers: [provideRouter([]), ToastService, ExportService],
+      providers: [provideRouter([]), ToastService, ExportService, SeoService],
     }).compileComponents();
 
     exportService = TestBed.inject(ExportService);
     toastService = TestBed.inject(ToastService);
+    seoService = TestBed.inject(SeoService);
   });
 
-  it('should instantiate and display features, faqs, and creator details', () => {
+  it('should instantiate, update SEO for about route, and display features, faqs, and creator details', () => {
+    const seoSpy = vi.spyOn(seoService, 'updateRoute');
     const fixture = TestBed.createComponent(AboutPageComponent);
     const comp = fixture.componentInstance;
     expect(comp).toBeTruthy();
+    expect(seoSpy).toHaveBeenCalledWith('about');
     expect(comp.creatorName).toBe('Shawon Talukder');
     expect(comp.creatorRole).toContain('Green Delta Insurance PLC');
     expect(comp.features.length).toBeGreaterThanOrEqual(6);

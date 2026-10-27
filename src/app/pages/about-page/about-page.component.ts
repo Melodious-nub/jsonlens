@@ -25,6 +25,7 @@ import {
 import { ToastService } from '../../core/services/toast.service';
 import { ExportService } from '../../core/services/export.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
+import { SeoService } from '../../core/services/seo.service';
 
 const MIN_HUMAN_INTERACTION_MS = 3500;
 const COOLDOWN_DURATION_SECONDS = 60;
@@ -68,6 +69,7 @@ export interface ConnectLink {
 export class AboutPageComponent {
   private readonly toastService = inject(ToastService);
   private readonly exportService = inject(ExportService);
+  private readonly seoService = inject(SeoService);
   readonly analyticsService = inject(AnalyticsService);
 
   private readonly platformId = inject(PLATFORM_ID);
@@ -108,6 +110,8 @@ export class AboutPageComponent {
   private cooldownTimerId: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
+    this.seoService.updateRoute('about');
+
     afterNextRender(() => {
       this.analyticsService.recordVisit();
       this.restoreSecurityState();
