@@ -114,9 +114,6 @@
           <div class="bento-cell bento-cell--active">
             <div class="bento-cell__top">
               <div class="bento-live-badge">
-                <span class="live-pulse-dot">
-                  <span class="live-pulse-ring"></span>
-                </span>
                 <span class="bento-tag">Active Right Now</span>
               </div>
               <div class="bento-icon-box bento-icon-box--emerald">
@@ -388,7 +385,14 @@
         <h3 class="section-title">Get in Touch with Shawon</h3>
         <p class="contact-subtitle">Have a feature suggestion, partnership inquiry, or found a bug? Send a message directly.</p>
 
-        <form class="contact-form" (submit)="$event.preventDefault(); onSendContact()">
+        @if (isDailyLimitReached()) {
+          <div class="limit-banner" role="status">
+            <lucide-icon [img]="shieldCheckIcon" size="16" aria-hidden="true" />
+            <span>Daily message limit reached (3/3). To prevent automated spam, please connect via LinkedIn or email directly.</span>
+          </div>
+        }
+
+        <form class="contact-form" (focusin)="onFormFocus()" (submit)="$event.preventDefault(); onSendContact()">
           <!-- Honeypot anti-spam field (hidden from real users) -->
           <input
             type="text"
@@ -411,7 +415,7 @@
                 [value]="contactName()"
                 (input)="onInputChange('name', $event)"
                 placeholder="e.g. Alex"
-                [disabled]="isSubmitting()"
+                [disabled]="isSubmitting() || isDailyLimitReached()"
                 required
               />
             </div>
@@ -425,7 +429,7 @@
                 [value]="contactEmail()"
                 (input)="onInputChange('email', $event)"
                 placeholder="e.g. alex@company.com"
-                [disabled]="isSubmitting()"
+                [disabled]="isSubmitting() || isDailyLimitReached()"
                 required
               />
             </div>
@@ -440,7 +444,7 @@
               [value]="contactSubject()"
               (input)="onInputChange('subject', $event)"
               placeholder="Feature Request / Inquiry"
-              [disabled]="isSubmitting()"
+              [disabled]="isSubmitting() || isDailyLimitReached()"
             />
           </div>
 
@@ -453,7 +457,7 @@
               [value]="contactMessage()"
               (input)="onInputChange('message', $event)"
               placeholder="Share your thoughts or question..."
-              [disabled]="isSubmitting()"
+              [disabled]="isSubmitting() || isDailyLimitReached()"
               required
             ></textarea>
           </div>
@@ -461,12 +465,21 @@
           <button
             type="submit"
             class="submit-btn focus-ring"
-            [disabled]="isSubmitting()"
+            [disabled]="isSubmitting() || cooldownSeconds() > 0 || isDailyLimitReached()"
             [attr.aria-busy]="isSubmitting()"
           >
             @if (isSubmitting()) {
               <span class="spinner" aria-hidden="true"></span>
               <span>Sending Message...</span>
+            } @else if (cooldownSeconds() > 0) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <span>Wait {{ cooldownSeconds() }}s to send another</span>
+            } @else if (isDailyLimitReached()) {
+              <lucide-icon [img]="shieldCheckIcon" size="15" aria-hidden="true" />
+              <span>Daily Limit Reached</span>
             } @else {
               <span>Send Direct Message</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon" aria-hidden="true">
