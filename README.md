@@ -10,6 +10,22 @@
 
 ---
 
+## 🖼️ Screenshots
+
+### Main Workspace
+![JsonLens Main Workspace](docs/screenshots/main.png)
+
+### Interactive JSON Tree & JSONPath
+![JsonLens Tree View](docs/screenshots/tree.png)
+
+### Side-by-Side JSON Diff
+![JsonLens Diff View](docs/screenshots/diff.png)
+
+### Multi-Language Type Generator
+![JsonLens Type Generator](docs/screenshots/types.png)
+
+---
+
 ## 🌐 Launch JsonLens Web App
 
 Access the full, high-performance in-browser developer suite:
