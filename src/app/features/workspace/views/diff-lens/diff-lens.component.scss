@@ -48,6 +48,12 @@
       cursor: row-resize !important;
       user-select: none !important;
 
+      .diff-lens__editor-section,
+      .diff-lens__changes-section {
+        will-change: height, flex-basis;
+        contain: paint;
+      }
+
       * {
         user-select: none !important;
         pointer-events: none !important;
