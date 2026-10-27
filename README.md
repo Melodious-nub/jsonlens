@@ -16,13 +16,13 @@
 ![JsonLens Main Workspace](docs/screenshots/main.png)
 
 ### Interactive JSON Tree & JSONPath
-![JsonLens Tree View](docs/screenshots/tree.png)
+![JsonLens Tree View](screenshots/tree.png)
 
 ### Side-by-Side JSON Diff
-![JsonLens Diff View](docs/screenshots/diff.png)
+![JsonLens Diff View](screenshots/diff.png)
 
 ### Multi-Language Type Generator
-![JsonLens Type Generator](docs/screenshots/types.png)
+![JsonLens Type Generator](screenshots/types.png)
 
 ---
 
