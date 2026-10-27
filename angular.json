@@ -52,7 +52,8 @@
               "raf",
               "rgbcolor",
               "core-js",
-              "qrcode"
+              "qrcode",
+              "dijkstrajs"
             ],
             "loader": {
               ".ttf": "file"

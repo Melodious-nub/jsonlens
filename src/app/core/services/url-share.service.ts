@@ -1,7 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import LZString from 'lz-string';
-import QRCode from 'qrcode';
 import { SharePayloadInfo } from '../models/json-lens.model';
 
 @Injectable({
@@ -127,6 +126,7 @@ export class UrlShareService {
   }
 
   async generateQrCodeDataUrl(url: string): Promise<string> {
+    const QRCode = (await import('qrcode')).default;
     const svgString = await QRCode.toString(url, {
       type: 'svg',
       margin: 2,
@@ -140,6 +140,7 @@ export class UrlShareService {
   }
 
   async generateQrCodePngDataUrl(url: string, width = 512): Promise<string> {
+    const QRCode = (await import('qrcode')).default;
     return QRCode.toDataURL(url, {
       width,
       margin: 2,

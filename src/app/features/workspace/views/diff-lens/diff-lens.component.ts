@@ -20,6 +20,7 @@ import {
   GitCompare,
   CheckCircle2,
   FolderOpen,
+  AlignLeft,
 } from 'lucide-angular';
 
 import { ResizableSplitterDirective } from '../../../../shared/directives/resizable-splitter.directive';
@@ -45,6 +46,7 @@ export class DiffLensComponent {
   readonly clearIcon = Trash2;
   readonly compareIcon = GitCompare;
   readonly matchIcon = CheckCircle2;
+  readonly formatIcon = AlignLeft;
   readonly Math = Math;
 
   readonly diffFileInput = viewChild<ElementRef<HTMLInputElement>>('diffFileInput');
@@ -76,6 +78,15 @@ export class DiffLensComponent {
     this.toast.show('Cleared comparison JSON', 'info');
   }
 
+  formatSecondary(): void {
+    const success = this.diff.formatSecondary();
+    if (success) {
+      this.toast.show('Comparison JSON formatted', 'success');
+    } else {
+      this.toast.show('Cannot format invalid JSON syntax', 'error');
+    }
+  }
+
   swapInputs(): void {
     this.diff.swapInputs();
     this.toast.show('Swapped Left and Right JSON', 'success');
@@ -93,7 +104,7 @@ export class DiffLensComponent {
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === 'string') {
-        this.diff.setSecondaryInput(reader.result);
+        this.diff.setSecondaryInput(reader.result, true);
         this.toast.show(`Loaded comparison file: ${file.name}`, 'success');
       }
     };

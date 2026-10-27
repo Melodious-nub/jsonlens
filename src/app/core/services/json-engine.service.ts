@@ -112,18 +112,38 @@ export class JsonEngineService {
     }
   });
 
-  // Synchronous or Worker computed parsing
-  readonly parsedResult = computed<ParseResult>(() => {
+  // Single-pass parse execution: parsing and error extraction combined in one pass
+  private readonly parsedInternal = computed<{
+    success: boolean;
+    data: JsonValue | null;
+    error: JsonError | null;
+    formatted: string;
+  }>(() => {
     const input = this.rawInput();
     const indent = this.indentValue();
 
-    // If large payload and worker computed result exists, use it
-    if (input.length >= LARGE_PAYLOAD_THRESHOLD && this.workerResult()) {
-      return this.workerResult()!;
+    // If large payload and worker is available
+    if (input.length >= LARGE_PAYLOAD_THRESHOLD) {
+      if (this.workerResult()) {
+        const wr = this.workerResult()!;
+        return {
+          success: wr.success,
+          data: wr.data,
+          error: this.workerError(),
+          formatted: wr.formatted,
+        };
+      }
+      // Worker is actively calculating off-thread: shield main thread from freezing!
+      return {
+        success: false,
+        data: null,
+        error: null,
+        formatted: input,
+      };
     }
 
     if (!input || input.trim() === '') {
-      return { success: true, data: null, formatted: '', minified: '' };
+      return { success: true, data: null, error: null, formatted: '' };
     }
 
     try {
@@ -132,11 +152,24 @@ export class JsonEngineService {
         this.indentOption() === 'minified'
           ? JSON.stringify(data)
           : JSON.stringify(data, null, indent);
-      const minified = JSON.stringify(data);
-      return { success: true, data, formatted, minified };
-    } catch {
-      return { success: false, data: null, formatted: input, minified: input };
+      return { success: true, data, error: null, formatted };
+    } catch (err) {
+      const error = extractJsonError(err, input);
+      return { success: false, data: null, error, formatted: input };
     }
+  });
+
+  // Synchronous or Worker computed parsing with lazy minification
+  readonly parsedResult = computed<ParseResult>(() => {
+    const internal = this.parsedInternal();
+    return {
+      success: internal.success,
+      data: internal.data,
+      formatted: internal.formatted,
+      get minified(): string {
+        return internal.data !== null ? JSON.stringify(internal.data) : internal.formatted;
+      },
+    };
   });
 
   readonly jsonError = computed<JsonError | null>(() => {
@@ -149,12 +182,7 @@ export class JsonEngineService {
       return this.workerError();
     }
 
-    try {
-      JSON.parse(input);
-      return null;
-    } catch (err) {
-      return extractJsonError(err, input);
-    }
+    return this.parsedInternal().error;
   });
 
   readonly isValid = computed<boolean>(() => this.jsonError() === null);

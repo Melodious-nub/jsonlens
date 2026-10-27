@@ -26,7 +26,7 @@ describe('DiffService', () => {
 
     service.swapInputs();
     expect(engine.rawInput()).toBe('{"val": "secondary"}');
-    expect(service.secondaryInput()).toBe('{"val": "primary"}');
+    expect(service.secondaryInput()).toBe('{\n  "val": "primary"\n}');
   });
 
   it('should clear and reload sample', () => {
@@ -40,18 +40,18 @@ describe('DiffService', () => {
     expect(service.isSampleActive()).toBe(true);
   });
 
-  it('should clone primary input into secondary comparison', () => {
+  it('should clone primary input into secondary comparison as formatted JSON', () => {
     const service = TestBed.inject(DiffService);
     const engine = TestBed.inject(JsonEngineService);
 
     engine.setInput('{"hello": "world"}');
     service.cloneFromPrimary();
-    expect(service.secondaryInput()).toBe('{"hello": "world"}');
+    expect(service.secondaryInput()).toBe('{\n  "hello": "world"\n}');
     expect(service.isSampleActive()).toBe(false);
     expect(service.meaningfulDiffs().length).toBe(0);
   });
 
-  it('should auto-synchronize baseline when new input is added after diff is cleared', () => {
+  it('should auto-synchronize baseline as formatted JSON when new input is added after diff is cleared', () => {
     const service = TestBed.inject(DiffService);
     const engine = TestBed.inject(JsonEngineService);
 
@@ -72,14 +72,44 @@ describe('DiffService', () => {
     engine.setInput('{"v": 2, "new": true}');
     TestBed.flushEffects();
 
-    // Secondary automatically initializes to the new baseline
-    expect(service.secondaryInput()).toBe('{"v": 2, "new": true}');
+    // Secondary automatically initializes to the new baseline formatted
+    expect(service.secondaryInput()).toBe('{\n  "v": 2,\n  "new": true\n}');
     expect(service.awaitingNewInput()).toBe(false);
     expect(service.meaningfulDiffs().length).toBe(0);
 
     // Subsequent edit on secondary shows diff
-    service.setSecondaryInput('{"v": 3, "new": true}');
+    service.setSecondaryInput('{\n  "v": 3,\n  "new": true\n}');
     TestBed.flushEffects();
     expect(service.meaningfulDiffs().length).toBe(1);
+  });
+
+  it('should not auto-minify diff when main code is minified', () => {
+    const service = TestBed.inject(DiffService);
+    const engine = TestBed.inject(JsonEngineService);
+
+    // Initial state has sample active
+    expect(service.isSampleActive()).toBe(true);
+    const initialSecondary = service.secondaryInput();
+
+    // User minifies main code in engine
+    engine.minify();
+    TestBed.flushEffects();
+
+    // Main code is minified
+    expect(engine.rawInput()).not.toContain('\n');
+
+    // Diff comparison JSON MUST NOT be auto-minified or overwritten
+    expect(service.isSampleActive()).toBe(true);
+    expect(service.secondaryInput()).toBe(initialSecondary);
+    expect(service.secondaryInput()).toContain('\n');
+  });
+
+  it('should format secondary input when formatSecondary is called', () => {
+    const service = TestBed.inject(DiffService);
+    service.setSecondaryInput('{"a":1,"b":[2,3]}');
+
+    const result = service.formatSecondary();
+    expect(result).toBe(true);
+    expect(service.secondaryInput()).toBe('{\n  "a": 1,\n  "b": [\n    2,\n    3\n  ]\n}');
   });
 });

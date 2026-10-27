@@ -13,7 +13,6 @@ import {
   Menu,
   X,
   Info,
-  Heart,
   Code2,
   ExternalLink,
   Sparkles,
@@ -46,7 +45,6 @@ export class NavbarComponent {
   readonly menuIcon = Menu;
   readonly closeIcon = X;
   readonly infoIcon = Info;
-  readonly heartIcon = Heart;
   readonly codeIcon = Code2;
   readonly externalIcon = ExternalLink;
   readonly sparklesIcon = Sparkles;

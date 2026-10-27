@@ -1,5 +1,14 @@
-import { DecimalPipe } from '@angular/common';
-import { afterNextRender, ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { DecimalPipe, isPlatformBrowser } from '@angular/common';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   LucideAngularModule,
@@ -16,6 +25,13 @@ import {
 import { ToastService } from '../../core/services/toast.service';
 import { ExportService } from '../../core/services/export.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
+import { SeoService } from '../../core/services/seo.service';
+
+const MIN_HUMAN_INTERACTION_MS = 3500;
+const COOLDOWN_DURATION_SECONDS = 60;
+const MAX_DAILY_MESSAGES = 3;
+const STORAGE_KEY_LAST_SENT = 'jsonlens_contact_last_sent';
+const STORAGE_KEY_DAILY_QUOTA = 'jsonlens_contact_daily_quota';
 
 export interface CreatorProject {
   icon: string;
@@ -53,7 +69,12 @@ export interface ConnectLink {
 export class AboutPageComponent {
   private readonly toastService = inject(ToastService);
   private readonly exportService = inject(ExportService);
+  private readonly seoService = inject(SeoService);
   readonly analyticsService = inject(AnalyticsService);
+
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   // Live Telemetry metrics derived from AnalyticsService
   readonly activeNow = computed(() => this.analyticsService.stats()?.active_now ?? 1);
@@ -75,17 +96,32 @@ export class AboutPageComponent {
   readonly shieldCheckIcon = ShieldCheck;
   readonly zapIcon = Zap;
 
-  // Contact form signals
+  // Contact form state & Anti-abuse security signals
   readonly isSubmitting = signal<boolean>(false);
   readonly contactName = signal<string>('');
   readonly contactEmail = signal<string>('');
   readonly contactSubject = signal<string>('');
   readonly contactMessage = signal<string>('');
   readonly contactHoneypot = signal<string>('');
+  readonly cooldownSeconds = signal<number>(0);
+  readonly dailyMessageCount = signal<number>(0);
+  readonly isDailyLimitReached = computed(() => this.dailyMessageCount() >= MAX_DAILY_MESSAGES);
+  readonly formInteractionStartTime = signal<number>(0);
+  private cooldownTimerId: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
+    this.seoService.updateRoute('about');
+
     afterNextRender(() => {
       this.analyticsService.recordVisit();
+      this.restoreSecurityState();
+    });
+
+    this.destroyRef.onDestroy(() => {
+      if (this.cooldownTimerId) {
+        clearInterval(this.cooldownTimerId);
+        this.cooldownTimerId = null;
+      }
     });
   }
 
@@ -278,7 +314,16 @@ export class AboutPageComponent {
     return this.openFaqs().includes(index);
   }
 
+  onFormFocus(): void {
+    if (this.formInteractionStartTime() === 0) {
+      this.formInteractionStartTime.set(Date.now());
+    }
+  }
+
   onInputChange(field: 'name' | 'email' | 'subject' | 'message' | 'honey', event: Event): void {
+    if (this.formInteractionStartTime() === 0) {
+      this.formInteractionStartTime.set(Date.now());
+    }
     const target = event.target as HTMLInputElement | HTMLTextAreaElement | null;
     const value = target?.value ?? '';
     switch (field) {
@@ -313,7 +358,13 @@ export class AboutPageComponent {
   }
 
   async onSendContact(): Promise<void> {
-    if (this.isSubmitting()) {
+    if (this.isSubmitting() || this.cooldownSeconds() > 0 || this.isDailyLimitReached()) {
+      if (this.isDailyLimitReached()) {
+        this.toastService.show(
+          'Daily message limit reached (3/3). Please connect on LinkedIn or Email directly.',
+          'error'
+        );
+      }
       return;
     }
 
@@ -333,13 +384,17 @@ export class AboutPageComponent {
       return;
     }
 
-    // Bot honeypot check: silently drop if a bot filled the hidden honeypot
+    // 1. Bot Honeypot Defense: Silently drop if bot populated hidden field
     if (this.contactHoneypot().trim()) {
-      this.contactName.set('');
-      this.contactEmail.set('');
-      this.contactSubject.set('');
-      this.contactMessage.set('');
-      this.contactHoneypot.set('');
+      this.resetContactFields();
+      this.toastService.show('Message delivered directly to Shawon!', 'success');
+      return;
+    }
+
+    // 2. Anti-Bot Time-Trap Defense: Silently drop if submitted faster than human typing threshold
+    const elapsed = this.formInteractionStartTime() > 0 ? Date.now() - this.formInteractionStartTime() : 0;
+    if (this.formInteractionStartTime() > 0 && elapsed < MIN_HUMAN_INTERACTION_MS) {
+      this.resetContactFields();
       this.toastService.show('Message delivered directly to Shawon!', 'success');
       return;
     }
@@ -370,10 +425,9 @@ export class AboutPageComponent {
           'Message delivered directly to Shawon! Thank you for reaching out.',
           'success'
         );
-        this.contactName.set('');
-        this.contactEmail.set('');
-        this.contactSubject.set('');
-        this.contactMessage.set('');
+        this.resetContactFields();
+        this.incrementDailyQuota();
+        this.startCooldown(COOLDOWN_DURATION_SECONDS);
       } else {
         throw new Error(result.message || 'Form submission failed');
       }
@@ -392,6 +446,88 @@ export class AboutPageComponent {
       }
     } finally {
       this.isSubmitting.set(false);
+    }
+  }
+
+  private resetContactFields(): void {
+    this.contactName.set('');
+    this.contactEmail.set('');
+    this.contactSubject.set('');
+    this.contactMessage.set('');
+    this.contactHoneypot.set('');
+    this.formInteractionStartTime.set(0);
+  }
+
+  private startCooldown(seconds: number): void {
+    if (this.cooldownTimerId) {
+      clearInterval(this.cooldownTimerId);
+    }
+    this.cooldownSeconds.set(seconds);
+    if (this.isBrowser) {
+      try {
+        localStorage.setItem(STORAGE_KEY_LAST_SENT, Date.now().toString());
+      } catch {
+        // Storage might be restricted
+      }
+    }
+
+    this.cooldownTimerId = setInterval(() => {
+      const current = this.cooldownSeconds();
+      if (current <= 1) {
+        this.cooldownSeconds.set(0);
+        if (this.cooldownTimerId) {
+          clearInterval(this.cooldownTimerId);
+          this.cooldownTimerId = null;
+        }
+      } else {
+        this.cooldownSeconds.set(current - 1);
+      }
+    }, 1000);
+  }
+
+  private incrementDailyQuota(): void {
+    const today = new Date().toISOString().slice(0, 10);
+    const newCount = this.dailyMessageCount() + 1;
+    this.dailyMessageCount.set(newCount);
+    if (this.isBrowser) {
+      try {
+        localStorage.setItem(
+          STORAGE_KEY_DAILY_QUOTA,
+          JSON.stringify({ date: today, count: newCount })
+        );
+      } catch {
+        // Storage might be restricted
+      }
+    }
+  }
+
+  private restoreSecurityState(): void {
+    if (!this.isBrowser) return;
+
+    try {
+      // Restore cooldown if active
+      const lastSentStr = localStorage.getItem(STORAGE_KEY_LAST_SENT);
+      if (lastSentStr) {
+        const lastSent = parseInt(lastSentStr, 10);
+        if (!isNaN(lastSent)) {
+          const elapsedSeconds = Math.floor((Date.now() - lastSent) / 1000);
+          if (elapsedSeconds < COOLDOWN_DURATION_SECONDS) {
+            this.startCooldown(COOLDOWN_DURATION_SECONDS - elapsedSeconds);
+          }
+        }
+      }
+
+      // Restore daily quota
+      const today = new Date().toISOString().slice(0, 10);
+      const quotaStr = localStorage.getItem(STORAGE_KEY_DAILY_QUOTA);
+      if (quotaStr) {
+        const quota = JSON.parse(quotaStr) as { date?: string; count?: number };
+        if (quota.date === today && typeof quota.count === 'number') {
+          this.dailyMessageCount.set(quota.count);
+        }
+      }
+    } catch {
+      // Storage access or parse failed safely
     }
   }
 }

@@ -49,9 +49,8 @@ export const routes: Routes = [
   },
   {
     path: 'support',
-    loadComponent: () =>
-      import('./pages/support-page/support-page.component').then((m) => m.SupportPageComponent),
-    title: 'Support JsonLens — Open Source Sponsorship & Coming Soon Plans',
+    redirectTo: 'about',
+    pathMatch: 'full',
   },
   {
     path: '**',

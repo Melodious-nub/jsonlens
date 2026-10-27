@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   height: calc(100vh - 56px);
+  height: calc(100dvh - 56px);
   width: 100%;
   background: var(--surface-950);
   overflow: hidden;
@@ -17,6 +18,11 @@
     &.is-resizing {
       user-select: none !important;
       cursor: col-resize !important;
+
+      .workspace__pane {
+        will-change: flex-basis, width;
+        contain: paint;
+      }
 
       iframe,
       .monaco-editor,
@@ -173,7 +179,9 @@
     top: 0;
     left: 0;
     width: 100vw;
+    width: 100dvw;
     height: 100vh;
+    height: 100dvh;
     z-index: 9999;
     background: var(--surface-950);
   }
@@ -427,10 +435,12 @@
 @media (max-width: 768px) {
   .workspace {
     height: calc(100vh - 56px);
+    height: calc(100dvh - 56px);
     overflow: hidden;
 
     &--fullscreen {
       height: 100vh;
+      height: 100dvh;
     }
 
     &__panels {

@@ -28,6 +28,7 @@ import { ResizableSplitterDirective } from '../../shared/directives/resizable-sp
 import { SwipeGestureDirective } from '../../shared/directives/swipe-gesture.directive';
 import { triggerHaptic } from '../../shared/utils/haptics.util';
 import { ShareDialogComponent } from './components/share-dialog/share-dialog.component';
+import { ImagePreviewerComponent } from '../../shared/components/image-previewer/image-previewer.component';
 import { CodeLensComponent } from './views/code-lens/code-lens.component';
 import { TreeLensComponent } from './views/tree-lens/tree-lens.component';
 import { TypeLensComponent } from './views/type-lens/type-lens.component';
@@ -72,6 +73,7 @@ import {
     ResizableSplitterDirective,
     SwipeGestureDirective,
     ShareDialogComponent,
+    ImagePreviewerComponent,
     CodeLensComponent,
     TreeLensComponent,
     TypeLensComponent,
@@ -218,6 +220,21 @@ export class WorkspaceComponent {
 
       window.addEventListener('keydown', onKeyDown, true);
       this.destroyRef.onDestroy(() => window.removeEventListener('keydown', onKeyDown, true));
+
+      const onFullscreenChange = () => {
+        const doc = document as Document & { webkitFullscreenElement?: Element };
+        const isNativeFs = !!(document.fullscreenElement || doc.webkitFullscreenElement);
+        if (!isNativeFs && this.isFullscreen()) {
+          this.isFullscreen.set(false);
+        }
+      };
+
+      document.addEventListener('fullscreenchange', onFullscreenChange);
+      document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+      this.destroyRef.onDestroy(() => {
+        document.removeEventListener('fullscreenchange', onFullscreenChange);
+        document.removeEventListener('webkitfullscreenchange', onFullscreenChange);
+      });
     }
 
     effect(() => {
@@ -572,10 +589,36 @@ export class WorkspaceComponent {
   toggleFullscreen(): void {
     const next = !this.isFullscreen();
     this.isFullscreen.set(next);
-    if (next) {
-      this.toast.show('Entered Fullscreen (Press Esc to exit)', 'info');
+
+    if (this.isBrowser) {
+      if (next) {
+        const docEl = document.documentElement as HTMLElement & {
+          webkitRequestFullscreen?: () => Promise<void>;
+        };
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {});
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        }
+        this.toast.show('Entered Fullscreen (Press Esc to exit)', 'info');
+      } else {
+        const doc = document as Document & {
+          webkitExitFullscreen?: () => Promise<void>;
+          webkitFullscreenElement?: Element;
+        };
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        } else if (doc.webkitFullscreenElement && doc.webkitExitFullscreen) {
+          doc.webkitExitFullscreen();
+        }
+        this.toast.show('Exited Fullscreen', 'info');
+      }
     } else {
-      this.toast.show('Exited Fullscreen', 'info');
+      if (next) {
+        this.toast.show('Entered Fullscreen (Press Esc to exit)', 'info');
+      } else {
+        this.toast.show('Exited Fullscreen', 'info');
+      }
     }
   }
 

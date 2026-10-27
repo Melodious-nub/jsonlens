@@ -4,27 +4,36 @@
   <meta charset="utf-8">
   <title>JsonLens — Privacy-First JSON Workspace, Formatter &amp; Visual Diff</title>
   <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="description" content="100% client-side, zero-telemetry JSON workspace. Instant JSON formatter, validator, syntax auto-repair, interactive tree viewer, TypeScript type generator, and AST diff comparator.">
-  <meta name="keywords" content="json formatter, json validator, json viewer, json to typescript, json diff, format json online, json auto repair, json minify, json editor, beautify json, developer tools, privacy json, client side json">
-  <meta name="author" content="Shawon">
+  <meta name="keywords" content="json formatter, json validator, json beautifier, json to typescript, json diff, format json online, json auto repair, json minify, json editor, beautify json, developer tools, privacy json, client side json, offline json tool, zod schema generator, json to go struct, ast visual diff, shawon talukder">
+  <meta name="author" content="Shawon Talukder">
+  <meta name="application-name" content="JsonLens">
+  <meta name="apple-mobile-web-app-title" content="JsonLens">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <link rel="canonical" href="https://jsonlens.pages.dev/">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:site_name" content="JsonLens">
   <meta property="og:url" content="https://jsonlens.pages.dev/">
   <meta property="og:title" content="JsonLens — Privacy-First JSON Workspace, Formatter &amp; Visual Diff">
   <meta property="og:description" content="100% client-side JSON engineering workspace. Real-time formatter, validator, syntax auto-repair, interactive tree explorer, TypeScript generator, and visual diff. Zero data ever leaves your device.">
-  <meta property="og:site_name" content="JsonLens">
   <meta property="og:image" content="https://jsonlens.pages.dev/icon-512.png">
+  <meta property="og:image:secure_url" content="https://jsonlens.pages.dev/icon-512.png">
+  <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="512">
   <meta property="og:image:height" content="512">
-  <meta property="og:image:alt" content="JsonLens - Privacy-First JSON Engineering Suite">
+  <meta property="og:image:alt" content="JsonLens — Privacy-First JSON Engineering Suite">
 
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="JsonLens — Privacy-First JSON Workspace">
+  <meta name="twitter:site" content="@JsonLens">
+  <meta name="twitter:creator" content="@ShawonTalukder">
+  <meta name="twitter:title" content="JsonLens — Privacy-First JSON Workspace &amp; Formatter">
   <meta name="twitter:description" content="Sub-millisecond JSON formatter, syntax auto-repair, tree visualizer, TypeScript generator, and AST diff. 100% private and client-side.">
   <meta name="twitter:image" content="https://jsonlens.pages.dev/icon-512.png">
 
@@ -40,11 +49,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
 
-  <!-- Structured Data: Google Search Console & Rich Snippets -->
-  <script type="application/ld+json">
+  <!-- Structured Data: Google Search Console, Rich Snippets & Schema.org -->
+  <script id="jsonlens-schema" type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://jsonlens.pages.dev/#website",
+        "url": "https://jsonlens.pages.dev/",
+        "name": "JsonLens",
+        "description": "High-Performance Privacy-First JSON Workspace & Engineering Suite",
+        "inLanguage": "en-US"
+      },
       {
         "@type": "WebApplication",
         "@id": "https://jsonlens.pages.dev/#app",
@@ -52,18 +69,34 @@
         "url": "https://jsonlens.pages.dev/",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "All (Modern Web Browsers)",
+        "browserRequirements": "Requires JavaScript. Requires HTML5.",
         "offers": {
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "USD"
         },
         "description": "High-performance, 100% client-side JSON engineering suite with syntax auto-repair, tree visualization, TypeScript generation, and AST diff.",
+        "author": {
+          "@type": "Person",
+          "name": "Shawon Talukder",
+          "url": "https://jsonlens.pages.dev/about",
+          "jobTitle": "Software Engineer",
+          "worksFor": {
+            "@type": "Organization",
+            "name": "Green Delta Insurance PLC"
+          },
+          "sameAs": [
+            "https://github.com/Melodious-nub",
+            "https://www.linkedin.com/in/shawon-taluckder",
+            "https://www.fiverr.com/talukder_shawon/"
+          ]
+        },
         "featureList": [
           "100% In-Memory Client-Side Privacy (Zero Server Uploads)",
           "Sub-Millisecond Prettify & Compact Formatting",
           "One-Click Syntax Auto-Repair for Broken JSON",
           "Interactive AST Tree Lens with JSONPath Generation",
-          "TypeScript Interface & Type Generator",
+          "12-Language TypeScript, Zod, and Go Type Generator",
           "Side-by-Side Visual Diff Comparator",
           "Compressed LZ-String URL Sharing",
           "Export to JSON, Formatted PDF Report, and CSV"

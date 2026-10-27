@@ -30,7 +30,7 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
       title: 'JsonLens — JSON Formatter & Beautifier | Free Online Developer Tool',
       description:
         'Free online JSON formatter and beautifier. Indent, validate, and inspect JSON with 2-spaces, 4-spaces, or tabs. 100% client-side, zero backend storage.',
-      canonicalPath: 'https://jsonlens.dev/',
+      canonicalPath: 'https://jsonlens.pages.dev/',
       keywords: [
         'json formatter',
         'json beautifier',
@@ -87,7 +87,7 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
       title: 'JSON Validator & Auto-Repair Tool | JsonLens',
       description:
         'Fast real-time JSON validator with precise line and column error diagnostics. Automatically fix trailing commas, unquoted keys, and single quotes in 1 click.',
-      canonicalPath: 'https://jsonlens.dev/json-validator',
+      canonicalPath: 'https://jsonlens.pages.dev/json-validator',
       keywords: [
         'json validator',
         'json repair',
@@ -138,7 +138,7 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
       title: 'JSON Minifier & Compressor Online | JsonLens',
       description:
         'Minify and compress JSON strings instantly. Reduce payload size for production APIs, microservices, and network transfer. 100% client-side tool.',
-      canonicalPath: 'https://jsonlens.dev/json-minifier',
+      canonicalPath: 'https://jsonlens.pages.dev/json-minifier',
       keywords: [
         'json minifier',
         'compress json',
@@ -189,7 +189,7 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
       title: 'JSON to TypeScript & Zod Schema Converter Online | JsonLens',
       description:
         'Convert JSON to TypeScript interfaces, Zod runtime schemas, and Go structs with json tags. Customize root names and download generated code in seconds.',
-      canonicalPath: 'https://jsonlens.dev/json-to-typescript',
+      canonicalPath: 'https://jsonlens.pages.dev/json-to-typescript',
       keywords: [
         'json to typescript',
         'json to zod',
@@ -236,7 +236,7 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
       title: 'JSON Diff & Compare Tool Online | JsonLens',
       description:
         'Compare two JSON payloads side-by-side with deep recursive diffing. Color-coded additions, deletions, and modifications with instant swap actions.',
-      canonicalPath: 'https://jsonlens.dev/json-diff',
+      canonicalPath: 'https://jsonlens.pages.dev/json-diff',
       keywords: [
         'json diff',
         'compare json',
@@ -270,6 +270,55 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
         question: 'Can I swap the left and right JSON payloads?',
         answer:
           'Yes. Click the "Swap" button in the Diff toolbar to invert the comparison instantly.',
+      },
+    ],
+  },
+
+  about: {
+    key: 'about',
+    badge: 'About & Creator',
+    title: 'About JsonLens & Creator — Shawon Talukder | High-Performance JSON Suite',
+    subtitle:
+      'Learn about the privacy-first engineering philosophy, client-side architecture, and open-source creator behind JsonLens.',
+    metadata: {
+      title: 'About JsonLens & Creator — Shawon Talukder | High-Performance JSON Suite',
+      description:
+        'Discover JsonLens, an open-source, 100% client-side JSON developer suite engineered by Shawon Talukder. Features syntax auto-repair, AST tree lens, and side-by-side diffing.',
+      canonicalPath: 'https://jsonlens.pages.dev/about',
+      ogImage: 'https://jsonlens.pages.dev/shawon_talukder.jpeg',
+      keywords: [
+        'about jsonlens',
+        'shawon talukder',
+        'json developer tool',
+        'client side json formatter',
+        'privacy json editor',
+        'open source json tool',
+        'green delta insurance software engineer',
+      ],
+      softwareType: 'AboutPage',
+    },
+    sections: [
+      {
+        title: 'Zero-Telemetry Developer Architecture',
+        description:
+          'JsonLens was built to solve the privacy crisis in online developer tools. Every single algorithm executes 100% locally in browser memory without sending a single byte to remote servers.',
+      },
+    ],
+    faqs: [
+      {
+        question: 'How does JsonLens guarantee 100% client-side privacy?',
+        answer:
+          'Every single operation—parsing, formatting, syntax auto-repair, tree AST construction, 12-language type generation, and side-by-side AST diffing—runs strictly inside your local browser memory sandbox.',
+      },
+      {
+        question: 'How does Zero-Server URL Sharing (#d=...) work?',
+        answer:
+          'JsonLens compresses payloads into the URL hash fragment (#d=...) using LZ-String. Web browsers never transmit hash fragments to web servers in HTTP request headers.',
+      },
+      {
+        question: 'Who created JsonLens?',
+        answer:
+          'JsonLens was engineered and crafted by Shawon Talukder, Software Engineer at Green Delta Insurance PLC.',
       },
     ],
   },

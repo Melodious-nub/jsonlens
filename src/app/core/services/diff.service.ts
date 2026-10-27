@@ -61,8 +61,13 @@ export class DiffService {
       const trimmedPrimary = primary.trim();
 
       // Case 1: Initial startup with sample
-      if (this.isSampleActive() && primary !== DEFAULT_SAMPLE_JSON && trimmedPrimary !== '') {
-        this.secondaryInput.set(primary);
+      if (this.isSampleActive()) {
+        // If primary is empty or is still the default sample (whether formatted or minified), preserve sample diff!
+        if (this.isDefaultSample(primary) || trimmedPrimary === '') {
+          return;
+        }
+        // User entered new custom JSON: initialize diff comparison with formatted JSON
+        this.secondaryInput.set(this.formatJsonString(primary));
         this.isSampleActive.set(false);
         this.awaitingNewInput.set(false);
         return;
@@ -74,7 +79,7 @@ export class DiffService {
         primary !== this.lastPrimaryOnClear() &&
         trimmedPrimary !== ''
       ) {
-        this.secondaryInput.set(primary);
+        this.secondaryInput.set(this.formatJsonString(primary));
         this.awaitingNewInput.set(false);
       }
     });
@@ -185,8 +190,50 @@ export class DiffService {
     return summarizeDiff(this.diffItems());
   });
 
-  setSecondaryInput(val: string): void {
-    this.secondaryInput.set(val);
+  formatJsonString(raw: string): string {
+    const trimmed = raw.trim();
+    if (!trimmed) return raw;
+    try {
+      const parsed = JSON.parse(trimmed);
+      return JSON.stringify(parsed, null, 2);
+    } catch {
+      return raw;
+    }
+  }
+
+  isDefaultSample(content: string): boolean {
+    const trimmed = content.trim();
+    if (trimmed === '' || trimmed === DEFAULT_SAMPLE_JSON) {
+      return true;
+    }
+    try {
+      const parsed = JSON.parse(trimmed) as { name?: string; version?: string; features?: unknown[] };
+      return Boolean(
+        parsed &&
+        parsed.name === 'JsonLens' &&
+        parsed.version === '1.0.0' &&
+        Array.isArray(parsed.features)
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  formatSecondary(): boolean {
+    try {
+      const raw = this.secondaryInput();
+      if (!raw.trim()) return false;
+      const parsed = JSON.parse(raw);
+      this.secondaryInput.set(JSON.stringify(parsed, null, 2));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  setSecondaryInput(val: string, autoFormat = false): void {
+    const finalVal = autoFormat ? this.formatJsonString(val) : val;
+    this.secondaryInput.set(finalVal);
     this.isSampleActive.set(false);
     this.awaitingNewInput.set(false);
   }
@@ -205,7 +252,7 @@ export class DiffService {
   }
 
   cloneFromPrimary(): void {
-    this.secondaryInput.set(this.engine.rawInput());
+    this.secondaryInput.set(this.formatJsonString(this.engine.rawInput()));
     this.isSampleActive.set(false);
     this.awaitingNewInput.set(false);
   }
@@ -214,7 +261,7 @@ export class DiffService {
     const currentPrimary = this.engine.rawInput();
     const currentSecondary = this.secondaryInput();
     this.engine.setInput(currentSecondary);
-    this.secondaryInput.set(currentPrimary);
+    this.secondaryInput.set(this.formatJsonString(currentPrimary));
     this.awaitingNewInput.set(false);
   }
 }
