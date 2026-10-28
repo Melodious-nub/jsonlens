@@ -12,10 +12,11 @@ export interface ToastMessage {
   providedIn: 'root',
 })
 export class ToastService {
+  private nextId = 0;
   readonly toasts = signal<ToastMessage[]>([]);
 
   show(message: string, type: ToastType = 'success', duration = 3000): void {
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const id = `toast-${Date.now()}-${++this.nextId}`;
     const newToast: ToastMessage = { id, message, type };
 
     this.toasts.update((current) => [...current, newToast]);
