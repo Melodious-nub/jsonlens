@@ -5,9 +5,6 @@
     class="workspace__panels"
     [class.is-resizing]="isDragging()"
     [class.workspace__panels--mobile-output]="mobilePane() === 'output'"
-    appSwipeGesture
-    (swipeLeft)="onSwipeLeft()"
-    (swipeRight)="onSwipeRight()"
   >
     <!-- Left Pane: Input Editor & Drop Zone -->
     <div
