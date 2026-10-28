@@ -162,7 +162,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const sessionId =
       body.sessionId && typeof body.sessionId === 'string' && body.sessionId.trim().length > 0
         ? body.sessionId.trim().slice(0, 64)
-        : `anon_${Math.random().toString(36).substring(2, 15)}`;
+        : `anon_${crypto.randomUUID()}`;
 
     const now = Math.floor(Date.now() / 1000);
     const staleThreshold = now - ACTIVE_SESSION_WINDOW_SECONDS;
