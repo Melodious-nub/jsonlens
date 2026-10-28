@@ -11,7 +11,7 @@
     </image:image>
   </url>
   <url>
-    <loc>https://jsonlens.pages.dev/json-validator</loc>
+    <loc>https://jsonlens.pages.dev/json-validator/</loc>
     <lastmod>2026-10-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -20,7 +20,7 @@
     </image:image>
   </url>
   <url>
-    <loc>https://jsonlens.pages.dev/json-minifier</loc>
+    <loc>https://jsonlens.pages.dev/json-minifier/</loc>
     <lastmod>2026-10-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -29,7 +29,7 @@
     </image:image>
   </url>
   <url>
-    <loc>https://jsonlens.pages.dev/json-to-typescript</loc>
+    <loc>https://jsonlens.pages.dev/json-to-typescript/</loc>
     <lastmod>2026-10-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -38,7 +38,7 @@
     </image:image>
   </url>
   <url>
-    <loc>https://jsonlens.pages.dev/json-diff</loc>
+    <loc>https://jsonlens.pages.dev/json-diff/</loc>
     <lastmod>2026-10-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -47,7 +47,7 @@
     </image:image>
   </url>
   <url>
-    <loc>https://jsonlens.pages.dev/about</loc>
+    <loc>https://jsonlens.pages.dev/about/</loc>
     <lastmod>2026-10-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

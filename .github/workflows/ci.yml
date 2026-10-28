@@ -1,0 +1,42 @@
+name: CI - Quality Gates & Build Verification
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Typecheck, Test & Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies (clean lockfile)
+        run: npm ci
+
+      - name: TypeScript project compilation check
+        run: npm run typecheck
+
+      - name: Run automated test suite
+        run: npm test -- --watch=false
+
+      - name: Run production build & prerender validation
+        run: npm run build
+
+      - name: Audit dependency vulnerabilities
+        run: npm audit --audit-level=high
+

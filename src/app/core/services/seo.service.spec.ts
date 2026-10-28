@@ -52,10 +52,10 @@ describe('SeoService', () => {
     expect(descMeta?.content).toContain('Shawon Talukder');
 
     const ogUrl = metaService.getTag('property="og:url"');
-    expect(ogUrl?.content).toBe('https://jsonlens.pages.dev/about');
+    expect(ogUrl?.content).toBe('https://jsonlens.pages.dev/about/');
 
     const canonicalEl = document.querySelector('link[rel="canonical"]');
-    expect(canonicalEl?.getAttribute('href')).toBe('https://jsonlens.pages.dev/about');
+    expect(canonicalEl?.getAttribute('href')).toBe('https://jsonlens.pages.dev/about/');
 
     const scriptEl = document.querySelector('script#jsonlens-schema');
     expect(scriptEl?.textContent).toContain('AboutPage');
