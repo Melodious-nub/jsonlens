@@ -54,11 +54,21 @@ export class AnalyticsService {
         id =
           typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
             ? crypto.randomUUID()
-            : `sess_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+            : typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function'
+              ? `sess_${Date.now()}_${Array.from(crypto.getRandomValues(new Uint8Array(8)))
+                  .map((b) => b.toString(16).padStart(2, '0'))
+                  .join('')}`
+              : `sess_${Date.now()}`;
         sessionStorage.setItem(this.sessionIdKey, id);
       }
       return id;
     } catch {
+      if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+        const fallback = Array.from(crypto.getRandomValues(new Uint8Array(8)))
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join('');
+        return `sess_${Date.now()}_${fallback}`;
+      }
       return `sess_${Date.now()}`;
     }
   }
