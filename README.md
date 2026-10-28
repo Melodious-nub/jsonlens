@@ -30,7 +30,7 @@ Access the full, high-performance in-browser developer suite:
 
 [![Launch Web App Button](https://img.shields.io/badge/Launch%20App-JsonLens%20Web%20App-success?style=for-the-badge&logo=googlechrome)](https://jsonlens.pages.dev)
 
-> 💡 **Client-Side Guarantee:** Zero telemetry. Zero server uploads. Every operation executes 100% locally in your browser sandbox.
+> 💡 **Client-Side Guarantee:** 100% private in-browser execution. Zero payload uploads. Your data stays in your local browser sandbox.
 
 ---
 
@@ -117,7 +117,7 @@ Collaborate effortlessly with teammates and test payloads across any device:
 - **Change Detection:** `ChangeDetectionStrategy.OnPush` enforced across all components
 - **Editor Engine:** Monaco Editor 0.57+ (GPU-accelerated, virtualized scrolling)
 - **Off-Thread Processing:** Dedicated Web Worker for background parsing of payloads over 2MB
-- **Testing:** Vitest & Angular Unit Testing (100% passing test suites across 26 modules / 116 unit tests)
+- **Testing:** Vitest & Angular Unit Testing (100% passing test suites across 35 test files / 185 automated tests)
 - **Styling:** Vanilla CSS Custom Properties & SCSS design tokens (Zero runtime overhead)
 - **Transitions:** Native View Transitions API with circular `clip-path` wave animation
 
@@ -152,11 +152,12 @@ Collaborate effortlessly with teammates and test payloads across any device:
 
 ## 🛡️ Privacy & Security
 
-JsonLens is designed from the ground up to be a completely secure vault for your data:
-- **Zero Data Collection:** We do not track, log, or transmit your payloads, keystrokes, or IP address.
-- **Zero Server Requests:** Every single operation (formatting, repairing, type generation, AST diffing) executes locally in your browser memory.
-- **Zero-Server URL Sharing:** URL shares use client-side hash fragments (`#...`), which are cryptographically isolated from web servers by RFC specifications.
-- **No Third-Party Cookies or Trackers:** Pure, distraction-free, private engineering utility.
+JsonLens is engineered with a strict privacy-first architecture:
+- **100% Client-Side Processing:** All JSON formatting, syntax repair, tree inspection, type generation, and AST diffing execute exclusively in local browser memory and background Web Workers. Your JSON payloads never leave your device.
+- **Zero Server Payload Storage:** We do not store, inspect, log, or transmit your code, payloads, or file contents to any backend server.
+- **Zero-Server URL Sharing:** Workspace sharing uses compressed client-side URL hash fragments (`#d=...`). Under RFC 3986 specifications, URL fragments are processed strictly by the browser and are never transmitted to any web server.
+- **No Third-Party Cookies or Trackers:** No Google Analytics, no third-party tracking scripts, and no advertising beacons.
+- **Minimal Anonymous Telemetry:** To display the real-time active user count on the About page and monitor overall platform adoption, JsonLens sends an anonymous ping to an in-house Cloudflare endpoint (`/api/stats`) with only an ephemeral session ID and heartbeat flag. We never track IP addresses, personal identifiers, or any payload data.
 
 ---
 

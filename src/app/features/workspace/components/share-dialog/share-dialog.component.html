@@ -10,13 +10,14 @@
     class="share-popover animate-scale-in"
     [class.share-popover--flip-left]="splitPercent() > 65"
     role="dialog"
-    aria-label="Share Workspace Dialog"
+    aria-modal="true"
+    aria-labelledby="share-dialog-title"
     appClickOutside
     (clickOutside)="onClose()"
   >
     <!-- Popover Header -->
     <div class="share-popover__header">
-      <div class="share-popover__title">
+      <div id="share-dialog-title" class="share-popover__title">
         <lucide-icon [img]="shareIcon" size="13" class="share-popover__title-icon" />
         <span>Share Workspace</span>
       </div>

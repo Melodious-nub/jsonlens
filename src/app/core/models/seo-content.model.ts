@@ -87,7 +87,7 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
       title: 'JSON Validator & Auto-Repair Tool | JsonLens',
       description:
         'Fast real-time JSON validator with precise line and column error diagnostics. Automatically fix trailing commas, unquoted keys, and single quotes in 1 click.',
-      canonicalPath: 'https://jsonlens.pages.dev/json-validator',
+      canonicalPath: 'https://jsonlens.pages.dev/json-validator/',
       keywords: [
         'json validator',
         'json repair',
@@ -138,7 +138,7 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
       title: 'JSON Minifier & Compressor Online | JsonLens',
       description:
         'Minify and compress JSON strings instantly. Reduce payload size for production APIs, microservices, and network transfer. 100% client-side tool.',
-      canonicalPath: 'https://jsonlens.pages.dev/json-minifier',
+      canonicalPath: 'https://jsonlens.pages.dev/json-minifier/',
       keywords: [
         'json minifier',
         'compress json',
@@ -189,7 +189,7 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
       title: 'JSON to TypeScript & Zod Schema Converter Online | JsonLens',
       description:
         'Convert JSON to TypeScript interfaces, Zod runtime schemas, and Go structs with json tags. Customize root names and download generated code in seconds.',
-      canonicalPath: 'https://jsonlens.pages.dev/json-to-typescript',
+      canonicalPath: 'https://jsonlens.pages.dev/json-to-typescript/',
       keywords: [
         'json to typescript',
         'json to zod',
@@ -236,7 +236,7 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
       title: 'JSON Diff & Compare Tool Online | JsonLens',
       description:
         'Compare two JSON payloads side-by-side with deep recursive diffing. Color-coded additions, deletions, and modifications with instant swap actions.',
-      canonicalPath: 'https://jsonlens.pages.dev/json-diff',
+      canonicalPath: 'https://jsonlens.pages.dev/json-diff/',
       keywords: [
         'json diff',
         'compare json',
@@ -284,7 +284,7 @@ export const SEO_ROUTES_DATA: Record<string, SeoGuideContent> = {
       title: 'About JsonLens & Creator — Shawon Talukder | High-Performance JSON Suite',
       description:
         'Discover JsonLens, an open-source, 100% client-side JSON developer suite engineered by Shawon Talukder. Features syntax auto-repair, AST tree lens, and side-by-side diffing.',
-      canonicalPath: 'https://jsonlens.pages.dev/about',
+      canonicalPath: 'https://jsonlens.pages.dev/about/',
       ogImage: 'https://jsonlens.pages.dev/shawon_talukder.jpeg',
       keywords: [
         'about jsonlens',

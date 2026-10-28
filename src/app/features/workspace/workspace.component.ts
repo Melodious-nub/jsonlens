@@ -200,6 +200,8 @@ export class WorkspaceComponent {
             this.closeQrPreview();
           } else if (this.isShareMenuOpen()) {
             this.closeShareMenu();
+          } else if (this.isExportMenuOpen()) {
+            this.isExportMenuOpen.set(false);
           } else {
             const inputHasFind = this.inputEditor()?.isFindWidgetVisible();
             const codeHasFind = this.codeLens()?.isFindWidgetVisible();

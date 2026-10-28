@@ -255,5 +255,21 @@ describe('WorkspaceComponent', () => {
     comp.setMobilePane('input');
     expect(comp.mobilePane()).toBe('input');
   });
-});
+  it('should dismiss export menu and share menu on Escape key', () => {
+    const fixture = TestBed.createComponent(WorkspaceComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
 
+    // 1. Export menu dismiss
+    comp.isExportMenuOpen.set(true);
+    expect(comp.isExportMenuOpen()).toBe(true);
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(comp.isExportMenuOpen()).toBe(false);
+
+    // 2. Share menu dismiss
+    comp.isShareMenuOpen.set(true);
+    expect(comp.isShareMenuOpen()).toBe(true);
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(comp.isShareMenuOpen()).toBe(false);
+  });
+});

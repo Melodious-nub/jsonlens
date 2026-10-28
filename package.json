@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:jsonlens": "node dist/jsonlens/server/server.mjs"
+    "serve:ssr:jsonlens": "node dist/jsonlens/server/server.mjs",
+    "typecheck": "tsc -b"
   },
   "private": true,
   "packageManager": "npm@11.19.0",

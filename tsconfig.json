@@ -19,7 +19,8 @@
     "target": "ES2022",
     "module": "es2022",
     "moduleResolution": "bundler",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "noEmit": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
