@@ -25,7 +25,6 @@ import { MonacoEditorComponent } from '../../shared/components/monaco-wrapper/mo
 import { DropZoneDirective } from '../../shared/directives/drop-zone.directive';
 import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive';
 import { ResizableSplitterDirective } from '../../shared/directives/resizable-splitter.directive';
-import { SwipeGestureDirective } from '../../shared/directives/swipe-gesture.directive';
 import { triggerHaptic } from '../../shared/utils/haptics.util';
 import { ShareDialogComponent } from './components/share-dialog/share-dialog.component';
 import { ImagePreviewerComponent } from '../../shared/components/image-previewer/image-previewer.component';
@@ -71,7 +70,6 @@ import {
     DropZoneDirective,
     ClickOutsideDirective,
     ResizableSplitterDirective,
-    SwipeGestureDirective,
     ShareDialogComponent,
     ImagePreviewerComponent,
     CodeLensComponent,
@@ -268,18 +266,6 @@ export class WorkspaceComponent {
       this.mobilePane.set(pane);
       this.setActivePane(pane);
       this.triggerEditorLayout();
-    }
-  }
-
-  onSwipeLeft(): void {
-    if (this.mobilePane() === 'input') {
-      this.setMobilePane('output');
-    }
-  }
-
-  onSwipeRight(): void {
-    if (this.mobilePane() === 'output') {
-      this.setMobilePane('input');
     }
   }
 

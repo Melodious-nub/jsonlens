@@ -234,27 +234,25 @@ describe('WorkspaceComponent', () => {
     expect(comp.mobilePane()).toBe('input');
   });
 
-  it('should switch mobile pane on swipe left and right gestures', () => {
+  it('should switch mobile pane via toolbar toggle and setMobilePane', () => {
     const fixture = TestBed.createComponent(WorkspaceComponent);
     const comp = fixture.componentInstance;
     fixture.detectChanges();
 
     expect(comp.mobilePane()).toBe('input');
 
-    // Swipe left moves to output drawer
-    comp.onSwipeLeft();
+    // Toggle to output pane via toolbar arrow
+    comp.toggleMobilePane();
     expect(comp.mobilePane()).toBe('output');
 
-    // Swipe left again while already on output should remain on output
-    comp.onSwipeLeft();
-    expect(comp.mobilePane()).toBe('output');
-
-    // Swipe right returns to input editor
-    comp.onSwipeRight();
+    // Toggle back to input pane via toolbar arrow
+    comp.toggleMobilePane();
     expect(comp.mobilePane()).toBe('input');
 
-    // Swipe right again while already on input should remain on input
-    comp.onSwipeRight();
+    // Explicit pane selection
+    comp.setMobilePane('output');
+    expect(comp.mobilePane()).toBe('output');
+    comp.setMobilePane('input');
     expect(comp.mobilePane()).toBe('input');
   });
 });
