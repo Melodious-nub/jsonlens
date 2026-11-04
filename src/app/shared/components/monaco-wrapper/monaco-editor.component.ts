@@ -165,10 +165,44 @@ export class MonacoEditorComponent {
 
   private async initMonaco(): Promise<void> {
     try {
+      // Ensure MonacoEnvironment is safely defined to eliminate non-existent 404 remote worker fetches
+      if (typeof window !== 'undefined' && !(window as any).MonacoEnvironment) {
+        (window as any).MonacoEnvironment = {
+          getWorker: () => {
+            const blob = new Blob(['self.onmessage = function() {};'], {
+              type: 'application/javascript',
+            });
+            return new Worker(URL.createObjectURL(blob));
+          },
+        };
+      }
+
       this.monacoModule = await import('monaco-editor');
       const monaco = this.monacoModule;
 
       this.registerThemes(monaco);
+
+      // Optimize JSON language configuration: JsonLens handles validation & formatting client-side.
+      // Disabling unused worker-side features prevents non-existent worker network requests & worker RPC hangs.
+      const jsonLang = (monaco.languages as Record<string, any>)?.['json'];
+      if (jsonLang?.jsonDefaults) {
+        jsonLang.jsonDefaults.setDiagnosticsOptions({
+          validate: false,
+          enableSchemaRequest: false,
+        });
+        jsonLang.jsonDefaults.setModeConfiguration({
+          documentFormattingEdits: false,
+          documentRangeFormattingEdits: false,
+          completionItems: true,
+          hovers: true,
+          documentSymbols: false,
+          tokens: true,
+          colors: true,
+          foldingRanges: false, // Handled synchronously by IndentRangeProvider
+          diagnostics: false,   // Handled by JsonEngineService
+          selectionRanges: true,
+        });
+      }
 
       const initialTheme =
         this.themeService.theme() === 'dark' ? 'jsonlens-dark' : 'jsonlens-light';
@@ -184,6 +218,9 @@ export class MonacoEditorComponent {
         minimap: { enabled: this.minimap() },
         wordWrap: this.wordWrap(),
         lineNumbers: this.lineNumbers(),
+        folding: true,
+        foldingStrategy: 'indentation',
+        showFoldingControls: 'mouseover',
         fontSize: 13,
         fontFamily: "var(--font-mono), 'JetBrains Mono', Consolas, monospace",
         fontLigatures: true,
