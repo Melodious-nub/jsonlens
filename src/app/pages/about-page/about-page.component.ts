@@ -33,6 +33,14 @@ const MAX_DAILY_MESSAGES = 3;
 const STORAGE_KEY_LAST_SENT = 'jsonlens_contact_last_sent';
 const STORAGE_KEY_DAILY_QUOTA = 'jsonlens_contact_daily_quota';
 
+export interface DeveloperToolCard {
+  icon: string;
+  title: string;
+  badge: string;
+  description: string;
+  route: string;
+}
+
 export interface CreatorProject {
   icon: string;
   title: string;
@@ -157,7 +165,45 @@ export class AboutPageComponent {
     },
   ];
 
-  readonly features = [
+    readonly developerTools: readonly DeveloperToolCard[] = [
+    {
+      icon: '⚡',
+      title: 'JSON Formatter & Beautifier',
+      badge: 'Prettify & Indent',
+      description: 'Clean 2-space, 4-space, or tab formatting with key sorting, null stripping, and deep object transformations with zero latency.',
+      route: '/',
+    },
+    {
+      icon: '🔍',
+      title: 'JSON Validator & Auto-Repair',
+      badge: 'Syntax Diagnostics',
+      description: 'Pinpoint exact line and column syntax errors and automatically repair broken JSON in 1 click using built-in smart recovery.',
+      route: '/json-validator',
+    },
+    {
+      icon: '📦',
+      title: 'JSON Minifier & Compressor',
+      badge: 'Zero Whitespace',
+      description: 'Strip unnecessary whitespace, tabs, and newlines to compress JSON payloads and accelerate production API delivery.',
+      route: '/json-minifier',
+    },
+    {
+      icon: '📘',
+      title: 'JSON to TypeScript & Zod',
+      badge: 'Type Generator',
+      description: 'Convert JSON payloads into nested TypeScript interfaces, runtime Zod validation schemas, and Go structs with json tags.',
+      route: '/json-to-typescript',
+    },
+    {
+      icon: '⚖️',
+      title: 'JSON Visual AST Diff',
+      badge: 'Deep Comparator',
+      description: 'Side-by-side recursive visual comparator with color-coded additions, deletions, modifications, and instant swap controls.',
+      route: '/json-diff',
+    },
+  ];
+
+readonly features = [
     {
       icon: '✨',
       title: 'One-Click Syntax Auto-Repair',

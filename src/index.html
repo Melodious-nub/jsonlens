@@ -5,8 +5,8 @@
   <title>JsonLens — Privacy-First JSON Workspace, Formatter &amp; Visual Diff</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
-  <meta name="description" content="100% client-side, zero-telemetry JSON workspace. Instant JSON formatter, validator, syntax auto-repair, interactive tree viewer, TypeScript type generator, and AST diff comparator.">
-  <meta name="keywords" content="json formatter, json validator, json beautifier, json to typescript, json diff, format json online, json auto repair, json minify, json editor, beautify json, developer tools, privacy json, client side json, offline json tool, zod schema generator, json to go struct, ast visual diff, shawon talukder">
+  <meta name="description" content="100% client-side, privacy-focused JSON formatter &amp; beautifier by Shawon Talukder (Melodious-nub). Instant JSON formatting, syntax auto-repair, interactive tree viewer, TypeScript type generator, and AST diff with zero server uploads.">
+  <meta name="keywords" content="json formatter, json beautifier, privacy focused json formatter, jsonlens by shawon, shawons jsonlens, melodious nub jsonlens, format json online, json prettifier, pretty print json, client side json formatter, offline json tool, json validator, json auto repair, json to typescript, json diff, ast visual diff, shawon talukder">
   <meta name="author" content="Shawon Talukder">
   <meta name="application-name" content="JsonLens">
   <meta name="apple-mobile-web-app-title" content="JsonLens">
@@ -44,6 +44,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="manifest" href="/manifest.webmanifest">
 
   <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -56,18 +57,39 @@
     "@context": "https://schema.org",
     "@graph": [
       {
+        "@type": "BreadcrumbList",
+        "@id": "https://jsonlens.pages.dev/#breadcrumbs",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://jsonlens.pages.dev/"
+          }
+        ]
+      },
+      {
         "@type": "WebSite",
         "@id": "https://jsonlens.pages.dev/#website",
         "url": "https://jsonlens.pages.dev/",
         "name": "JsonLens",
-        "alternateName": ["JsonLens Web", "JsonLens JSON Formatter"],
+        "alternateName": [
+          "JsonLens Web",
+          "JsonLens JSON Formatter",
+          "JsonLens by Shawon",
+          "Shawons JsonLens",
+          "Melodious Nub JsonLens",
+          "Privacy-Focused JSON Formatter",
+          "JSON Beautifier"
+        ],
         "description": "High-Performance Privacy-First JSON Workspace & Engineering Suite",
         "inLanguage": "en-US"
       },
       {
         "@type": "WebApplication",
         "@id": "https://jsonlens.pages.dev/#app",
-        "name": "JsonLens",
+        "name": "JsonLens — Privacy-Focused JSON Formatter & Beautifier",
+        "alternateName": "JsonLens",
         "url": "https://jsonlens.pages.dev/",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "All (Modern Web Browsers)",
@@ -77,11 +99,12 @@
           "price": "0",
           "priceCurrency": "USD"
         },
-        "description": "High-performance, 100% client-side JSON engineering suite with syntax auto-repair, tree visualization, TypeScript generation, and AST diff.",
+        "description": "High-performance, 100% client-side privacy-focused JSON formatter, beautifier, syntax auto-repair, tree visualization, TypeScript generation, and AST diff by Shawon Talukder (Melodious-nub).",
         "author": {
           "@type": "Person",
           "name": "Shawon Talukder",
-          "url": "https://jsonlens.pages.dev/about",
+          "alternateName": "Melodious-nub",
+          "url": "https://jsonlens.pages.dev/about/",
           "jobTitle": "Software Engineer",
           "worksFor": {
             "@type": "Organization",
@@ -108,6 +131,22 @@
         "@type": "FAQPage",
         "@id": "https://jsonlens.pages.dev/#faq",
         "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Who is the creator of JsonLens?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "JsonLens was created and engineered by Shawon Talukder (Melodious-nub), a Software Engineer at Green Delta Insurance PLC. It is an open-source, privacy-first developer workspace."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why choose JsonLens by Shawon over other online JSON formatters?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Unlike traditional JSON tools that upload code to remote servers, Shawon's JsonLens runs 100% locally in your browser with zero network requests, ensuring total privacy for sensitive customer data and credentials."
+            }
+          },
           {
             "@type": "Question",
             "name": "Is my JSON data kept private and confidential on JsonLens?",
