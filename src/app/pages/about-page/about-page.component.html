@@ -491,5 +491,272 @@
         </form>
       </div>
     </section>
+
+    <!-- Collapsible SEO Knowledge Base & Developer Specifications -->
+    <footer class="about-seo-drawer" role="contentinfo" aria-label="JsonLens Technical Documentation and Search Specifications">
+      <details class="about-seo-details">
+        <summary class="about-seo-summary focus-ring">
+          <span class="summary-arrow" aria-hidden="true">&#9656;</span>
+          <span class="summary-title">Expand for more details</span>
+        </summary>
+
+        <div class="about-seo-content">
+          <!-- 1. All Developer Tools Directory & Internal Link Mesh -->
+          <section class="seo-doc-section" aria-labelledby="seo-tools-title">
+            <h3 id="seo-tools-title" class="seo-doc-heading">Complete JsonLens Developer Tools Directory</h3>
+            <p class="seo-doc-lead">
+              JsonLens provides a unified suite of high-performance developer utilities running 100% locally in browser memory. Every tool processes data without network latency or remote database transmission.
+            </p>
+
+            <div class="tools-directory-grid">
+              @for (tool of developerTools; track tool.route) {
+                <a [routerLink]="tool.route" class="tool-directory-card focus-ring">
+                  <div class="tool-directory-card__top">
+                    <span class="tool-directory-card__icon" aria-hidden="true">{{ tool.icon }}</span>
+                    <span class="tool-directory-card__badge">{{ tool.badge }}</span>
+                  </div>
+                  <h4 class="tool-directory-card__title">{{ tool.title }}</h4>
+                  <p class="tool-directory-card__desc">{{ tool.description }}</p>
+                  <span class="tool-directory-card__link">Launch Tool &rarr;</span>
+                </a>
+              }
+            </div>
+          </section>
+
+          <!-- 2. Brand Identity & Entity Disambiguation -->
+          <section class="seo-doc-section" aria-labelledby="seo-brand-title">
+            <h3 id="seo-brand-title" class="seo-doc-heading">About JsonLens by Shawon Talukder (Melodious-nub)</h3>
+            <p class="seo-doc-text">
+              <strong>JsonLens</strong> (often searched as <em>JsonLens by Shawon</em>, <em>Shawons JsonLens</em>, or <em>Melodious Nub JsonLens</em>) was engineered by <strong>Shawon Talukder</strong>, a Software Engineer at Green Delta Insurance PLC. JsonLens was designed to eliminate the security vulnerabilities of third-party online code formatters by guaranteeing strict client-side sandbox execution.
+            </p>
+            <p class="seo-doc-text">
+              Whether you need a <strong>privacy-focused JSON formatter</strong>, a <strong>JSON beautifier</strong>, an RFC-compliant <strong>JSON validator with one-click auto-repair</strong>, a <strong>JSON minifier</strong>, an instant <strong>JSON to TypeScript converter</strong>, or a side-by-side <strong>visual JSON diff comparator</strong>, JsonLens delivers desktop-grade performance directly inside modern web browsers.
+            </p>
+          </section>
+
+          <!-- 3. In-Depth Technical Guide for Each Tool -->
+          <section class="seo-doc-section" aria-labelledby="seo-guides-title">
+            <h3 id="seo-guides-title" class="seo-doc-heading">Comprehensive Tool Guides &amp; Feature Specifications</h3>
+
+            <div class="seo-subsections-grid">
+              <!-- Guide 1: Formatter & Beautifier -->
+              <article class="seo-guide-card">
+                <h4 class="seo-guide-card__title">1. Online JSON Formatter &amp; Beautifier (Pretty Print JSON)</h4>
+                <p class="seo-guide-card__desc">
+                  Raw JSON responses from RESTful APIs, GraphQL queries, microservices, and log streams are typically output as unformatted, single-line strings. The JsonLens JSON Formatter and Beautifier structures minified payloads into clean, readable code with customizable indentation.
+                </p>
+                <ul class="seo-guide-card__list">
+                  <li><strong>Custom Indentation:</strong> Format JSON with standard 2 spaces, enterprise 4 spaces, or compact tabs.</li>
+                  <li><strong>Alphabetical Key Sorting:</strong> Sort object keys alphabetically (A&rarr;Z or Z&rarr;A) to quickly scan large data structures and audit configuration files.</li>
+                  <li><strong>Null Property Stripping:</strong> Automatically remove keys with <code>null</code> values to eliminate clutter and minimize serialized memory.</li>
+                  <li><strong>Deep Object Transformation:</strong> Flatten deeply nested JSON objects into dot-notated key-value pairs (e.g., <code>"user.address.city"</code>) and unflatten them back into nested structures.</li>
+                </ul>
+              </article>
+
+              <!-- Guide 2: Validator & Auto-Repair -->
+              <article class="seo-guide-card">
+                <h4 class="seo-guide-card__title">2. JSON Validator &amp; One-Click Smart Auto-Repair</h4>
+                <p class="seo-guide-card__desc">
+                  Debugging broken JSON strings by hand is error-prone. The JsonLens JSON Validator parses syntax in real time against strict RFC 8259 specifications, pinpointing the precise line, column, and token where syntax violations occur.
+                </p>
+                <ul class="seo-guide-card__list">
+                  <li><strong>Precise Line &amp; Column Diagnostics:</strong> Monaco Editor syntax markers highlight syntax errors with descriptive error messages.</li>
+                  <li><strong>Trailing Comma Removal:</strong> Automatically strips invalid trailing commas in JSON arrays and objects.</li>
+                  <li><strong>Unquoted Key Correction:</strong> Wraps unquoted JavaScript object keys in standard double quotes.</li>
+                  <li><strong>Single-to-Double Quote Normalization:</strong> Converts Python-style single-quoted strings into valid JSON double quotes.</li>
+                  <li><strong>Python Literal Conversion:</strong> Seamlessly transforms Python <code>True</code>, <code>False</code>, and <code>None</code> into standard JSON <code>true</code>, <code>false</code>, and <code>null</code>.</li>
+                </ul>
+              </article>
+
+              <!-- Guide 3: Minifier & Compressor -->
+              <article class="seo-guide-card">
+                <h4 class="seo-guide-card__title">3. JSON Minifier &amp; Payload Whitespace Compressor</h4>
+                <p class="seo-guide-card__desc">
+                  Whitespace characters (spaces, tabs, and newlines) can consume up to 40% of the byte size in formatted JSON documents. The JsonLens JSON Minifier strips all non-essential whitespace while strictly preserving string literals, escape sequences, and numerical precision.
+                </p>
+                <ul class="seo-guide-card__list">
+                  <li><strong>Bandwidth Optimization:</strong> Significantly reduces payload size for production API calls, WebSocket frames, and database storage.</li>
+                  <li><strong>Real-Time Size Tracking:</strong> The live status bar displays before-and-after byte counts and compression ratio percentages.</li>
+                  <li><strong>Safe ECMAScript Serialization:</strong> Zero risk of data corruption or number precision loss during minification.</li>
+                </ul>
+              </article>
+
+              <!-- Guide 4: JSON to TypeScript & Zod -->
+              <article class="seo-guide-card">
+                <h4 class="seo-guide-card__title">4. JSON to TypeScript, Zod &amp; Multi-Language Type Converter</h4>
+                <p class="seo-guide-card__desc">
+                  Manually writing TypeScript interfaces for complex, deeply nested JSON responses is tedious. JsonLens analyzes JSON structure and automatically generates strongly typed models across 12 modern programming languages.
+                </p>
+                <ul class="seo-guide-card__list">
+                  <li><strong>TypeScript Interfaces &amp; Types:</strong> Generates modular, nested interfaces with optional fields and union types.</li>
+                  <li><strong>Zod Runtime Schemas:</strong> Synthesizes production-ready <code>z.object()</code>, <code>z.string()</code>, and <code>z.array()</code> validation schemas.</li>
+                  <li><strong>Go Structs with JSON Tags:</strong> Generates PascalCase Go struct models with <code>`json:"fieldName"`</code> tags.</li>
+                  <li><strong>Python TypedDict, Rust Structs &amp; More:</strong> Supports Kotlin, Java, C#, Swift, Dart, and JSON Schema Draft 7.</li>
+                </ul>
+              </article>
+
+              <!-- Guide 5: Visual AST Diff -->
+              <article class="seo-guide-card">
+                <h4 class="seo-guide-card__title">5. Side-by-Side Visual JSON Diff &amp; AST Comparison</h4>
+                <p class="seo-guide-card__desc">
+                  Comparing two JSON payloads textually using standard diff tools fails when keys are reordered. JsonLens performs deep recursive AST diffing, comparing the semantic structure of objects and arrays regardless of key order.
+                </p>
+                <ul class="seo-guide-card__list">
+                  <li><strong>Semantic Structural Diffing:</strong> Compares semantic trees, ignoring irrelevant whitespace or key ordering differences.</li>
+                  <li><strong>Color-Coded Visual Indicators:</strong> Green badges highlight added keys, red badges indicate deleted properties, and yellow badges display modified values.</li>
+                  <li><strong>Instant Swap:</strong> Swap left and right payloads with one click to reverse comparison direction.</li>
+                </ul>
+              </article>
+            </div>
+          </section>
+
+          <!-- 4. Privacy-First Architecture Comparison Table -->
+          <section class="seo-doc-section" aria-labelledby="seo-comparison-title">
+            <h3 id="seo-comparison-title" class="seo-doc-heading">Why Choose JsonLens: Architecture Comparison</h3>
+            <p class="seo-doc-lead">
+              Traditional online JSON tools process code on remote web servers, creating data privacy risks. Here is how JsonLens compares to conventional web formatters:
+            </p>
+
+            <div class="seo-comparison-table-wrap">
+              <table class="seo-comparison-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Feature / Metric</th>
+                    <th scope="col">JsonLens (This Workspace)</th>
+                    <th scope="col">Traditional Online JSON Formatters</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Data Privacy &amp; Security</strong></td>
+                    <td class="table-positive">&#10004; 100% In-Browser Memory (Zero Server Uploads)</td>
+                    <td class="table-negative">&#10008; Sent over network to cloud backends</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Confidential Payload Safety</strong></td>
+                    <td class="table-positive">&#10004; Safe for JWTs, API keys, and customer PII</td>
+                    <td class="table-negative">&#10008; Logged in server access logs and telemetry</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Processing Speed &amp; Latency</strong></td>
+                    <td class="table-positive">&#10004; Sub-millisecond (Local CPU execution)</td>
+                    <td class="table-negative">&#10008; Network latency roundtrips (300ms &ndash; 2000ms)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Large Payload Handling</strong></td>
+                    <td class="table-positive">&#10004; Up to 50MB+ via background Web Workers</td>
+                    <td class="table-negative">&#10008; Freezes or crashes tabs over 2MB</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Syntax Auto-Repair</strong></td>
+                    <td class="table-positive">&#10004; 1-Click recovery for unquoted keys &amp; trailing commas</td>
+                    <td class="table-negative">&#10008; Requires manual code editing</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Zero-Server URL Sharing</strong></td>
+                    <td class="table-positive">&#10004; LZ-String in hash (#d=...), never sent to server</td>
+                    <td class="table-negative">&#10008; Stores payloads in centralized cloud databases</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Offline &amp; PWA Support</strong></td>
+                    <td class="table-positive">&#10004; Works 100% offline without internet connection</td>
+                    <td class="table-negative">&#10008; Requires constant active internet connection</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- 5. Extended Search FAQ Section -->
+          <section class="seo-doc-section" aria-labelledby="seo-faq-title">
+            <h3 id="seo-faq-title" class="seo-doc-heading">Frequently Asked Questions &amp; Technical Reference</h3>
+
+            <div class="seo-faq-grid">
+              <details class="seo-faq-item">
+                <summary class="seo-faq-question focus-ring">What is the best privacy-focused JSON formatter?</summary>
+                <div class="seo-faq-answer">
+                  <p>JsonLens is widely recognized as the premier privacy-focused JSON formatter. Unlike traditional online tools that transmit JSON strings to backend servers, JsonLens runs 100% locally inside your browser memory using Angular zoneless reactivity and Web Workers. Not a single byte of your payload ever leaves your device.</p>
+                </div>
+              </details>
+
+              <details class="seo-faq-item">
+                <summary class="seo-faq-question focus-ring">Who created JsonLens?</summary>
+                <div class="seo-faq-answer">
+                  <p>JsonLens was engineered by <strong>Shawon Talukder</strong> (known online as <strong>Melodious-nub</strong>), a Software Engineer at Green Delta Insurance PLC. It was built as an open-source project to solve the privacy and performance issues plaguing modern developer utility websites.</p>
+                </div>
+              </details>
+
+              <details class="seo-faq-item">
+                <summary class="seo-faq-question focus-ring">Can I format and repair JSON without an internet connection?</summary>
+                <div class="seo-faq-answer">
+                  <p>Yes. Because JsonLens has no server dependencies, once loaded in your browser it functions completely offline. You can format, validate, minify, convert, and diff JSON payloads on planes, trains, or secure offline corporate intranets.</p>
+                </div>
+              </details>
+
+              <details class="seo-faq-item">
+                <summary class="seo-faq-question focus-ring">How does the 1-click JSON auto-repair engine work?</summary>
+                <div class="seo-faq-answer">
+                  <p>JsonLens uses an integrated AST repair engine that scans corrupted JSON strings and automatically fixes common syntax mistakes, including missing double quotes on object keys, trailing commas in objects and arrays, single-quoted strings, unescaped characters, and Python-specific boolean values (True/False/None).</p>
+                </div>
+              </details>
+
+              <details class="seo-faq-item">
+                <summary class="seo-faq-question focus-ring">How does Zero-Server URL Sharing work?</summary>
+                <div class="seo-faq-answer">
+                  <p>JsonLens compresses your JSON payload into the URL hash fragment (<code>#d=...</code>) using LZ-String compression. Per the HTTP specification, web browsers never transmit URL hash fragments to web servers in HTTP request headers. As a result, shared links can be passed securely through your own communication channels with zero server storage.</p>
+                </div>
+              </details>
+
+              <details class="seo-faq-item">
+                <summary class="seo-faq-question focus-ring">How do I convert JSON into TypeScript interfaces and Zod schemas?</summary>
+                <div class="seo-faq-answer">
+                  <p>Navigate to the Types lens tab in JsonLens or visit the <code>/json-to-typescript</code> tool mode. JsonLens will infer types from your JSON structure and generate nested TypeScript interfaces, Zod validation schemas, or Go structs that you can copy or download directly as <code>.ts</code> files.</p>
+                </div>
+              </details>
+
+              <details class="seo-faq-item">
+                <summary class="seo-faq-question focus-ring">What is the difference between JSON formatting and JSON minification?</summary>
+                <div class="seo-faq-answer">
+                  <p>JSON formatting (beautification) adds spaces, indentation, and newlines to make JSON documents easy for humans to read and inspect. JSON minification removes all unnecessary whitespace to create the smallest possible payload size for efficient network transfer and API delivery.</p>
+                </div>
+              </details>
+
+              <details class="seo-faq-item">
+                <summary class="seo-faq-question focus-ring">Can JsonLens handle multi-megabyte JSON files without freezing?</summary>
+                <div class="seo-faq-answer">
+                  <p>Yes. JsonLens offloads heavy parsing, syntax repair, and diffing algorithms to background Web Workers, leaving the main UI thread completely responsive. Furthermore, Monaco Editor virtualization ensures that only visible code rows are rendered in the DOM, allowing smooth handling of 50MB+ payloads.</p>
+                </div>
+              </details>
+            </div>
+          </section>
+
+          <!-- 6. Target Search Terms & Topic Index -->
+          <section class="seo-doc-section" aria-labelledby="seo-index-title">
+            <h3 id="seo-index-title" class="seo-doc-heading">Target Topics &amp; Search Index</h3>
+            <div class="seo-tags-list">
+              <span class="seo-tag">JsonLens</span>
+              <span class="seo-tag">JsonLens by Shawon</span>
+              <span class="seo-tag">Shawons JsonLens</span>
+              <span class="seo-tag">Melodious Nub JsonLens</span>
+              <span class="seo-tag">JSON Formatter</span>
+              <span class="seo-tag">JSON Beautifier</span>
+              <span class="seo-tag">JSON Prettifier</span>
+              <span class="seo-tag">Privacy Focused JSON Formatter</span>
+              <span class="seo-tag">Client-Side JSON Formatter</span>
+              <span class="seo-tag">Offline JSON Formatter</span>
+              <span class="seo-tag">JSON Validator &amp; Auto-Repair</span>
+              <span class="seo-tag">Fix Invalid JSON Online</span>
+              <span class="seo-tag">JSON Minifier &amp; Compressor</span>
+              <span class="seo-tag">JSON to TypeScript Converter</span>
+              <span class="seo-tag">JSON to Zod Schema</span>
+              <span class="seo-tag">JSON to Go Struct</span>
+              <span class="seo-tag">Visual JSON Diff Tool</span>
+              <span class="seo-tag">Format JSON Without Uploading to Server</span>
+              <span class="seo-tag">RFC 8259 JSON Syntax Checker</span>
+            </div>
+          </section>
+        </div>
+      </details>
+    </footer>
   </div>
 </main>

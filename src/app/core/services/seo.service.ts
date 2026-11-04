@@ -75,9 +75,44 @@ export class SeoService {
     }
 
     const isAboutPage = metadata.softwareType === 'AboutPage' || config?.key === 'about';
+    const isRoot = metadata.canonicalPath === 'https://jsonlens.pages.dev/' || metadata.canonicalPath === 'https://jsonlens.pages.dev';
+
+    // Breadcrumbs
+    const breadcrumbSchema: Record<string, unknown> = isRoot
+      ? {
+          '@type': 'BreadcrumbList',
+          '@id': `${metadata.canonicalPath}#breadcrumbs`,
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: 'https://jsonlens.pages.dev/',
+            },
+          ],
+        }
+      : {
+          '@type': 'BreadcrumbList',
+          '@id': `${metadata.canonicalPath}#breadcrumbs`,
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'JsonLens',
+              item: 'https://jsonlens.pages.dev/',
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: config?.badge || metadata.title.split('—')[0]?.trim() || metadata.title,
+              item: metadata.canonicalPath,
+            },
+          ],
+        };
 
     if (isAboutPage) {
       const aboutGraph: Record<string, unknown>[] = [
+        breadcrumbSchema,
         {
           '@type': 'AboutPage',
           '@id': 'https://jsonlens.pages.dev/about#webpage',
@@ -88,6 +123,7 @@ export class SeoService {
             '@type': 'Person',
             '@id': 'https://jsonlens.pages.dev/about#creator',
             name: 'Shawon Talukder',
+            alternateName: 'Melodious-nub',
             jobTitle: 'Software Engineer',
             worksFor: {
               '@type': 'Organization',
@@ -125,6 +161,7 @@ export class SeoService {
       });
     } else {
       const appGraph: Record<string, unknown>[] = [
+        breadcrumbSchema,
         {
           '@type': 'WebApplication',
           '@id': 'https://jsonlens.pages.dev/#app',
@@ -133,6 +170,12 @@ export class SeoService {
           description: metadata.description,
           applicationCategory: 'DeveloperApplication',
           operatingSystem: 'All',
+          author: {
+            '@type': 'Person',
+            name: 'Shawon Talukder',
+            alternateName: 'Melodious-nub',
+            url: 'https://jsonlens.pages.dev/about/',
+          },
           offers: {
             '@type': 'Offer',
             price: '0',
