@@ -46,6 +46,21 @@
   <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="manifest" href="/manifest.webmanifest">
 
+  <!-- Pre-Mount FOUC Prevention Script -->
+  <script>
+    (function() {
+      try {
+        var theme = localStorage.getItem('jsonlens_theme');
+        if (theme) {
+          try { theme = JSON.parse(theme); } catch (e) {}
+          if (['dark', 'light', 'tokyo-night', 'dracula', 'nord'].indexOf(theme) !== -1) {
+            document.documentElement.setAttribute('data-theme', theme);
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -4,14 +4,9 @@
 @use "./styles/utilities";
 @use "tailwindcss";
 
-/* Tree Lens Key Contrast Guaranteed Overrides */
-[data-theme='light'] .tree-node__key {
-  color: #1e1b4b !important;
-  font-weight: 600 !important;
-}
-
-[data-theme='dark'] .tree-node__key {
-  color: #a5b4fc !important;
+/* Tree Lens Key Contrast Guaranteed Overrides (Semantic Token Driven) */
+.tree-node__key {
+  color: var(--tree-key) !important;
   font-weight: 600 !important;
 }
 

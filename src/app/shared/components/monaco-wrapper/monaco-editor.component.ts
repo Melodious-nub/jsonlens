@@ -19,6 +19,7 @@ import {
 import type * as MonacoType from 'monaco-editor';
 import { JsonError } from '../../../core/models/json-lens.model';
 import { ThemeService } from '../../../core/services/theme.service';
+import { registerMonacoThemes, resolveMonacoTheme } from './monaco-themes.util';
 
 interface MonacoFindControllerContribution extends MonacoType.editor.IEditorContribution {
   closeFindWidget?: () => void;
@@ -128,13 +129,11 @@ export class MonacoEditorComponent {
       }
     });
 
-    // 5. Sync theme (dark / light)
+    // 5. Sync theme (5 discrete themes supported)
     effect(() => {
       const currentTheme = this.themeService.theme();
       if (this.monacoModule) {
-        this.monacoModule.editor.setTheme(
-          currentTheme === 'dark' ? 'jsonlens-dark' : 'jsonlens-light',
-        );
+        this.monacoModule.editor.setTheme(resolveMonacoTheme(currentTheme));
       }
     });
 
@@ -204,8 +203,7 @@ export class MonacoEditorComponent {
         });
       }
 
-      const initialTheme =
-        this.themeService.theme() === 'dark' ? 'jsonlens-dark' : 'jsonlens-light';
+      const initialTheme = resolveMonacoTheme(this.themeService.theme());
 
       const container = this.editorContainer().nativeElement;
 
@@ -240,6 +238,7 @@ export class MonacoEditorComponent {
       });
 
       this.editorInstance.set(this.editor);
+      monaco.editor.setTheme(initialTheme);
 
       // Dedicated ResizeObserver replacing automaticLayout polling
       let layoutRafId: number | null = null;
@@ -447,48 +446,6 @@ export class MonacoEditorComponent {
   }
 
   private registerThemes(monaco: typeof MonacoType): void {
-    monaco.editor.defineTheme('jsonlens-dark', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [
-        { token: 'string.key.json', foreground: '818cf8', fontStyle: 'bold' },
-        { token: 'string.value.json', foreground: '34d399' },
-        { token: 'number.json', foreground: '38bdf8' },
-        { token: 'keyword.json', foreground: 'fbbf24' },
-      ],
-      colors: {
-        'editor.background': '#18181b', // zinc-900
-        'editor.foreground': '#f4f4f5',
-        'editorLineNumber.foreground': '#52525b',
-        'editorLineNumber.activeForeground': '#a1a1aa',
-        'editor.lineHighlightBackground': '#202024',
-        'editor.selectionBackground': '#3730a3',
-        'editorCursor.foreground': '#818cf8',
-        'editorWidget.background': '#202024',
-        'editorWidget.border': '#27272a',
-      },
-    });
-
-    monaco.editor.defineTheme('jsonlens-light', {
-      base: 'vs',
-      inherit: true,
-      rules: [
-        { token: 'string.key.json', foreground: '4f46e5', fontStyle: 'bold' },
-        { token: 'string.value.json', foreground: '059669' },
-        { token: 'number.json', foreground: '0284c7' },
-        { token: 'keyword.json', foreground: 'd97706' },
-      ],
-      colors: {
-        'editor.background': '#ffffff',
-        'editor.foreground': '#0f172a',
-        'editorLineNumber.foreground': '#94a3b8',
-        'editorLineNumber.activeForeground': '#334155',
-        'editor.lineHighlightBackground': '#f8fafc',
-        'editor.selectionBackground': '#e0e7ff',
-        'editorCursor.foreground': '#4f46e5',
-        'editorWidget.background': '#ffffff',
-        'editorWidget.border': '#e2e8f0',
-      },
-    });
+    registerMonacoThemes(monaco);
   }
 }
