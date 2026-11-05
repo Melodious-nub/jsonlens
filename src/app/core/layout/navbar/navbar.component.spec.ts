@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { NavbarComponent } from './navbar.component';
 import { ThemeService } from '../../services/theme.service';
 
@@ -17,6 +17,7 @@ describe('NavbarComponent', () => {
     const comp = fixture.componentInstance;
     expect(comp).toBeTruthy();
     expect(comp.isMobileMenuOpen()).toBe(false);
+    expect(comp.isThemeMenuOpen()).toBe(false);
   });
 
   it('should toggle theme when onToggleTheme is called', () => {
@@ -26,6 +27,31 @@ describe('NavbarComponent', () => {
 
     comp.onToggleTheme();
     expect(comp.themeService.theme()).not.toBe(initialTheme);
+  });
+
+  it('should toggle and close theme menu popover', () => {
+    const fixture = TestBed.createComponent(NavbarComponent);
+    const comp = fixture.componentInstance;
+
+    expect(comp.isThemeMenuOpen()).toBe(false);
+
+    comp.toggleThemeMenu();
+    expect(comp.isThemeMenuOpen()).toBe(true);
+
+    comp.closeThemeMenu();
+    expect(comp.isThemeMenuOpen()).toBe(false);
+  });
+
+  it('should select theme and close popover via onSelectTheme()', () => {
+    const fixture = TestBed.createComponent(NavbarComponent);
+    const comp = fixture.componentInstance;
+
+    comp.toggleThemeMenu();
+    expect(comp.isThemeMenuOpen()).toBe(true);
+
+    comp.onSelectTheme('nord');
+    expect(comp.themeService.theme()).toBe('nord');
+    expect(comp.isThemeMenuOpen()).toBe(false);
   });
 
   it('should toggle and close mobile menu', () => {
@@ -41,9 +67,15 @@ describe('NavbarComponent', () => {
     expect(comp.isMobileMenuOpen()).toBe(false);
   });
 
-  it('should close mobile menu on Escape keydown', () => {
+  it('should close open menus on Escape keydown', () => {
     const fixture = TestBed.createComponent(NavbarComponent);
     const comp = fixture.componentInstance;
+
+    comp.toggleThemeMenu();
+    expect(comp.isThemeMenuOpen()).toBe(true);
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(comp.isThemeMenuOpen()).toBe(false);
 
     comp.toggleMobileMenu();
     expect(comp.isMobileMenuOpen()).toBe(true);

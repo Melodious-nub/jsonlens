@@ -236,3 +236,276 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
+
+/* ==========================================================================
+   Tokyo Night Theme (Downtown Midnight Blue & Cyber Syntax)
+   ========================================================================== */
+[data-theme='tokyo-night'] {
+  --surface-950: #16161e;
+  --surface-900: #1a1b26;
+  --surface-850: #1f2335;
+  --surface-800: #24283b;
+  --surface-700: #414868;
+  --surface-panel: rgba(26, 27, 38, 0.88);
+
+  --text-primary: #c0caf5;
+  --text-secondary: #9aa5ce;
+  --text-muted: #565f89;
+  --text-inverse: #16161e;
+
+  /* Accents */
+  --accent-primary: #7aa2f7;
+  --accent-primary-hover: #5d87e0;
+  --accent-primary-glow: rgba(122, 162, 247, 0.25);
+  --accent-valid: #9ece6a;
+  --accent-valid-bg: rgba(158, 206, 106, 0.12);
+  --accent-error: #f7768e;
+  --accent-error-bg: rgba(247, 118, 142, 0.12);
+  --accent-warning: #e0af68;
+  --accent-warning-bg: rgba(224, 175, 104, 0.12);
+  --accent-info: #7dcfff;
+  --accent-info-bg: rgba(125, 207, 255, 0.12);
+
+  /* Support Nav Item */
+  --accent-support: #bb9af7;
+  --accent-support-hover: #cbb0f9;
+  --accent-support-bg: rgba(187, 154, 247, 0.12);
+  --accent-support-border: rgba(187, 154, 247, 0.3);
+
+  /* Tree Lens Syntax */
+  --tree-key: #7dcfff;
+  --tree-string: #9ece6a;
+  --tree-number: #ff9e64;
+  --tree-boolean: #e0af68;
+  --tree-null: #f7768e;
+  --tree-colon: #565f89;
+  --tree-bracket: #9aa5ce;
+  --tree-badge-string-bg: rgba(158, 206, 106, 0.15);
+  --tree-badge-number-bg: rgba(255, 158, 100, 0.15);
+  --tree-badge-boolean-bg: rgba(224, 175, 104, 0.15);
+  --tree-badge-null-bg: rgba(247, 118, 142, 0.15);
+  --tree-badge-container-bg: rgba(192, 202, 245, 0.08);
+  --tree-guide-line: rgba(192, 202, 245, 0.08);
+  --brand-bracket: #7dcfff;
+
+  /* Borders */
+  --border-subtle: rgba(122, 162, 247, 0.08);
+  --border-default: #292e42;
+  --border-strong: #414868;
+  --border-focus: #7aa2f7;
+
+  /* About Page Cards */
+  --about-feature-card-border: var(--border-subtle);
+  --about-feature-card-hover-border: var(--border-default);
+  --about-contact-card-border: var(--border-subtle);
+
+  /* Telemetry Bento Grid */
+  --telemetry-card-bg: linear-gradient(180deg, rgba(26, 27, 38, 0.85) 0%, rgba(22, 22, 30, 0.95) 100%);
+  --telemetry-card-border: var(--border-subtle);
+  --telemetry-card-shadow: 0 8px 24px -6px rgba(10, 10, 16, 0.5);
+  --telemetry-card-beam: linear-gradient(90deg, transparent, rgba(122, 162, 247, 0.35), transparent);
+  --telemetry-pulse-dot: #9ece6a;
+  --telemetry-pulse-ring: rgba(158, 206, 106, 0.45);
+  --telemetry-pulse-label: #9ece6a;
+  --telemetry-badge-bg: var(--surface-800);
+  --telemetry-badge-text: var(--text-muted);
+  --telemetry-badge-border: var(--border-subtle);
+  --telemetry-cell-bg: var(--surface-900);
+  --telemetry-cell-border: var(--border-subtle);
+  --telemetry-cell-hover-bg: var(--surface-850);
+  --telemetry-cell-hover-border: var(--border-default);
+  --telemetry-active-border: rgba(158, 206, 106, 0.25);
+  --telemetry-active-bg: linear-gradient(180deg, rgba(158, 206, 106, 0.04) 0%, var(--surface-900) 100%);
+  --telemetry-live-dot: #9ece6a;
+  --telemetry-live-dot-glow: 0 0 8px rgba(158, 206, 106, 0.8);
+  --telemetry-live-ring: rgba(158, 206, 106, 0.7);
+  --telemetry-val-live-color: #9ece6a;
+  --telemetry-val-live-glow: 0 0 20px rgba(158, 206, 106, 0.25);
+
+  --shadow-sm: 0 1px 2px 0 rgba(10, 10, 16, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(10, 10, 16, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(10, 10, 16, 0.5);
+  --shadow-glow: 0 0 24px -2px rgba(122, 162, 247, 0.35);
+}
+
+/* ==========================================================================
+   Dracula Theme (Gothic Slate, Vivid Purple & Neon Syntax)
+   ========================================================================== */
+[data-theme='dracula'] {
+  --surface-950: #21222c;
+  --surface-900: #282a36;
+  --surface-850: #343746;
+  --surface-800: #44475a;
+  --surface-700: #6272a4;
+  --surface-panel: rgba(40, 42, 54, 0.9);
+
+  --text-primary: #f8f8f2;
+  --text-secondary: #e2e8f0;
+  --text-muted: #8b97c6;
+  --text-inverse: #282a36;
+
+  /* Accents */
+  --accent-primary: #bd93f9;
+  --accent-primary-hover: #a77bee;
+  --accent-primary-glow: rgba(189, 147, 249, 0.25);
+  --accent-valid: #50fa7b;
+  --accent-valid-bg: rgba(80, 250, 123, 0.12);
+  --accent-error: #ff5555;
+  --accent-error-bg: rgba(255, 85, 85, 0.12);
+  --accent-warning: #ffb86c;
+  --accent-warning-bg: rgba(255, 184, 108, 0.12);
+  --accent-info: #8be9fd;
+  --accent-info-bg: rgba(139, 233, 253, 0.12);
+
+  /* Support Nav Item */
+  --accent-support: #ff79c6;
+  --accent-support-hover: #ff92d0;
+  --accent-support-bg: rgba(255, 121, 198, 0.12);
+  --accent-support-border: rgba(255, 121, 198, 0.3);
+
+  /* Tree Lens Syntax */
+  --tree-key: #8be9fd;
+  --tree-string: #50fa7b;
+  --tree-number: #bd93f9;
+  --tree-boolean: #ffb86c;
+  --tree-null: #ff5555;
+  --tree-colon: #6272a4;
+  --tree-bracket: #f8f8f2;
+  --tree-badge-string-bg: rgba(80, 250, 123, 0.15);
+  --tree-badge-number-bg: rgba(189, 147, 249, 0.15);
+  --tree-badge-boolean-bg: rgba(255, 184, 108, 0.15);
+  --tree-badge-null-bg: rgba(255, 85, 85, 0.15);
+  --tree-badge-container-bg: rgba(248, 248, 242, 0.08);
+  --tree-guide-line: rgba(248, 248, 242, 0.08);
+  --brand-bracket: #bd93f9;
+
+  /* Borders */
+  --border-subtle: rgba(189, 147, 249, 0.1);
+  --border-default: #44475a;
+  --border-strong: #6272a4;
+  --border-focus: #bd93f9;
+
+  /* About Page Cards */
+  --about-feature-card-border: var(--border-subtle);
+  --about-feature-card-hover-border: var(--border-default);
+  --about-contact-card-border: var(--border-subtle);
+
+  /* Telemetry Bento Grid */
+  --telemetry-card-bg: linear-gradient(180deg, rgba(40, 42, 54, 0.85) 0%, rgba(33, 34, 44, 0.95) 100%);
+  --telemetry-card-border: var(--border-subtle);
+  --telemetry-card-shadow: 0 8px 24px -6px rgba(33, 34, 44, 0.5);
+  --telemetry-card-beam: linear-gradient(90deg, transparent, rgba(189, 147, 249, 0.35), transparent);
+  --telemetry-pulse-dot: #50fa7b;
+  --telemetry-pulse-ring: rgba(80, 250, 123, 0.45);
+  --telemetry-pulse-label: #50fa7b;
+  --telemetry-badge-bg: var(--surface-800);
+  --telemetry-badge-text: var(--text-muted);
+  --telemetry-badge-border: var(--border-subtle);
+  --telemetry-cell-bg: var(--surface-900);
+  --telemetry-cell-border: var(--border-subtle);
+  --telemetry-cell-hover-bg: var(--surface-850);
+  --telemetry-cell-hover-border: var(--border-default);
+  --telemetry-active-border: rgba(80, 250, 123, 0.25);
+  --telemetry-active-bg: linear-gradient(180deg, rgba(80, 250, 123, 0.04) 0%, var(--surface-900) 100%);
+  --telemetry-live-dot: #50fa7b;
+  --telemetry-live-dot-glow: 0 0 8px rgba(80, 250, 123, 0.8);
+  --telemetry-live-ring: rgba(80, 250, 123, 0.7);
+  --telemetry-val-live-color: #50fa7b;
+  --telemetry-val-live-glow: 0 0 20px rgba(80, 250, 123, 0.25);
+
+  --shadow-sm: 0 1px 2px 0 rgba(33, 34, 44, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(33, 34, 44, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(33, 34, 44, 0.5);
+  --shadow-glow: 0 0 24px -2px rgba(189, 147, 249, 0.35);
+}
+
+/* ==========================================================================
+   Nord Theme (Arctic, Clean Polar Night & Frost Palette)
+   ========================================================================== */
+[data-theme='nord'] {
+  --surface-950: #242933;
+  --surface-900: #2e3440;
+  --surface-850: #3b4252;
+  --surface-800: #434c5e;
+  --surface-700: #4c566a;
+  --surface-panel: rgba(46, 52, 64, 0.9);
+
+  --text-primary: #eceff4;
+  --text-secondary: #e5e9f0;
+  --text-muted: #9aa5b8;
+  --text-inverse: #2e3440;
+
+  /* Accents */
+  --accent-primary: #88c0d0;
+  --accent-primary-hover: #81a1c1;
+  --accent-primary-glow: rgba(136, 192, 208, 0.25);
+  --accent-valid: #a3be8c;
+  --accent-valid-bg: rgba(163, 190, 140, 0.12);
+  --accent-error: #bf616a;
+  --accent-error-bg: rgba(191, 97, 106, 0.12);
+  --accent-warning: #ebcb8b;
+  --accent-warning-bg: rgba(235, 203, 139, 0.12);
+  --accent-info: #81a1c1;
+  --accent-info-bg: rgba(129, 161, 193, 0.12);
+
+  /* Support Nav Item */
+  --accent-support: #b48ead;
+  --accent-support-hover: #c5a3be;
+  --accent-support-bg: rgba(180, 142, 173, 0.12);
+  --accent-support-border: rgba(180, 142, 173, 0.3);
+
+  /* Tree Lens Syntax */
+  --tree-key: #88c0d0;
+  --tree-string: #a3be8c;
+  --tree-number: #b48ead;
+  --tree-boolean: #ebcb8b;
+  --tree-null: #bf616a;
+  --tree-colon: #4c566a;
+  --tree-bracket: #d8dee9;
+  --tree-badge-string-bg: rgba(163, 190, 140, 0.15);
+  --tree-badge-number-bg: rgba(180, 142, 173, 0.15);
+  --tree-badge-boolean-bg: rgba(235, 203, 139, 0.15);
+  --tree-badge-null-bg: rgba(191, 97, 106, 0.15);
+  --tree-badge-container-bg: rgba(236, 239, 244, 0.08);
+  --tree-guide-line: rgba(236, 239, 244, 0.08);
+  --brand-bracket: #88c0d0;
+
+  /* Borders */
+  --border-subtle: rgba(136, 192, 208, 0.1);
+  --border-default: #3b4252;
+  --border-strong: #4c566a;
+  --border-focus: #88c0d0;
+
+  /* About Page Cards */
+  --about-feature-card-border: var(--border-subtle);
+  --about-feature-card-hover-border: var(--border-default);
+  --about-contact-card-border: var(--border-subtle);
+
+  /* Telemetry Bento Grid */
+  --telemetry-card-bg: linear-gradient(180deg, rgba(46, 52, 64, 0.85) 0%, rgba(36, 41, 51, 0.95) 100%);
+  --telemetry-card-border: var(--border-subtle);
+  --telemetry-card-shadow: 0 8px 24px -6px rgba(36, 41, 51, 0.5);
+  --telemetry-card-beam: linear-gradient(90deg, transparent, rgba(136, 192, 208, 0.35), transparent);
+  --telemetry-pulse-dot: #a3be8c;
+  --telemetry-pulse-ring: rgba(163, 190, 140, 0.45);
+  --telemetry-pulse-label: #a3be8c;
+  --telemetry-badge-bg: var(--surface-800);
+  --telemetry-badge-text: var(--text-muted);
+  --telemetry-badge-border: var(--border-subtle);
+  --telemetry-cell-bg: var(--surface-900);
+  --telemetry-cell-border: var(--border-subtle);
+  --telemetry-cell-hover-bg: var(--surface-850);
+  --telemetry-cell-hover-border: var(--border-default);
+  --telemetry-active-border: rgba(163, 190, 140, 0.25);
+  --telemetry-active-bg: linear-gradient(180deg, rgba(163, 190, 140, 0.04) 0%, var(--surface-900) 100%);
+  --telemetry-live-dot: #a3be8c;
+  --telemetry-live-dot-glow: 0 0 8px rgba(163, 190, 140, 0.8);
+  --telemetry-live-ring: rgba(163, 190, 140, 0.7);
+  --telemetry-val-live-color: #a3be8c;
+  --telemetry-val-live-glow: 0 0 20px rgba(163, 190, 140, 0.25);
+
+  --shadow-sm: 0 1px 2px 0 rgba(36, 41, 51, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(36, 41, 51, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(36, 41, 51, 0.5);
+  --shadow-glow: 0 0 24px -2px rgba(136, 192, 208, 0.35);
+}

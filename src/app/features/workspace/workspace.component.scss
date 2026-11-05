@@ -547,25 +547,26 @@
         display: inline-flex !important;
         align-items: center;
         justify-content: center;
-        width: 24px;
-        height: 24px;
-        border-radius: var(--radius-xs);
-        background: transparent;
-        border: 1px solid transparent;
-        color: var(--text-secondary);
+        width: 26px;
+        height: 26px;
+        border-radius: var(--radius-sm);
+        background: rgba(14, 165, 233, 0.18) !important;
+        border: 1px solid rgba(14, 165, 233, 0.5) !important;
+        color: #38bdf8 !important;
+        box-shadow: 0 0 10px rgba(14, 165, 233, 0.28);
         cursor: pointer;
         transition: all var(--transition-fast);
 
         &:hover {
-          background: var(--surface-800);
-          color: var(--text-primary);
-          border-color: var(--border-subtle);
+          background: rgba(14, 165, 233, 0.3) !important;
+          border-color: #38bdf8 !important;
+          color: #ffffff !important;
+          box-shadow: 0 0 14px rgba(14, 165, 233, 0.5);
         }
 
         &:active {
-          background: color-mix(in srgb, var(--accent-primary) 15%, transparent);
-          color: var(--accent-primary);
           transform: scale(0.92);
+          background: rgba(14, 165, 233, 0.4) !important;
         }
 
         lucide-icon {
@@ -573,6 +574,12 @@
           align-items: center;
           justify-content: center;
           transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+          color: #38bdf8 !important;
+          filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.6));
+        }
+
+        &:hover lucide-icon {
+          color: #ffffff !important;
         }
       }
 

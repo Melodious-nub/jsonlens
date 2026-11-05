@@ -74,4 +74,25 @@ describe('MonacoEditorComponent', () => {
     expect(minifyEmitted).toBe(true);
     expect(autoRepairEmitted).toBe(true);
   });
+
+  it('should resolve correct Monaco theme for all 5 discrete themes', () => {
+    const fixture = TestBed.createComponent(MonacoEditorComponent);
+    expect(fixture.componentInstance).toBeTruthy();
+    const themeService = TestBed.inject(ThemeService);
+
+    themeService.setTheme('tokyo-night');
+    expect(themeService.theme()).toBe('tokyo-night');
+
+    themeService.setTheme('dracula');
+    expect(themeService.theme()).toBe('dracula');
+
+    themeService.setTheme('nord');
+    expect(themeService.theme()).toBe('nord');
+
+    themeService.setTheme('dark');
+    expect(themeService.theme()).toBe('dark');
+
+    themeService.setTheme('light');
+    expect(themeService.theme()).toBe('light');
+  });
 });

@@ -28,21 +28,26 @@ export class ClickOutsideDirective {
       }
 
       const listener = (event: MouseEvent) => {
+        const host = this.elementRef.nativeElement as HTMLElement;
+        if (!host || !host.isConnected || host.getClientRects().length === 0) {
+          return;
+        }
+
         const target = event.target as Node | null;
         if (!target) {
           return;
         }
 
-        const clickedInside = this.elementRef.nativeElement.contains(target);
+        const clickedInside = host.contains(target);
         if (!clickedInside) {
           this.clickOutside.emit(event);
         }
       };
 
-      document.addEventListener('pointerdown', listener, true);
+      document.addEventListener('pointerdown', listener, false);
 
       this.destroyRef.onDestroy(() => {
-        document.removeEventListener('pointerdown', listener, true);
+        document.removeEventListener('pointerdown', listener, false);
       });
     });
   }
