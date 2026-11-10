@@ -506,29 +506,6 @@
   flex-shrink: 0;
 }
 
-/* Mobile Drawer Theme Section */
-.mobile-theme-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 4px 0;
-
-  .mobile-theme-title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    padding: 0 4px;
-  }
-
-  .mobile-palette-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-}
-
 @keyframes popoverFadeIn {
   from {
     opacity: 0;

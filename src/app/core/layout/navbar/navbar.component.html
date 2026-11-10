@@ -128,37 +128,6 @@
 
         <div class="mobile-nav-divider" role="separator"></div>
 
-        <!-- Mobile Drawer Theme Selection -->
-        <div class="mobile-theme-section">
-          <div class="mobile-theme-title">Color Theme</div>
-          <div class="mobile-palette-grid" role="radiogroup" aria-label="Mobile Theme Selector">
-            @for (item of themes; track item.id) {
-              <button
-                type="button"
-                class="color-theme-card focus-ring"
-                [class.color-theme-card--active]="themeService.theme() === item.id"
-                (click)="onSelectTheme(item.id, $event); closeMobileMenu()"
-                role="radio"
-                [attr.aria-checked]="themeService.theme() === item.id"
-              >
-                <div class="color-theme-card__left">
-                  <div class="swatch-dots" aria-hidden="true">
-                    <span class="swatch-dot" [style.background]="item.swatch[0]"></span>
-                    <span class="swatch-dot" [style.background]="item.swatch[1]"></span>
-                    <span class="swatch-dot" [style.background]="item.swatch[2]"></span>
-                  </div>
-                  <span class="color-theme-card__name">{{ item.name }}</span>
-                </div>
-                @if (themeService.theme() === item.id) {
-                  <lucide-icon [img]="checkIcon" size="13" class="color-theme-card__check" />
-                }
-              </button>
-            }
-          </div>
-        </div>
-
-        <div class="mobile-nav-divider" role="separator"></div>
-
         <a
           href="https://github.com/Melodious-nub/jsonlens"
           target="_blank"
