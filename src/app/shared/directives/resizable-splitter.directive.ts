@@ -69,6 +69,15 @@ export class ResizableSplitterDirective {
   private lastClientCoordinate = 0;
   private rafId: number | null = null;
 
+  // Double-tap and double-click tracking
+  private lastTapTimestamp = 0;
+  private lastTapClientX = 0;
+  private lastTapClientY = 0;
+  private pointerDownX = 0;
+  private pointerDownY = 0;
+  private hasMovedDuringPointer = false;
+  private lastResetEmitTime = 0;
+
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.cleanupPointerListeners();
@@ -81,6 +90,10 @@ export class ResizableSplitterDirective {
 
     event.preventDefault();
     this.isDragging.set(true);
+
+    this.pointerDownX = event.clientX;
+    this.pointerDownY = event.clientY;
+    this.hasMovedDuringPointer = false;
 
     const containerEl = this.container();
     if (containerEl) {
@@ -124,8 +137,18 @@ export class ResizableSplitterDirective {
     window.addEventListener('pointerup', this.upListener);
   }
 
-  @HostListener('dblclick')
-  onDblClick(): void {
+  @HostListener('dblclick', ['$event'])
+  onDblClick(event?: MouseEvent): void {
+    event?.stopPropagation();
+    this.emitReset();
+  }
+
+  private emitReset(): void {
+    const now = Date.now();
+    if (now - this.lastResetEmitTime < 350) {
+      return;
+    }
+    this.lastResetEmitTime = now;
     this.resetRequested.emit();
   }
 
@@ -155,6 +178,14 @@ export class ResizableSplitterDirective {
 
   private onPointerMove(event: PointerEvent): void {
     if (!this.cachedRect) return;
+
+    const moveDelta = Math.hypot(
+      event.clientX - this.pointerDownX,
+      event.clientY - this.pointerDownY
+    );
+    if (moveDelta > 3) {
+      this.hasMovedDuringPointer = true;
+    }
 
     this.lastClientCoordinate = this.direction() === 'horizontal' ? event.clientX : event.clientY;
     if (this.rafId !== null) return;
@@ -186,9 +217,28 @@ export class ResizableSplitterDirective {
     this.splitChange.emit(rounded);
   }
 
-  private onPointerUp(_event: PointerEvent, host: HTMLElement | null, pointerId: number): void {
+  private onPointerUp(event: PointerEvent, host: HTMLElement | null, pointerId: number): void {
     this.isDragging.set(false);
     this.cachedRect = null;
+
+    if (!this.hasMovedDuringPointer) {
+      const now = Date.now();
+      const elapsed = now - this.lastTapTimestamp;
+      const tapDist = Math.hypot(
+        event.clientX - this.lastTapClientX,
+        event.clientY - this.lastTapClientY
+      );
+
+      if (elapsed > 40 && elapsed < 350 && tapDist < 25) {
+        event.stopPropagation();
+        this.emitReset();
+        this.lastTapTimestamp = 0;
+      } else {
+        this.lastTapTimestamp = now;
+        this.lastTapClientX = event.clientX;
+        this.lastTapClientY = event.clientY;
+      }
+    }
 
     if (host && host.releasePointerCapture) {
       try {

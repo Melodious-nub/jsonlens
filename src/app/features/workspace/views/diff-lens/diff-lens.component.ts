@@ -2,6 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   ElementRef,
   inject,
   PLATFORM_ID,
@@ -20,6 +21,9 @@ import {
   GitCompare,
   CheckCircle2,
   FolderOpen,
+  AlignLeft,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-angular';
 
 import { ResizableSplitterDirective } from '../../../../shared/directives/resizable-splitter.directive';
@@ -45,6 +49,9 @@ export class DiffLensComponent {
   readonly clearIcon = Trash2;
   readonly compareIcon = GitCompare;
   readonly matchIcon = CheckCircle2;
+  readonly formatIcon = AlignLeft;
+  readonly chevronUpIcon = ChevronUp;
+  readonly chevronDownIcon = ChevronDown;
   readonly Math = Math;
 
   readonly diffFileInput = viewChild<ElementRef<HTMLInputElement>>('diffFileInput');
@@ -59,6 +66,11 @@ export class DiffLensComponent {
   // Split state between comparison editor and differences list (percentage for top editor)
   readonly splitPercent = signal<number>(50);
   readonly isDragging = signal<boolean>(false);
+  private lastToggleTime = 0;
+  private lastHeaderTapTime = 0;
+
+  // Collapsed state: true when bottom differences list is collapsed to 0% (drawer closed)
+  readonly isCollapsed = computed(() => this.splitPercent() >= 99);
 
   constructor() {
     if (this.isBrowser) {
@@ -117,29 +129,65 @@ export class DiffLensComponent {
     }
   }
 
-  onResetSplit(): void {
-    this.splitPercent.set(50);
-    if (this.isBrowser) {
-      this.storage.setItem('jsonlens_diff_split_percent', 50);
+  onToggleCollapse(): void {
+    const now = Date.now();
+    if (now - this.lastToggleTime < 350) {
+      return;
     }
-    this.toast.show('Diff panels reset to center (50/50)', 'info');
+    this.lastToggleTime = now;
+
+    if (this.isCollapsed()) {
+      // 50% open shortcut
+      this.onSplitChange(50);
+    } else {
+      // Close drawer completely (editor takes 100%)
+      this.onSplitChange(100);
+    }
+  }
+
+  onResetSplit(): void {
+    this.onToggleCollapse();
   }
 
   onGripDblClick(_event?: MouseEvent): void {
-    this.onResetSplit();
+    this.onToggleCollapse();
   }
 
   onHeaderDblClick(event: MouseEvent): void {
-    this.onGripDblClick(event);
+    // Only toggle if not clicking inside an interactive action button or the resize grip
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('button') || target?.closest('input') || target?.closest('.changes-header__grip')) {
+      return;
+    }
+    this.onToggleCollapse();
+  }
+
+  onHeaderPointerUp(event: PointerEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('button') || target?.closest('input') || target?.closest('.changes-header__grip')) {
+      return;
+    }
+    const now = Date.now();
+    if (now - this.lastHeaderTapTime < 350 && now - this.lastHeaderTapTime > 40) {
+      this.lastHeaderTapTime = 0;
+      this.onToggleCollapse();
+    } else {
+      this.lastHeaderTapTime = now;
+    }
   }
 
   onGripKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'ArrowUp') {
+    if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      this.onSplitChange(Math.max(15, this.splitPercent() - 5));
+      this.onToggleCollapse();
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      const current = this.splitPercent();
+      const next = current >= 99 ? 50 : Math.max(15, current - 5);
+      this.onSplitChange(next);
     } else if (event.key === 'ArrowDown') {
       event.preventDefault();
-      this.onSplitChange(Math.min(85, this.splitPercent() + 5));
+      this.onSplitChange(Math.min(100, this.splitPercent() + 5));
     }
   }
 

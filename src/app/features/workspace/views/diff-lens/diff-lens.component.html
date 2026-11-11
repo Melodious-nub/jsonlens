@@ -1,5 +1,11 @@
 <div class="diff-lens">
   <div class="diff-lens__header">
+    <div class="diff-lens__header-info">
+      @if (!parsedSecondary().isValid) {
+        <span class="invalid-indicator">Invalid JSON syntax</span>
+      }
+    </div>
+
     <div class="diff-lens__actions">
       <!-- Hidden file input for comparison file -->
       <input
@@ -10,6 +16,17 @@
         (change)="onDiffFileSelected($event)"
         aria-label="Upload comparison JSON file"
       />
+
+      <button
+        type="button"
+        class="action-btn focus-ring"
+        (click)="formatSecondary()"
+        title="Format comparison JSON (indented)"
+        aria-label="Format comparison JSON"
+      >
+        <lucide-icon [img]="formatIcon" size="13" />
+        <span>Format</span>
+      </button>
 
       <button
         type="button"
@@ -54,14 +71,8 @@
     <!-- Comparison Editor Container -->
     <div
       class="diff-lens__editor-section"
-      [style.flex-basis.%]="splitPercent()"
+      [style.flex-basis.%]="isCollapsed() ? 100 : splitPercent()"
     >
-      <div class="editor-header">
-        <span class="editor-label">Comparison JSON (Modified)</span>
-        @if (!parsedSecondary().isValid) {
-          <span class="invalid-indicator">Invalid JSON syntax</span>
-        }
-      </div>
       <div class="editor-wrapper">
         <app-monaco-editor
           [content]="secondaryInput()"
@@ -71,12 +82,23 @@
       </div>
     </div>
 
-    <!-- Differences List Section with Draggable Header -->
+    <!-- Differences List Section with Draggable Header / Collapsible Drawer -->
     <div
       class="diff-lens__changes-section"
-      [style.flex-basis.%]="100 - splitPercent()"
+      [class.diff-lens__changes-section--collapsed]="isCollapsed()"
+      [style.flex-basis.%]="isCollapsed() ? 0 : (100 - splitPercent())"
     >
-      <div class="changes-header">
+      <div
+        class="changes-header"
+        (dblclick)="onHeaderDblClick($event)"
+        (pointerup)="onHeaderPointerUp($event)"
+        (keydown)="onHeaderKeyDown($event)"
+        tabindex="0"
+        role="button"
+        [attr.aria-expanded]="!isCollapsed()"
+        title="Double-click or double-tap header to toggle collapse/50% open"
+        aria-label="Detected differences drawer. Double click or tap to toggle collapse or 50% open"
+      >
         <div class="changes-header__left">
           <span class="changes-title">Detected Differences ({{ meaningfulDiffs().length }})</span>
           @if (diff.isDiffing()) {
@@ -90,68 +112,77 @@
           [container]="diffBodyRef()?.nativeElement!"
           direction="vertical"
           [minPercent]="15"
-          [maxPercent]="85"
+          [maxPercent]="100"
           [(splitPercent)]="splitPercent"
           [(isDragging)]="isDragging"
-          (resetRequested)="onResetSplit()"
+          (resetRequested)="onToggleCollapse()"
           (splitChange)="onSplitChange($event)"
-          title="Drag to resize panels (double-click to center 50/50)"
-          aria-label="Resize panels splitter"
+          [title]="isCollapsed() ? 'Drag or double-tap to open 50%' : 'Drag to resize (double-tap to collapse)'"
+          aria-label="Resize differences drawer splitter"
         >
           <span class="diff-grip-line"></span>
         </div>
 
         <div class="changes-header__right">
-          <span class="changes-hint">{{ Math.round(100 - splitPercent()) }}%</span>
+          <span class="changes-hint">{{ isCollapsed() ? '0%' : Math.round(100 - splitPercent()) + '%' }}</span>
+          <button
+            type="button"
+            class="drawer-toggle-btn focus-ring"
+            (click)="onToggleCollapse(); $event.stopPropagation()"
+            [title]="isCollapsed() ? 'Open differences drawer (50%)' : 'Collapse differences drawer (0%)'"
+            [attr.aria-label]="isCollapsed() ? 'Open differences drawer (50%)' : 'Collapse differences drawer (0%)'"
+          >
+            <lucide-icon [img]="isCollapsed() ? chevronUpIcon : chevronDownIcon" size="15" />
+          </button>
         </div>
       </div>
 
       <div class="changes-list">
-        @if (meaningfulDiffs().length === 0) {
-          @if (!parsedSecondary().isValid || !engine.isValid()) {
-            <div class="diff-empty">
-              <span class="diff-empty-text">Resolve JSON syntax errors to compute diffs.</span>
-            </div>
-          } @else if (!engine.parsedResult().data || !parsedSecondary().data) {
-            <div class="diff-empty">
-              <span class="diff-empty-text">Provide both JSON payloads to compare.</span>
-            </div>
+          @if (meaningfulDiffs().length === 0) {
+            @if (!parsedSecondary().isValid || !engine.isValid()) {
+              <div class="diff-empty">
+                <span class="diff-empty-text">Resolve JSON syntax errors to compute diffs.</span>
+              </div>
+            } @else if (!engine.parsedResult().data || !parsedSecondary().data) {
+              <div class="diff-empty">
+                <span class="diff-empty-text">Provide both JSON payloads to compare.</span>
+              </div>
+            } @else {
+              <div class="diff-empty diff-empty--identical">
+                <lucide-icon [img]="matchIcon" size="20" class="match-icon" />
+                <span class="diff-empty-text">Both JSON payloads are identical!</span>
+              </div>
+            }
           } @else {
-            <div class="diff-empty diff-empty--identical">
-              <lucide-icon [img]="matchIcon" size="20" class="match-icon" />
-              <span class="diff-empty-text">Both JSON payloads are identical!</span>
-            </div>
-          }
-        } @else {
-          @for (item of meaningfulDiffs(); track item.path + item.type) {
-            <div class="diff-row diff-row--{{ item.type }}">
-              <div class="diff-row__badge-col">
-                <span class="diff-type-badge diff-type-badge--{{ item.type }}">
-                  @switch (item.type) {
-                    @case ('added') { + ADD }
-                    @case ('removed') { - DEL }
-                    @case ('modified') { ~ MOD }
+            @for (item of meaningfulDiffs(); track item.path + item.type) {
+              <div class="diff-row diff-row--{{ item.type }}">
+                <div class="diff-row__badge-col">
+                  <span class="diff-type-badge diff-type-badge--{{ item.type }}">
+                    @switch (item.type) {
+                      @case ('added') { + ADD }
+                      @case ('removed') { - DEL }
+                      @case ('modified') { ~ MOD }
+                    }
+                  </span>
+                </div>
+                <div class="diff-row__path">
+                  <code>{{ item.path }}</code>
+                </div>
+                <div class="diff-row__values">
+                  @if (item.type === 'modified') {
+                    <span class="diff-val diff-val--old">{{ formatVal(item.oldValue) }}</span>
+                    <span class="diff-arrow">&rarr;</span>
+                    <span class="diff-val diff-val--new">{{ formatVal(item.newValue) }}</span>
+                  } @else if (item.type === 'added') {
+                    <span class="diff-val diff-val--new">{{ formatVal(item.newValue) }}</span>
+                  } @else if (item.type === 'removed') {
+                    <span class="diff-val diff-val--old">{{ formatVal(item.oldValue) }}</span>
                   }
-                </span>
+                </div>
               </div>
-              <div class="diff-row__path">
-                <code>{{ item.path }}</code>
-              </div>
-              <div class="diff-row__values">
-                @if (item.type === 'modified') {
-                  <span class="diff-val diff-val--old">{{ formatVal(item.oldValue) }}</span>
-                  <span class="diff-arrow">&rarr;</span>
-                  <span class="diff-val diff-val--new">{{ formatVal(item.newValue) }}</span>
-                } @else if (item.type === 'added') {
-                  <span class="diff-val diff-val--new">{{ formatVal(item.newValue) }}</span>
-                } @else if (item.type === 'removed') {
-                  <span class="diff-val diff-val--old">{{ formatVal(item.oldValue) }}</span>
-                }
-              </div>
-            </div>
+            }
           }
-        }
-      </div>
+        </div>
     </div>
   </div>
 </div>
