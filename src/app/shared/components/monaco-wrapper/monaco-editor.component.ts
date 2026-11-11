@@ -199,24 +199,51 @@ export class MonacoEditorComponent {
 
       this.registerThemes(monaco);
 
-      // Optimize JSON language configuration: JsonLens handles validation & formatting client-side.
+      // Optimize language configurations: JsonLens handles validation & formatting client-side.
       // Disabling unused worker-side features prevents non-existent worker network requests & worker RPC hangs.
-      const jsonLang = (monaco.languages as Record<string, any>)?.['json'];
-      if (jsonLang?.jsonDefaults) {
-        jsonLang.jsonDefaults.setDiagnosticsOptions({
+      // Specifically disabling worker hovers (hovers: false) eliminates the permanent "Loading..." tooltip deadlock.
+      //
+      // IMPORTANT: In monaco-editor v0.57+, language feature defaults live at top-level namespace exports
+      // (e.g. `monaco.json.jsonDefaults`), NOT under `monaco.languages['json']` which is a deprecated stub.
+      const monacoAny = monaco as Record<string, unknown>;
+      const jsonDefaults = (monacoAny['json'] as Record<string, unknown>)?.['jsonDefaults'] as
+        | { setDiagnosticsOptions: (opts: Record<string, unknown>) => void; setModeConfiguration: (cfg: Record<string, unknown>) => void }
+        | undefined;
+
+      if (jsonDefaults) {
+        jsonDefaults.setDiagnosticsOptions({
           validate: false,
           enableSchemaRequest: false,
         });
-        jsonLang.jsonDefaults.setModeConfiguration({
+        jsonDefaults.setModeConfiguration({
           documentFormattingEdits: false,
           documentRangeFormattingEdits: false,
           completionItems: true,
-          hovers: true,
+          hovers: false, // Prevents worker RPC hang & "Loading..." tooltip deadlock on JSON tokens
           documentSymbols: false,
           tokens: true,
           colors: true,
           foldingRanges: false, // Handled synchronously by IndentRangeProvider
           diagnostics: false,   // Handled by JsonEngineService
+          selectionRanges: true,
+        });
+      }
+
+      const tsDefaults = (monacoAny['typescript'] as Record<string, unknown>)?.['typescriptDefaults'] as
+        | { setModeConfiguration: (cfg: Record<string, unknown>) => void }
+        | undefined;
+
+      if (tsDefaults) {
+        tsDefaults.setModeConfiguration({
+          documentFormattingEdits: false,
+          documentRangeFormattingEdits: false,
+          completionItems: false,
+          hovers: false, // Prevents worker RPC hang on TypeScript outputs in Type Lens
+          documentSymbols: false,
+          tokens: true,
+          colors: true,
+          foldingRanges: false,
+          diagnostics: false,
           selectionRanges: true,
         });
       }
@@ -252,6 +279,11 @@ export class MonacoEditorComponent {
         },
         find: {
           addExtraSpaceOnTop: false,
+        },
+        hover: {
+          enabled: 'on',
+          delay: 400,
+          sticky: true,
         },
       });
 

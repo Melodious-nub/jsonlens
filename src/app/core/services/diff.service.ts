@@ -5,37 +5,7 @@ import { deepDiffJson, summarizeDiff } from '../../shared/utils/json-diff.util';
 
 const DIFF_WORKER_THRESHOLD = 150 * 1024; // 150KB
 
-export const SAMPLE_MODIFIED_JSON = `{
-  "name": "JsonLens",
-  "version": "1.1.0",
-  "privacy": "100% Client-Side",
-  "features": [
-    "Zoneless Angular Reactive Architecture",
-    "Real-time Syntax Error Diagnostics",
-    "One-Click Smart Error Auto-Repair",
-    "Interactive Tree Explorer & JSONPath Copy",
-    "Instant Type Generation: TypeScript, Zod, Go",
-    "Side-by-side JSON Diff Comparison",
-    "Off-thread Web Worker Parser for Large Files",
-    "Ultra-Fast Visual Diffing Engine"
-  ],
-  "author": {
-    "name": "Shawon Talukder",
-    "headline": "Full-Stack Software Engineer · Angular Specialist · Mobile Developer",
-    "github": "https://github.com/Melodious-nub",
-    "linkedin": "https://www.linkedin.com/in/shawon-taluckder",
-    "email": "shawon.taluckder2@gmail.com",
-    "fiverr": "https://www.fiverr.com/talukder_shawon/",
-    "organization": "Open Source Community",
-    "url": "https://github.com/Melodious-nub/jsonlens"
-  },
-  "metrics": {
-    "activeUsers": 68000,
-    "uptime": 0.99999,
-    "isProductionReady": true,
-    "rating": 4.95
-  }
-}`;
+export const SAMPLE_MODIFIED_JSON = DEFAULT_SAMPLE_JSON;
 
 @Injectable({
   providedIn: 'root',
@@ -211,7 +181,7 @@ export class DiffService {
       return Boolean(
         parsed &&
         parsed.name === 'JsonLens' &&
-        parsed.version === '1.0.0' &&
+        (parsed.version === '1.0.0' || parsed.version === '1.1.0' || parsed.version === '1.2.0') &&
         Array.isArray(parsed.features)
       );
     } catch {
