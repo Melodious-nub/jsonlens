@@ -28,6 +28,7 @@ import { ClickOutsideDirective } from '../../shared/directives/click-outside.dir
 import { ResizableSplitterDirective } from '../../shared/directives/resizable-splitter.directive';
 import { triggerHaptic } from '../../shared/utils/haptics.util';
 import { ShareDialogComponent } from './components/share-dialog/share-dialog.component';
+import { ClearConfirmModalComponent } from './components/clear-confirm-modal/clear-confirm-modal.component';
 import { ImagePreviewerComponent } from '../../shared/components/image-previewer/image-previewer.component';
 import { CodeLensComponent } from './views/code-lens/code-lens.component';
 import { TreeLensComponent } from './views/tree-lens/tree-lens.component';
@@ -75,6 +76,7 @@ import {
     ClickOutsideDirective,
     ResizableSplitterDirective,
     ShareDialogComponent,
+    ClearConfirmModalComponent,
     ImagePreviewerComponent,
     CodeLensComponent,
     TreeLensComponent,
@@ -153,6 +155,7 @@ export class WorkspaceComponent {
   readonly qrCodePngUrl = signal<string | null>(null);
   readonly qrTooLarge = signal<boolean>(false);
   readonly isGeneratingQr = signal<boolean>(false);
+  readonly isClearConfirmOpen = signal<boolean>(false);
 
   // Active Pane State (for separate Ctrl+F input vs output editor search)
   readonly activePane = signal<'input' | 'output'>('input');
@@ -436,11 +439,26 @@ export class WorkspaceComponent {
   }
 
   onClear(): void {
-    this.engine.clear();
-    if (this.diff.isSampleActive()) {
-      this.diff.clearSecondary();
+    const hasPrimaryContent = Boolean(this.engine.rawInput() && this.engine.rawInput().trim() !== '');
+    const hasSecondaryContent = Boolean(this.diff.secondaryInput() && this.diff.secondaryInput().trim() !== '');
+
+    if (!hasPrimaryContent && !hasSecondaryContent) {
+      this.toast.show('Workspace is already empty', 'info');
+      return;
     }
-    this.toast.show('Cleared editor', 'info');
+
+    this.isClearConfirmOpen.set(true);
+  }
+
+  onConfirmClear(): void {
+    this.isClearConfirmOpen.set(false);
+    this.engine.clear();
+    this.diff.clearMaster();
+    this.toast.show('Workspace completely cleared', 'info');
+  }
+
+  onCancelClear(): void {
+    this.isClearConfirmOpen.set(false);
   }
 
   async onToggleShare(): Promise<void> {

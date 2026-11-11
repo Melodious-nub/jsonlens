@@ -40,6 +40,24 @@ describe('DiffService', () => {
     expect(service.isSampleActive()).toBe(true);
   });
 
+  it('should perform master clear and start completely fresh without awaiting baseline auto-sync', () => {
+    const service = TestBed.inject(DiffService);
+    const engine = TestBed.inject(JsonEngineService);
+
+    service.setSecondaryInput('{"sample": 123}');
+    expect(service.secondaryInput()).toBe('{"sample": 123}');
+
+    service.clearMaster();
+    expect(service.secondaryInput()).toBe('');
+    expect(service.isSampleActive()).toBe(false);
+    expect(service.awaitingNewInput()).toBe(false);
+
+    // Primary subsequent input does NOT overwrite secondary after master clear
+    engine.setInput('{"brandNew": true}');
+    TestBed.flushEffects();
+    expect(service.secondaryInput()).toBe('');
+  });
+
   it('should clone primary input into secondary comparison as formatted JSON', () => {
     const service = TestBed.inject(DiffService);
     const engine = TestBed.inject(JsonEngineService);

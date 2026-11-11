@@ -85,15 +85,34 @@ describe('WorkspaceComponent', () => {
     expect(comp.engine.isValid()).toBe(true);
   });
 
-  it('should load sample JSON and clear editor', () => {
+  it('should load sample JSON, trigger confirmation modal, and master clear workspace', () => {
     const fixture = TestBed.createComponent(WorkspaceComponent);
     const comp = fixture.componentInstance;
     comp.onLoadSample();
     expect(comp.engine.rawInput().length).toBeGreaterThan(0);
+    expect(comp.diff.secondaryInput().length).toBeGreaterThan(0);
     expect(comp.engine.isValid()).toBe(true);
 
+    // Clicking clear on non-empty editor opens confirmation modal
     comp.onClear();
+    expect(comp.isClearConfirmOpen()).toBe(true);
+    expect(comp.engine.rawInput().length).toBeGreaterThan(0);
+
+    // Cancelling leaves content untouched
+    comp.onCancelClear();
+    expect(comp.isClearConfirmOpen()).toBe(false);
+    expect(comp.engine.rawInput().length).toBeGreaterThan(0);
+
+    // Confirming clears both primary and diff secondary completely
+    comp.onClear();
+    comp.onConfirmClear();
+    expect(comp.isClearConfirmOpen()).toBe(false);
     expect(comp.engine.rawInput()).toBe('');
+    expect(comp.diff.secondaryInput()).toBe('');
+
+    // Clicking clear on already empty editor does not open modal
+    comp.onClear();
+    expect(comp.isClearConfirmOpen()).toBe(false);
   });
 
   it('should toggle fullscreen mode', () => {

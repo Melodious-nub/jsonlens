@@ -187,13 +187,13 @@
 
       <div class="rail-divider"></div>
 
-      <!-- Clear Button -->
+      <!-- Master Clear Button -->
       <button
         type="button"
         class="rail-btn rail-btn--danger focus-ring"
         (click)="onClear()"
-        title="Clear Editor"
-        aria-label="Clear all content"
+        title="Clear Workspace (Primary & Diff)"
+        aria-label="Clear entire workspace content"
       >
         <lucide-icon [img]="trashIcon" size="14" />
       </button>
@@ -447,4 +447,10 @@
       (download)="downloadQrImage()"
     />
   }
+  <!-- Master Clear Confirmation Dialog -->
+  <app-clear-confirm-modal
+    [isOpen]="isClearConfirmOpen()"
+    (confirmed)="onConfirmClear()"
+    (cancelled)="onCancelClear()"
+  />
 </section>
