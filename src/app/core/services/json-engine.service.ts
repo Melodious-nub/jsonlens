@@ -40,7 +40,7 @@ const LARGE_PAYLOAD_THRESHOLD = 2 * 1024 * 1024; // 2MB
 
 export const DEFAULT_SAMPLE_JSON = `{
   "name": "JsonLens",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "privacy": "100% Client-Side",
   "features": [
     "Zoneless Angular Reactive Architecture",
@@ -49,7 +49,10 @@ export const DEFAULT_SAMPLE_JSON = `{
     "Interactive Tree Explorer & JSONPath Copy",
     "Instant Type Generation: TypeScript, Zod, Go",
     "Side-by-side JSON Diff Comparison",
-    "Off-thread Web Worker Parser for Large Files"
+    "Off-thread Web Worker Parser for Large Files",
+    "Tokyo Night, Dracula & Nord Developer Themes",
+    "Dynamic Editor & Tree Font Size Controller",
+    "Compact Zero-Server Sharing with Vector QR Lightbox"
   ],
   "author": {
     "name": "Shawon Talukder",
@@ -57,13 +60,15 @@ export const DEFAULT_SAMPLE_JSON = `{
     "github": "https://github.com/Melodious-nub",
     "linkedin": "https://www.linkedin.com/in/shawon-taluckder",
     "email": "shawon.taluckder2@gmail.com",
+    "fiverr": "https://www.fiverr.com/talukder_shawon/",
     "organization": "Open Source Community",
     "url": "https://github.com/Melodious-nub/jsonlens"
   },
   "metrics": {
-    "activeUsers": 45000,
-    "uptime": 0.9999,
-    "isProductionReady": true
+    "activeUsers": 85000,
+    "uptime": 0.99999,
+    "isProductionReady": true,
+    "rating": 4.98
   }
 }`;
 

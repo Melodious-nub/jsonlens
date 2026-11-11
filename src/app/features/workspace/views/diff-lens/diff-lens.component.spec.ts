@@ -13,11 +13,14 @@ describe('DiffLensComponent', () => {
     }).compileComponents();
   });
 
-  it('should instantiate and compute diffs', () => {
+  it('should instantiate with identical sample data and detect diffs when modified', () => {
     const fixture = TestBed.createComponent(DiffLensComponent);
     const comp = fixture.componentInstance;
     expect(comp).toBeTruthy();
     expect(comp.diffItems().length).toBeGreaterThan(0);
+    expect(comp.meaningfulDiffs().length).toBe(0);
+
+    comp.diff.setSecondaryInput('{"name": "JsonLens", "modified": true}');
     expect(comp.meaningfulDiffs().length).toBeGreaterThan(0);
   });
 
@@ -63,5 +66,19 @@ describe('DiffLensComponent', () => {
     comp.diff.setSecondaryInput('{"key":"value"}');
     comp.formatSecondary();
     expect(comp.secondaryInput()).toBe('{\n  "key": "value"\n}');
+  });
+
+  it('should not render a format button in the diff actions header', () => {
+    const fixture = TestBed.createComponent(DiffLensComponent);
+    fixture.detectChanges();
+
+    const buttons = Array.from(
+      fixture.nativeElement.querySelectorAll('.diff-lens__actions button')
+    ) as HTMLButtonElement[];
+    const buttonTexts = buttons.map((b) => b.textContent?.trim());
+    expect(buttonTexts).not.toContain('Format');
+    expect(buttonTexts).toContain('Swap');
+    expect(buttonTexts).toContain('Open File');
+    expect(buttonTexts).toContain('Clear');
   });
 });

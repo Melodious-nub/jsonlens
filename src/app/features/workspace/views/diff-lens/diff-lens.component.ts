@@ -20,7 +20,6 @@ import {
   GitCompare,
   CheckCircle2,
   FolderOpen,
-  AlignLeft,
 } from 'lucide-angular';
 
 import { ResizableSplitterDirective } from '../../../../shared/directives/resizable-splitter.directive';
@@ -46,7 +45,6 @@ export class DiffLensComponent {
   readonly clearIcon = Trash2;
   readonly compareIcon = GitCompare;
   readonly matchIcon = CheckCircle2;
-  readonly formatIcon = AlignLeft;
   readonly Math = Math;
 
   readonly diffFileInput = viewChild<ElementRef<HTMLInputElement>>('diffFileInput');
