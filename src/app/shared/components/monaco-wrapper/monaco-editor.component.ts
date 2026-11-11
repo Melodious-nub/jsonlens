@@ -5,6 +5,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   DestroyRef,
   effect,
   ElementRef,
@@ -19,6 +20,7 @@ import {
 import type * as MonacoType from 'monaco-editor';
 import { JsonError } from '../../../core/models/json-lens.model';
 import { ThemeService } from '../../../core/services/theme.service';
+import { EditorSettingsService } from '../../../core/services/editor-settings.service';
 import { registerMonacoThemes, resolveMonacoTheme } from './monaco-themes.util';
 
 interface MonacoFindControllerContribution extends MonacoType.editor.IEditorContribution {
@@ -38,6 +40,7 @@ export class MonacoEditorComponent {
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly destroyRef = inject(DestroyRef);
   private readonly themeService = inject(ThemeService);
+  private readonly editorSettings = inject(EditorSettingsService);
   private readonly appRef = inject(ApplicationRef);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -53,6 +56,12 @@ export class MonacoEditorComponent {
   readonly minimap = input<boolean>(false);
   readonly wordWrap = input<'on' | 'off'>('on');
   readonly lineNumbers = input<'on' | 'off'>('on');
+  readonly fontSize = input<number | undefined>(undefined);
+
+  readonly effectiveFontSize = computed<number>(() => {
+    const custom = this.fontSize();
+    return custom !== undefined ? custom : this.editorSettings.fontSize();
+  });
 
   // Outputs for shortcut actions
   readonly formatRequested = output<void>();
@@ -160,6 +169,15 @@ export class MonacoEditorComponent {
         }
       }
     });
+
+    // 7. Sync font size
+    effect(() => {
+      const size = this.effectiveFontSize();
+      const editor = this.editorInstance();
+      if (editor) {
+        editor.updateOptions({ fontSize: size });
+      }
+    });
   }
 
   private async initMonaco(): Promise<void> {
@@ -219,7 +237,7 @@ export class MonacoEditorComponent {
         folding: true,
         foldingStrategy: 'indentation',
         showFoldingControls: 'mouseover',
-        fontSize: 13,
+        fontSize: this.effectiveFontSize(),
         fontFamily: "var(--font-mono), 'JetBrains Mono', Consolas, monospace",
         fontLigatures: true,
         scrollBeyondLastLine: false,

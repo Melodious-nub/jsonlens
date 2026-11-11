@@ -3,12 +3,13 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { MonacoEditorComponent } from './monaco-editor.component';
 import { ThemeService } from '../../../core/services/theme.service';
 import { StorageService } from '../../../core/services/storage.service';
+import { EditorSettingsService } from '../../../core/services/editor-settings.service';
 
 describe('MonacoEditorComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [MonacoEditorComponent],
-      providers: [ThemeService, StorageService],
+      providers: [ThemeService, StorageService, EditorSettingsService],
     }).compileComponents();
   });
 
@@ -94,5 +95,20 @@ describe('MonacoEditorComponent', () => {
 
     themeService.setTheme('light');
     expect(themeService.theme()).toBe('light');
+  });
+
+  it('should react to font size changes from settings service or input', () => {
+    const fixture = TestBed.createComponent(MonacoEditorComponent);
+    const comp = fixture.componentInstance;
+    const settings = TestBed.inject(EditorSettingsService);
+
+    expect(comp.effectiveFontSize()).toBe(13);
+
+    settings.setFontSize(16);
+    expect(comp.effectiveFontSize()).toBe(16);
+
+    fixture.componentRef.setInput('fontSize', 14);
+    fixture.detectChanges();
+    expect(comp.effectiveFontSize()).toBe(14);
   });
 });

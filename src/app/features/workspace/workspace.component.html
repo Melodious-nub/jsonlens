@@ -1,4 +1,8 @@
-<section class="workspace" [class.workspace--fullscreen]="isFullscreen()">
+<section
+  class="workspace"
+  [class.workspace--fullscreen]="isFullscreen()"
+  [style.--editor-font-size.px]="editorSettings.fontSize()"
+>
   <!-- Split Screen Panels Area -->
   <div
     #panelsContainer
@@ -215,6 +219,95 @@
       </div>
 
       <div class="rail-spacer"></div>
+
+      <!-- Font Size Controller Dropdown (Positioned before below divider) -->
+      <div class="dropdown-wrapper rail-dropdown" appClickOutside (clickOutside)="isFontSizeMenuOpen.set(false)">
+        <button
+          type="button"
+          class="rail-btn focus-ring"
+          [class.rail-btn--active]="isFontSizeMenuOpen()"
+          (click)="toggleFontSizeMenu()"
+          title="Editor Font Size ({{ editorSettings.fontSize() }}px)"
+          aria-label="Editor Font Size"
+          [attr.aria-expanded]="isFontSizeMenuOpen()"
+          aria-haspopup="dialog"
+        >
+          <lucide-icon [img]="fontIcon" size="15" />
+        </button>
+
+        @if (isFontSizeMenuOpen()) {
+          <div class="dropdown-menu rail-menu font-size-popover animate-scale-in" role="dialog" aria-label="Editor Font Size Controls">
+            <div class="font-size-header">
+              <div class="font-size-stepper-compact">
+                <button
+                  type="button"
+                  class="stepper-mini-btn focus-ring"
+                  (click)="editorSettings.decreaseFontSize()"
+                  [disabled]="editorSettings.fontSize() <= editorSettings.minFontSize"
+                  title="Decrease font size (-1px)"
+                  aria-label="Decrease font size"
+                >
+                  <lucide-icon [img]="minusIcon" size="10" />
+                </button>
+
+                <span class="font-size-badge">{{ editorSettings.fontSize() }}px</span>
+
+                <button
+                  type="button"
+                  class="stepper-mini-btn focus-ring"
+                  (click)="editorSettings.increaseFontSize()"
+                  [disabled]="editorSettings.fontSize() >= editorSettings.maxFontSize"
+                  title="Increase font size (+1px)"
+                  aria-label="Increase font size"
+                >
+                  <lucide-icon [img]="plusIcon" size="10" />
+                </button>
+              </div>
+
+              <button
+                type="button"
+                class="font-size-reset-btn-top focus-ring"
+                (click)="editorSettings.resetFontSize()"
+                [disabled]="editorSettings.isDefault()"
+                title="Reset to default font size (13px)"
+                aria-label="Reset font size to default 13px"
+              >
+                <lucide-icon [img]="resetIcon" size="10" />
+                <span>Reset</span>
+              </button>
+            </div>
+
+            <div class="font-size-divider" role="separator"></div>
+
+            <!-- Discrete Options List -->
+            <div class="font-size-options" role="radiogroup" aria-label="Font size presets">
+              @for (opt of editorSettings.fontSizeOptions; track opt.size) {
+                <button
+                  type="button"
+                  class="font-size-option focus-ring"
+                  [class.font-size-option--active]="editorSettings.fontSize() === opt.size"
+                  (click)="onSelectFontSize(opt.size)"
+                  role="radio"
+                  [attr.aria-checked]="editorSettings.fontSize() === opt.size"
+                >
+                  <div class="font-size-option__left">
+                    <span class="font-size-option__px">{{ opt.size }}px</span>
+                    <span
+                      class="font-size-option__tag"
+                      [class.font-size-option__tag--default]="opt.isDefault"
+                    >
+                      {{ opt.isDefault ? 'Default' : (opt.size === 11 ? 'Compact' : (opt.size === 12 ? 'Small' : (opt.size === 14 ? 'Medium' : (opt.size === 15 ? 'Large' : (opt.size === 16 ? 'X-Large' : 'Huge'))))) }}
+                    </span>
+                  </div>
+                  @if (editorSettings.fontSize() === opt.size) {
+                    <lucide-icon [img]="checkIcon" size="12" class="font-size-option__check" />
+                  }
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
 
       <div class="rail-divider rail-divider--split"></div>
 

@@ -1,6 +1,6 @@
 .tree-node {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: var(--editor-font-size, 13px);
   line-height: 1.6;
 
   &--matched > .tree-node__row {
@@ -25,7 +25,7 @@
     user-select: none;
     transition: background var(--transition-fast);
     content-visibility: auto;
-    contain-intrinsic-size: 0 26px;
+    contain-intrinsic-size: 0 1.6em;
 
     &:hover {
       background: var(--surface-800);
@@ -91,7 +91,7 @@
 
   &__count {
     color: var(--text-muted);
-    font-size: 0.72rem;
+    font-size: 0.9em;
     font-style: italic;
     margin: 0 4px;
   }
@@ -128,7 +128,7 @@
   }
 
   &__badge {
-    font-size: 0.65rem;
+    font-size: 0.85em;
     padding: 1px 5px;
     border-radius: 3px;
     text-transform: uppercase;

@@ -11,6 +11,7 @@ import {
 import { TreeNode } from '../../../../core/models/json-lens.model';
 import { JsonEngineService } from '../../../../core/services/json-engine.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { EditorSettingsService } from '../../../../core/services/editor-settings.service';
 import { countTreeMatches } from '../../../../shared/utils/json-tree.util';
 import { getValueByJsonPath } from '../../../../shared/utils/json-path.util';
 import { TreeNodeComponent } from './tree-node.component';
@@ -36,6 +37,7 @@ import {
 export class TreeLensComponent {
   readonly engine = inject(JsonEngineService);
   private readonly toast = inject(ToastService);
+  readonly editorSettings = inject(EditorSettingsService);
 
   readonly searchIcon = Search;
   readonly treeIcon = FolderTree;
