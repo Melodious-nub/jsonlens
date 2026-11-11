@@ -44,19 +44,50 @@ describe('DiffLensComponent', () => {
     expect(comp.secondaryInput()).toBe('');
   });
 
-  it('should adjust vertical split via double click reset and keyboard navigation', () => {
+  it('should collapse and expand differences drawer via double-click, pointer double-tap, and keyboard navigation', () => {
     const fixture = TestBed.createComponent(DiffLensComponent);
     const comp = fixture.componentInstance;
 
     comp.splitPercent.set(70);
+    expect(comp.isCollapsed()).toBe(false);
+
+    // Double click to collapse drawer to 0% (splitPercent = 100)
+    comp.onHeaderDblClick(new MouseEvent('dblclick'));
+    expect(comp.splitPercent()).toBe(100);
+    expect(comp.isCollapsed()).toBe(true);
+
+    // Double click to expand drawer back to 50% shortcut
+    comp['lastToggleTime'] = 0;
     comp.onHeaderDblClick(new MouseEvent('dblclick'));
     expect(comp.splitPercent()).toBe(50);
+    expect(comp.isCollapsed()).toBe(false);
 
+    // Keyboard ArrowUp expands drawer (decreases top editor percent by 5)
     comp.onHeaderKeyDown(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
     expect(comp.splitPercent()).toBe(45);
 
+    // Keyboard ArrowDown collapses drawer (increases top editor percent by 5)
     comp.onHeaderKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
     expect(comp.splitPercent()).toBe(50);
+
+    // Keyboard Enter / Space toggles collapse
+    comp['lastToggleTime'] = 0;
+    comp.onHeaderKeyDown(new KeyboardEvent('keydown', { key: 'Enter' }));
+    expect(comp.splitPercent()).toBe(100);
+    expect(comp.isCollapsed()).toBe(true);
+
+    // Pointer double-tap toggles back to 50%
+    comp['lastToggleTime'] = 0;
+    comp['lastHeaderTapTime'] = Date.now() - 100;
+    comp.onHeaderPointerUp(new PointerEvent('pointerup'));
+    expect(comp.splitPercent()).toBe(50);
+    expect(comp.isCollapsed()).toBe(false);
+  });
+
+  it('should not render the removed comparison editor heading bar', () => {
+    const fixture = TestBed.createComponent(DiffLensComponent);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.editor-header')).toBeNull();
   });
 
   it('should format secondary input when formatSecondary is called', () => {
@@ -68,7 +99,7 @@ describe('DiffLensComponent', () => {
     expect(comp.secondaryInput()).toBe('{\n  "key": "value"\n}');
   });
 
-  it('should not render a format button in the diff actions header', () => {
+  it('should render Format, Swap, Open File, and Clear buttons in the diff actions header', () => {
     const fixture = TestBed.createComponent(DiffLensComponent);
     fixture.detectChanges();
 
@@ -76,7 +107,7 @@ describe('DiffLensComponent', () => {
       fixture.nativeElement.querySelectorAll('.diff-lens__actions button')
     ) as HTMLButtonElement[];
     const buttonTexts = buttons.map((b) => b.textContent?.trim());
-    expect(buttonTexts).not.toContain('Format');
+    expect(buttonTexts).toContain('Format');
     expect(buttonTexts).toContain('Swap');
     expect(buttonTexts).toContain('Open File');
     expect(buttonTexts).toContain('Clear');

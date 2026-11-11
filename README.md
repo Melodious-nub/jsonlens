@@ -81,6 +81,8 @@ Deeply explore complex JSON hierarchies with an intuitive visual tree:
 ### ⚖️ Side-by-Side Visual Diff Lens
 Compare versions of API payloads and database snapshots with zero hassle:
 - **Semantic AST Comparison:** Highlights additions (`+ ADD`), deletions (`- DEL`), and modifications (`~ MOD`) with high-contrast color coding.
+- **Dedicated Formatting:** Format comparison JSON payloads directly with a dedicated 1-click **Format** button.
+- **Collapsible & Stackable Differences Drawer:** Smoothly resizable drawer that can collapse down to `0%` or open to `50%` via an accessible chevron toggle or double-tap/double-click shortcut on the resize bar, maximizing vertical editor space.
 - **Smart Baseline Auto-Sync:** When diff is cleared, the next newly added JSON automatically initializes the comparison baseline so diffing begins immediately upon your next edit.
 - **Flexible Controls:** Swap Left and Right JSON with 1 click, or load external `.json` comparison files directly.
 
@@ -125,7 +127,7 @@ Collaborate effortlessly with teammates and test payloads across any device:
 - **Change Detection:** `ChangeDetectionStrategy.OnPush` enforced across all components
 - **Editor Engine:** Monaco Editor 0.57+ (GPU-accelerated, virtualized scrolling)
 - **Off-Thread Processing:** Dedicated Web Worker for background parsing of payloads over 2MB
-- **Testing:** Vitest & Angular Unit Testing (100% passing test suites across 38 test files / 210 automated tests)
+- **Testing:** Vitest & Angular Unit Testing (100% passing test suites across 39 test files / 221 automated tests)
 - **Styling:** Vanilla CSS Custom Properties & SCSS design tokens (Zero runtime overhead)
 - **Transitions:** Native View Transitions API with circular `clip-path` wave animation
 
@@ -152,6 +154,8 @@ Collaborate effortlessly with teammates and test payloads across any device:
 | `Alt + R` | Auto-Fix Broken JSON Syntax |
 | `Ctrl + F` / `Cmd + F` | Search / Find in Editor & Filter Tree |
 | `Double Click Splitter` | Reset Resizable Panels to Center (50% / 50%) |
+| `Double Click / Tap Diff Grip` | Toggle Differences Drawer (Collapse to 0% / Open to 50%) |
+| `Enter` / `Space` (on Diff Header) | Toggle Differences Drawer Collapse / Open |
 | `Esc` | Close Active Dialog / Search / Image Lightbox |
 | `+` / `-` | Zoom In / Zoom Out (In Image Previewer) |
 | `0` | Reset Zoom & Pan to 100% (In Image Previewer) |
