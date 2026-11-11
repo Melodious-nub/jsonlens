@@ -1,0 +1,66 @@
+@if (isOpen()) {
+  <!-- Accessible Backdrop -->
+  <div
+    class="clear-modal__backdrop"
+    (click)="onCancel()"
+    aria-hidden="true"
+  ></div>
+
+  <!-- Modal Dialog Card -->
+  <div
+    class="clear-modal animate-scale-in"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="clear-dialog-title"
+    aria-describedby="clear-dialog-desc"
+  >
+    <!-- Modal Header -->
+    <div class="clear-modal__header">
+      <div class="clear-modal__header-left">
+        <div class="clear-modal__icon-badge" aria-hidden="true">
+          <lucide-icon [img]="trashIcon" size="15" />
+        </div>
+        <h2 id="clear-dialog-title" class="clear-modal__title">Clear Workspace</h2>
+      </div>
+
+      <button
+        type="button"
+        class="clear-modal__close-btn focus-ring"
+        (click)="onCancel()"
+        title="Cancel and close (Esc)"
+        aria-label="Cancel and close dialog"
+      >
+        <lucide-icon [img]="closeIcon" size="14" />
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="clear-modal__body">
+      <p id="clear-dialog-desc" class="clear-modal__desc">
+        Are you sure you want to clear the entire workspace? You will start from a completely fresh workspace. This action cannot be undone.
+      </p>
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div class="clear-modal__footer">
+      <button
+        type="button"
+        class="btn btn--secondary focus-ring"
+        (click)="onCancel()"
+        aria-label="Cancel clearing workspace"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="btn btn--danger focus-ring"
+        (click)="onConfirm()"
+        aria-label="Confirm clear workspace"
+      >
+        <lucide-icon [img]="trashIcon" size="13" />
+        <span>Clear</span>
+      </button>
+    </div>
+  </div>
+}

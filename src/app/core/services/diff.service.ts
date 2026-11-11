@@ -221,6 +221,21 @@ export class DiffService {
     this.awaitingNewInput.set(true);
   }
 
+  /**
+   * Master Clear: completely wipes comparison state and starts 100% fresh
+   */
+  clearMaster(): void {
+    this.secondaryInput.set('');
+    this.isSampleActive.set(false);
+    this.lastPrimaryOnClear.set('');
+    this.awaitingNewInput.set(false);
+    if (this.cancelPendingWorkerDiff) {
+      this.cancelPendingWorkerDiff();
+      this.cancelPendingWorkerDiff = null;
+    }
+    this.workerDiffResult.set(null);
+  }
+
   cloneFromPrimary(): void {
     this.secondaryInput.set(this.formatJsonString(this.engine.rawInput()));
     this.isSampleActive.set(false);
