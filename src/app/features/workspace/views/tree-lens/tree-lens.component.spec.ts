@@ -80,5 +80,23 @@ describe('TreeLensComponent', () => {
     await comp.copySelectedValue();
     expect(writeTextSpy).toHaveBeenCalledWith('JsonLens Suite');
   });
+
+  it('should react to editorSettings font size and bind --editor-font-size CSS variable', () => {
+    const fixture = TestBed.createComponent(TreeLensComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const rootEl = fixture.nativeElement.querySelector('.tree-lens') as HTMLElement;
+    expect(rootEl).toBeTruthy();
+    expect(rootEl.style.getPropertyValue('--editor-font-size')).toBe('13px');
+
+    comp.editorSettings.setFontSize(16);
+    fixture.detectChanges();
+    expect(rootEl.style.getPropertyValue('--editor-font-size')).toBe('16px');
+
+    comp.editorSettings.resetFontSize();
+    fixture.detectChanges();
+    expect(rootEl.style.getPropertyValue('--editor-font-size')).toBe('13px');
+  });
 });
 

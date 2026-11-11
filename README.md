@@ -99,6 +99,14 @@ A state-of-the-art visual experience:
 - **Elastic Icon Morph:** Micro-animated Sun and Moon icons with a spring bounce and hover rotation.
 - **Zero Layout Thrashing:** Leverages the native browser View Transition API on the compositor thread.
 
+### 🔤 Dynamic Editor & Tree Font Size Controller ![NEW](https://img.shields.io/badge/NEW-6366f1?style=flat-square)
+Tailor workspace typography seamlessly to match your monitor resolution, viewing distance, and reading comfort:
+- **Central Rail "Aa" Trigger:** Sleek, standard typography trigger placed directly on the middle command rail above the layout split controls.
+- **Universal Multi-View Scaling:** Reactively adjusts font sizes across all Monaco instances (Input Editor, Code Lens, AST Diff Lens, Type Generator) and the interactive Tree Lens DOM hierarchy simultaneously.
+- **Header Stepper & Curated Presets:** Fine-tune with 1px step buttons (`-` / `+`) or choose instant presets (`11px Compact`, `12px Small`, `13px Default`, `14px Medium`, `15px Large`, `16px X-Large`, `18px Huge`).
+- **Always-Visible Top Reset:** A quick reset button anchored in the header allows returning to the standard 13px default with 1 click, remaining disabled when already at default.
+- **Persistent Local Preference:** Automatically stores your preferred font size in `localStorage`, maintaining your customized workspace view across sessions.
+
 ### 🔗 Instant Developer Sharing & Mobile QR Code (Zero-Server Workspaces)
 Collaborate effortlessly with teammates and test payloads across any device:
 - **Shortened, Compact Share Links:** Pre-minifies JSON before LZ-compression to strip redundant indentation and uses a compact `#d=` hash, reducing URL character length by **40%–76%**.
@@ -117,7 +125,7 @@ Collaborate effortlessly with teammates and test payloads across any device:
 - **Change Detection:** `ChangeDetectionStrategy.OnPush` enforced across all components
 - **Editor Engine:** Monaco Editor 0.57+ (GPU-accelerated, virtualized scrolling)
 - **Off-Thread Processing:** Dedicated Web Worker for background parsing of payloads over 2MB
-- **Testing:** Vitest & Angular Unit Testing (100% passing test suites across 35 test files / 185 automated tests)
+- **Testing:** Vitest & Angular Unit Testing (100% passing test suites across 38 test files / 210 automated tests)
 - **Styling:** Vanilla CSS Custom Properties & SCSS design tokens (Zero runtime overhead)
 - **Transitions:** Native View Transitions API with circular `clip-path` wave animation
 
@@ -130,7 +138,8 @@ Collaborate effortlessly with teammates and test payloads across any device:
 3. **Inspect the Tree:** Switch to the **Tree** tab to search, auto-expand matching branches, and copy exact JSONPath queries.
 4. **Generate Types:** Open the **Types** tab, pick your target language (TypeScript, Go, Python, Rust, etc.), and click **Copy** or **Download**.
 5. **Compare Changes:** Open the **Diff** tab to view side-by-side AST differences in real time.
-6. **Share & Collaborate:** Click **Share** in the central command rail to copy a zero-server workspace link, click **View** to open the interactive QR code image previewer, or click **Download** to save the QR code image for mobile testing.
+6. **Customize Typography:** Click the **Aa** button in the central divider rail to tailor editor and tree font size (`11px` to `18px`), automatically remembered.
+7. **Share & Collaborate:** Click **Share** in the central command rail to copy a zero-server workspace link, click **View** to open the interactive QR code image previewer, or click **Download** to save the QR code image for mobile testing.
 
 ---
 

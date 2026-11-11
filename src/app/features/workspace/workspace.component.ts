@@ -19,6 +19,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { StorageService } from '../../core/services/storage.service';
 import { ExportService } from '../../core/services/export.service';
 import { UrlShareService } from '../../core/services/url-share.service';
+import { EditorSettingsService } from '../../core/services/editor-settings.service';
 import { formatBytes } from '../../shared/utils/format.util';
 import { StatusBarComponent } from '../../shared/components/status-bar/status-bar.component';
 import { MonacoEditorComponent } from '../../shared/components/monaco-wrapper/monaco-editor.component';
@@ -59,6 +60,9 @@ import {
   Eye,
   ChevronRight,
   ChevronLeft,
+  ALargeSmall,
+  Minus,
+  Plus,
 } from 'lucide-angular';
 
 @Component({
@@ -89,6 +93,7 @@ export class WorkspaceComponent {
   private readonly storage = inject(StorageService);
   private readonly exportService = inject(ExportService);
   private readonly urlShareService = inject(UrlShareService);
+  readonly editorSettings = inject(EditorSettingsService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly destroyRef = inject(DestroyRef);
@@ -121,6 +126,9 @@ export class WorkspaceComponent {
   readonly viewQrIcon = Eye;
   readonly chevronRightIcon = ChevronRight;
   readonly chevronLeftIcon = ChevronLeft;
+  readonly fontIcon = ALargeSmall;
+  readonly minusIcon = Minus;
+  readonly plusIcon = Plus;
 
   // Inputs & State
   readonly defaultLens = input<LensTab>('code');
@@ -129,6 +137,7 @@ export class WorkspaceComponent {
   readonly isSplitCentered = computed(() => this.splitPercent() === 50);
   readonly isDragging = signal<boolean>(false);
   readonly isExportMenuOpen = signal<boolean>(false);
+  readonly isFontSizeMenuOpen = signal<boolean>(false);
   readonly isFullscreen = signal<boolean>(false);
 
   // Mobile Drawer State: 'input' = [Input Editor | Rail], 'output' = [Rail | Output Lens]
@@ -202,6 +211,8 @@ export class WorkspaceComponent {
             this.closeShareMenu();
           } else if (this.isExportMenuOpen()) {
             this.isExportMenuOpen.set(false);
+          } else if (this.isFontSizeMenuOpen()) {
+            this.isFontSizeMenuOpen.set(false);
           } else {
             const inputHasFind = this.inputEditor()?.isFindWidgetVisible();
             const codeHasFind = this.codeLens()?.isFindWidgetVisible();
@@ -388,6 +399,14 @@ export class WorkspaceComponent {
 
   toggleExportMenu(): void {
     this.isExportMenuOpen.update((v) => !v);
+  }
+
+  toggleFontSizeMenu(): void {
+    this.isFontSizeMenuOpen.update((v) => !v);
+  }
+
+  onSelectFontSize(size: number): void {
+    this.editorSettings.setFontSize(size);
   }
 
   onTriggerFileInput(): void {

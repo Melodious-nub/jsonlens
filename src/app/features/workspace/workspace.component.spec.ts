@@ -7,6 +7,7 @@ import { TypeGenService } from '../../core/services/type-gen.service';
 import { ExportService } from '../../core/services/export.service';
 import { DiffService } from '../../core/services/diff.service';
 import { UrlShareService } from '../../core/services/url-share.service';
+import { ALargeSmall } from 'lucide-angular';
 
 describe('WorkspaceComponent', () => {
   beforeEach(async () => {
@@ -271,5 +272,37 @@ describe('WorkspaceComponent', () => {
     expect(comp.isShareMenuOpen()).toBe(true);
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(comp.isShareMenuOpen()).toBe(false);
+
+    // 3. Font size menu dismiss
+    comp.isFontSizeMenuOpen.set(true);
+    expect(comp.isFontSizeMenuOpen()).toBe(true);
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(comp.isFontSizeMenuOpen()).toBe(false);
+  });
+
+  it('should toggle font size menu and update editor font size with professional Aa icon', () => {
+    const fixture = TestBed.createComponent(WorkspaceComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(comp.fontIcon).toBe(ALargeSmall);
+    expect(comp.isFontSizeMenuOpen()).toBe(false);
+    comp.toggleFontSizeMenu();
+    fixture.detectChanges();
+    expect(comp.isFontSizeMenuOpen()).toBe(true);
+
+    const resetBtn = fixture.nativeElement.querySelector('.font-size-reset-btn-top') as HTMLButtonElement;
+    expect(resetBtn).toBeTruthy();
+    expect(resetBtn.disabled).toBe(true);
+
+    comp.onSelectFontSize(16);
+    fixture.detectChanges();
+    expect(comp.editorSettings.fontSize()).toBe(16);
+    expect(resetBtn.disabled).toBe(false);
+
+    comp.editorSettings.resetFontSize();
+    fixture.detectChanges();
+    expect(comp.editorSettings.fontSize()).toBe(13);
+    expect(resetBtn.disabled).toBe(true);
   });
 });
