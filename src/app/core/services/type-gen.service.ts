@@ -13,6 +13,7 @@ import {
   jsonToSwift,
   jsonToTypescript,
   jsonToZod,
+  jsonToJsonSchema,
 } from '../../shared/utils/type-generators';
 
 @Injectable({
@@ -36,6 +37,8 @@ export class TypeGenService {
           return jsonToTypescript(json, rootName);
         case 'zod':
           return jsonToZod(json, rootName);
+        case 'json-schema':
+          return jsonToJsonSchema(json, rootName);
         case 'javascript':
           return jsonToJavascript(json, rootName);
         case 'python':

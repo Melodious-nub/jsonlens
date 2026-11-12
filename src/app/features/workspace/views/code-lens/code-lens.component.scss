@@ -17,10 +17,11 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding: var(--space-2) var(--space-3);
+    padding: 0 var(--space-3);
     background: var(--surface-900);
     border-bottom: 1px solid var(--border-default);
-    min-height: 38px;
+    min-height: 29px;
+    height: 29px;
     gap: var(--space-2);
     position: relative;
     z-index: 20;
@@ -55,22 +56,24 @@
   &__actions {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     flex-wrap: nowrap;
 
     .action-btn {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      height: 26px;
+      justify-content: center;
+      gap: 4px;
+      height: 22px;
       padding: 0 7px;
       flex-shrink: 0;
       border-radius: var(--radius-xs);
       border: 1px solid var(--border-default);
       background: var(--surface-800);
       color: var(--text-secondary);
-      font-size: 0.72rem;
+      font-size: 0.69rem;
       font-weight: 500;
+      line-height: 1;
       cursor: pointer;
       transition: all var(--transition-fast);
       white-space: nowrap;
@@ -86,7 +89,7 @@
       }
 
       &--dropdown {
-        padding-right: 6px;
+        padding-right: 5px;
       }
 
       &--filtered {
@@ -107,8 +110,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 26px;
-      height: 26px;
+      width: 22px;
+      height: 22px;
       border-radius: var(--radius-xs);
       border: 1px solid var(--border-default);
       background: var(--surface-800);
@@ -145,13 +148,14 @@
 
 .dropdown-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
 
   .dropdown-chevron {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
     opacity: 0.7;
-    margin-left: 2px;
+    margin-left: 1px;
   }
 
   .dropdown-menu {
@@ -210,8 +214,9 @@
 @media (max-width: 768px) {
   .code-lens {
     &__header {
-      padding: 4px 8px;
-      min-height: 34px;
+      padding: 0 8px;
+      min-height: 29px;
+      height: 29px;
       overflow-x: auto;
       scrollbar-width: none;
       &::-webkit-scrollbar {

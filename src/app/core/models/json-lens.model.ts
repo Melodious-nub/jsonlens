@@ -36,6 +36,7 @@ export type SortOrder = 'asc' | 'desc' | 'none';
 export type TypeGenTarget =
   | 'typescript'
   | 'zod'
+  | 'json-schema'
   | 'javascript'
   | 'python'
   | 'java'
@@ -50,6 +51,7 @@ export type TypeGenTarget =
 export const TYPE_GEN_TARGET_LABELS: Record<TypeGenTarget, string> = {
   typescript: 'TypeScript',
   zod: 'Zod',
+  'json-schema': 'JSON Schema',
   javascript: 'JavaScript',
   python: 'Python',
   java: 'Java',
@@ -111,10 +113,17 @@ export interface RouteMetadata {
   readonly softwareType?: string;
 }
 
+export type ShareTabMode = 'direct' | 'short';
+
 export interface SharePayloadInfo {
   readonly url: string;
   readonly originalBytes: number;
   readonly compressedBytes: number;
   readonly percentSaved: number;
   readonly isShort?: boolean;
+}
+
+export interface ShortSharePayloadInfo extends SharePayloadInfo {
+  readonly id: string;
+  readonly expiresAt: number;
 }

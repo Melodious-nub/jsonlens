@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  evaluateJsonPath,
   formatPropertyAccessor,
   getValueByJsonPath,
   toJavaScriptAccessor,
@@ -88,6 +89,35 @@ describe('json-path.util', () => {
       expect(getValueByJsonPath(testData, '$.user.nonExistent')).toBeUndefined();
       expect(getValueByJsonPath(testData, '$.items[99]')).toBeUndefined();
       expect(getValueByJsonPath(testData, '$.active.unknown')).toBeUndefined();
+    });
+  });
+
+  describe('evaluateJsonPath', () => {
+    const sample = {
+      user: { name: 'Alice', 'first.name': 'Alice' },
+      items: [
+        { code: 'A1', price: 10 },
+        { code: 'B2', price: 20 },
+      ],
+    };
+
+    it('should evaluate wildcard queries across arrays and nested fields', () => {
+      const codes = evaluateJsonPath(sample, '$.items[*].code');
+      expect(codes.isValidQuery).toBe(true);
+      expect(codes.matches).toEqual([
+        { path: '$.items[0].code', value: 'A1' },
+        { path: '$.items[1].code', value: 'B2' },
+      ]);
+    });
+
+    it('should handle quoted special keys and reject malformed syntax', () => {
+      const quoted = evaluateJsonPath(sample, '$.user["first.name"]');
+      expect(quoted.isValidQuery).toBe(true);
+      expect(quoted.matches).toEqual([{ path: '$.user["first.name"]', value: 'Alice' }]);
+
+      const invalid = evaluateJsonPath(sample, '$.items[');
+      expect(invalid.isValidQuery).toBe(false);
+      expect(invalid.matches).toEqual([]);
     });
   });
 });

@@ -56,6 +56,15 @@ export const TARGET_LANGUAGE_OPTIONS: readonly TargetLanguageOption[] = [
     tag: 'ZOD',
   },
   {
+    id: 'json-schema',
+    label: 'JSON Schema (Draft 2020-12)',
+    category: 'Web & TypeScript',
+    extension: '.schema.json',
+    mimeType: 'application/schema+json',
+    monacoLanguage: 'json',
+    tag: 'SCHEMA',
+  },
+  {
     id: 'javascript',
     label: 'JavaScript (JSDoc)',
     category: 'Web & TypeScript',

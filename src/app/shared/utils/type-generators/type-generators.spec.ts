@@ -12,6 +12,7 @@ import {
   jsonToSwift,
   jsonToTypescript,
   jsonToZod,
+  jsonToJsonSchema,
 } from './index';
 
 describe('Type Generators', () => {
@@ -180,5 +181,26 @@ describe('Type Generators', () => {
     expect(ts).not.toContain('RootPermission');
     expect(ts).not.toContain('RootSurveyorMappingList');
     expect(ts).not.toContain('RootClaimsSurveyorReport');
+  });
+
+  it('should generate valid JSON Schema Draft 2020-12 including nested objects and mixed arrays', () => {
+    const schemaText = jsonToJsonSchema(
+      {
+        id: 42,
+        rating: 4.95,
+        tags: ['ts', 99],
+        profile: sample.profile,
+      },
+      'UserAccount',
+    );
+    const parsed = JSON.parse(schemaText);
+
+    expect(parsed.$schema).toBe('https://json-schema.org/draft/2020-12/schema');
+    expect(parsed.title).toBe('UserAccount');
+    expect(parsed.type).toBe('object');
+    expect(parsed.properties.id.type).toBe('integer');
+    expect(parsed.properties.rating.type).toBe('number');
+    expect(parsed.properties.tags.items.anyOf).toEqual([{ type: 'string' }, { type: 'integer' }]);
+    expect(parsed.properties.profile.required).toEqual(['bio', 'stars']);
   });
 });

@@ -54,6 +54,9 @@ describe('StatusBarComponent', () => {
 
     comp.typeGen.setTarget('rust');
     expect(comp.typeTargetLabel()).toBe('Rust');
+
+    comp.typeGen.setTarget('json-schema');
+    expect(comp.typeTargetLabel()).toBe('JSON Schema');
   });
 
   it('should format indent label and accept mobilePane input', () => {

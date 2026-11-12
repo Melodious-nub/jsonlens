@@ -14,7 +14,7 @@
         >
           <span class="action-btn__badge">{{ currentTargetConfig().tag }}</span>
           <span class="action-btn__text">{{ targetLabel() }}</span>
-          <lucide-icon [img]="chevronDownIcon" size="12" class="dropdown-chevron" />
+          <lucide-icon [img]="chevronDownIcon" size="11" class="dropdown-chevron" />
         </button>
 
         @if (isDropdownOpen()) {
@@ -54,7 +54,7 @@
         [title]="isCopied() ? 'Copied to Clipboard!' : 'Copy Generated Code'"
         aria-label="Copy Generated Code"
       >
-        <lucide-icon [img]="isCopied() ? checkIcon : copyIcon" size="14" />
+        <lucide-icon [img]="isCopied() ? checkIcon : copyIcon" size="12" />
       </button>
 
       <!-- Stacked Download Dropmodal -->
@@ -68,7 +68,7 @@
           aria-label="Download generated code file"
           [attr.aria-expanded]="isDownloadOpen()"
         >
-          <lucide-icon [img]="downloadIcon" size="14" />
+          <lucide-icon [img]="downloadIcon" size="12" />
         </button>
 
         @if (isDownloadOpen()) {

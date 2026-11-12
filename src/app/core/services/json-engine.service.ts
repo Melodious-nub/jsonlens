@@ -41,19 +41,19 @@ const LARGE_PAYLOAD_THRESHOLD = 2 * 1024 * 1024; // 2MB
 
 export const DEFAULT_SAMPLE_JSON = `{
   "name": "JsonLens",
-  "version": "1.2.0",
-  "privacy": "100% Client-Side",
+  "version": "2.0.0",
+  "privacy": "100% Client-Side & Zero-Knowledge E2EE Sharing",
   "features": [
-    "Zoneless Angular Reactive Architecture",
-    "Real-time Syntax Error Diagnostics",
-    "One-Click Smart Error Auto-Repair",
-    "Interactive Tree Explorer & JSONPath Copy",
-    "Instant Type Generation: TypeScript, Zod, Go",
-    "Side-by-side JSON Diff Comparison",
-    "Off-thread Web Worker Parser for Large Files",
-    "Tokyo Night, Dracula & Nord Developer Themes",
-    "Dynamic Editor & Tree Font Size Controller",
-    "Compact Zero-Server Sharing with Vector QR Lightbox"
+    "Zoneless Angular 22 Signals-First Reactive Architecture",
+    "Monaco Code Lens with Key Sorting, Flatten/Unflatten & Strip Nulls",
+    "One-Click Smart Syntax Auto-Repair & Line Diagnostics",
+    "Interactive AST Tree Explorer & Live JSONPath Query Evaluator",
+    "13-Target Type & Schema Generator (TypeScript, Zod, JSON Schema, Go, Rust, Python...)",
+    "Side-by-Side Diff Lens with Smart Array Matching, Click-to-Jump & RFC 6902 Patch",
+    "Off-Thread Web Worker Engine for Multi-Megabyte Payloads",
+    "5 Curated Themes (Dark, Light, Tokyo Night, Dracula, Nord) & Font Scaling",
+    "Zero-Knowledge AES-256 Encrypted Short URLs & Offline #d= Sharing with QR",
+    "Multi-Format Exports: JSON, CSV, Typings, Markdown, Plain Text & PDF Reports"
   ],
   "author": {
     "name": "Shawon Talukder",
@@ -101,6 +101,11 @@ export class JsonEngineService {
   private readonly workerResult = signal<ParseResult | null>(null);
   private readonly workerError = signal<JsonError | null>(null);
   private readonly workerStats = signal<JsonStats | null>(null);
+
+  // Encrypted short-link resolution state
+  readonly isLoadingSharedLink = signal<boolean>(false);
+  readonly sharedLinkError = signal<string | null>(null);
+  readonly sharedLinkLoaded = signal<boolean>(false);
 
   // Computed indentation
   readonly indentValue = computed<number | string>(() => {
@@ -215,8 +220,10 @@ export class JsonEngineService {
 
   constructor() {
     if (this.isBrowser) {
-      // 1. Check for shared URL payload first
+      // 1. Check for offline #d= / #data= URL payload first
       const sharedPayload = this.urlShareService.readSharedPayload();
+      const shortParams = !sharedPayload ? this.urlShareService.hasShortShareParams() : null;
+
       if (sharedPayload) {
         this.rawInput.set(sharedPayload);
         this.storageService.setItem('jsonlens_input', sharedPayload);
@@ -226,6 +233,10 @@ export class JsonEngineService {
           DEFAULT_SAMPLE_JSON,
         );
         this.rawInput.set(savedInput);
+      }
+
+      if (shortParams) {
+        void this.loadShortSharedLink(shortParams.id, shortParams.key);
       }
 
       // 2. Restore indent preference
@@ -240,6 +251,11 @@ export class JsonEngineService {
         const payload = this.urlShareService.readSharedPayload();
         if (payload) {
           this.setInput(payload);
+          return;
+        }
+        const nextShortParams = this.urlShareService.hasShortShareParams();
+        if (nextShortParams) {
+          void this.loadShortSharedLink(nextShortParams.id, nextShortParams.key);
         }
       };
       window.addEventListener('hashchange', onHashChange);
@@ -252,6 +268,23 @@ export class JsonEngineService {
       });
 
       this.initWorker();
+    }
+  }
+
+  private async loadShortSharedLink(id: string, key: string): Promise<void> {
+    this.isLoadingSharedLink.set(true);
+    this.sharedLinkError.set(null);
+    this.sharedLinkLoaded.set(false);
+    try {
+      const decrypted = await this.urlShareService.resolveShortSharePayload(id, key);
+      this.setInput(decrypted);
+      this.sharedLinkLoaded.set(true);
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : 'Failed to load encrypted shared workspace.';
+      this.sharedLinkError.set(msg);
+    } finally {
+      this.isLoadingSharedLink.set(false);
     }
   }
 

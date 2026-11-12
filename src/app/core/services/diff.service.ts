@@ -326,7 +326,10 @@ export class DiffService {
       return Boolean(
         parsed &&
         parsed.name === 'JsonLens' &&
-        (parsed.version === '1.0.0' || parsed.version === '1.1.0' || parsed.version === '1.2.0') &&
+        (parsed.version === '1.0.0' ||
+          parsed.version === '1.1.0' ||
+          parsed.version === '1.2.0' ||
+          parsed.version === '2.0.0') &&
         Array.isArray(parsed.features)
       );
     } catch {

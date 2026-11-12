@@ -12,7 +12,14 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { DiffNavigationTarget, ExportFormat, LensTab, SharePayloadInfo } from '../../core/models/json-lens.model';
+import {
+  DiffNavigationTarget,
+  ExportFormat,
+  LensTab,
+  SharePayloadInfo,
+  ShareTabMode,
+  ShortSharePayloadInfo,
+} from '../../core/models/json-lens.model';
 import { JsonEngineService } from '../../core/services/json-engine.service';
 import { DiffService } from '../../core/services/diff.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -145,17 +152,25 @@ export class WorkspaceComponent {
   // Mobile Drawer State: 'input' = [Input Editor | Rail], 'output' = [Rail | Output Lens]
   readonly mobilePane = signal<'input' | 'output'>('input');
 
-  // 100% Client-Side Share & Mobile QR Code State
+  // 100% Client-Side Share, Zero-Knowledge Short URL & Mobile QR Code State
   readonly isShareMenuOpen = signal<boolean>(false);
+  readonly shareTab = signal<ShareTabMode>('direct');
   readonly isQrPreviewOpen = signal<boolean>(false);
   readonly showQrCode = computed(() => this.isQrPreviewOpen());
   readonly isShareCopied = signal<boolean>(false);
   readonly shareData = signal<SharePayloadInfo | null>(null);
+  readonly shortShareData = signal<ShortSharePayloadInfo | null>(null);
+  readonly isShortLoading = signal<boolean>(false);
+  readonly shortError = signal<string | null>(null);
   readonly qrCodeDataUrl = signal<string | null>(null);
   readonly qrCodePngUrl = signal<string | null>(null);
   readonly qrTooLarge = signal<boolean>(false);
   readonly isGeneratingQr = signal<boolean>(false);
   readonly isClearConfirmOpen = signal<boolean>(false);
+
+  private lastShortJsonSnapshot = '';
+  private lastQrUrlSnapshot = '';
+  private shortGenerationNonce = 0;
 
   // Active Pane State (for separate Ctrl+F input vs output editor search)
   readonly activePane = signal<'input' | 'output'>('input');
@@ -264,6 +279,19 @@ export class WorkspaceComponent {
       } else if (this.isBrowser) {
         const savedLens = this.storage.getItem<LensTab>('jsonlens_lens_tab', 'code');
         this.activeLens.set(savedLens);
+      }
+    });
+
+    effect(() => {
+      if (this.engine.sharedLinkLoaded()) {
+        this.toast.show('Loaded encrypted shared workspace', 'success');
+      }
+    });
+
+    effect(() => {
+      const err = this.engine.sharedLinkError();
+      if (err) {
+        this.toast.show(err, 'error');
       }
     });
   }
@@ -474,6 +502,12 @@ export class WorkspaceComponent {
     this.isClearConfirmOpen.set(false);
   }
 
+  private getActiveShareUrl(): string | null {
+    return this.shareTab() === 'short'
+      ? (this.shortShareData()?.url ?? null)
+      : (this.shareData()?.url ?? null);
+  }
+
   async onToggleShare(): Promise<void> {
     if (this.isShareMenuOpen()) {
       this.closeShareMenu();
@@ -488,6 +522,15 @@ export class WorkspaceComponent {
 
     const payload = this.urlShareService.createSharePayload(json);
     this.shareData.set(payload);
+    this.shareTab.set('direct');
+    this.shortError.set(null);
+
+    if (json !== this.lastShortJsonSnapshot) {
+      this.shortGenerationNonce++;
+      this.shortShareData.set(null);
+      this.isShortLoading.set(false);
+    }
+
     this.isShareCopied.set(false);
     this.isShareMenuOpen.set(true);
     this.isExportMenuOpen.set(false);
@@ -497,19 +540,79 @@ export class WorkspaceComponent {
     }
   }
 
+  onShareTabChange(tab: ShareTabMode): void {
+    this.shareTab.set(tab);
+    this.isShareCopied.set(false);
+
+    const activeUrl = this.getActiveShareUrl();
+    if (activeUrl && activeUrl !== this.lastQrUrlSnapshot && this.showQrCode()) {
+      void this.generateQrForPayload(activeUrl);
+    }
+
+    if (tab === 'short' && !this.shortShareData() && !this.isShortLoading()) {
+      void this.generateShortShareUrl();
+    }
+  }
+
+  onRetryShortShare(): void {
+    this.shortShareData.set(null);
+    void this.generateShortShareUrl();
+  }
+
+  private async generateShortShareUrl(): Promise<void> {
+    const json = this.engine.rawInput();
+    if (!json || json.trim() === '') {
+      this.shortError.set('Enter JSON before generating a short URL.');
+      return;
+    }
+
+    const nonce = ++this.shortGenerationNonce;
+    this.isShortLoading.set(true);
+    this.shortError.set(null);
+
+    try {
+      const shortPayload = await this.urlShareService.createShortSharePayload(json);
+      if (nonce !== this.shortGenerationNonce || this.engine.rawInput() !== json) {
+        return;
+      }
+      this.lastShortJsonSnapshot = json;
+      this.shortShareData.set(shortPayload);
+
+      if (this.showQrCode() && this.shareTab() === 'short') {
+        await this.generateQrForPayload(shortPayload.url);
+      }
+    } catch (err) {
+      if (nonce !== this.shortGenerationNonce) {
+        return;
+      }
+      const message =
+        err instanceof Error ? err.message : 'Failed to generate encrypted short URL.';
+      this.shortError.set(message);
+    } finally {
+      if (nonce === this.shortGenerationNonce) {
+        this.isShortLoading.set(false);
+      }
+    }
+  }
+
   closeShareMenu(): void {
     this.isShareMenuOpen.set(false);
   }
 
   async copyShareUrl(): Promise<void> {
-    const data = this.shareData();
-    if (!data || !data.url) return;
+    const activeUrl = this.getActiveShareUrl();
+    if (!activeUrl) return;
 
-    const success = await this.exportService.copyToClipboard(data.url);
+    const success = await this.exportService.copyToClipboard(activeUrl);
     if (success) {
       triggerHaptic(8);
       this.isShareCopied.set(true);
-      this.toast.show('Shareable link copied to clipboard!', 'success');
+      this.toast.show(
+        this.shareTab() === 'short'
+          ? 'Encrypted short URL copied to clipboard!'
+          : 'Shareable link copied to clipboard!',
+        'success'
+      );
       setTimeout(() => this.isShareCopied.set(false), 2500);
     } else {
       this.toast.show('Failed to copy share link', 'error');
@@ -526,11 +629,9 @@ export class WorkspaceComponent {
 
   async onViewQr(): Promise<void> {
     this.isQrPreviewOpen.set(true);
-    if (!this.qrCodeDataUrl()) {
-      const data = this.shareData();
-      if (data?.url) {
-        await this.generateQrForPayload(data.url);
-      }
+    const activeUrl = this.getActiveShareUrl();
+    if (activeUrl && (!this.qrCodeDataUrl() || this.lastQrUrlSnapshot !== activeUrl)) {
+      await this.generateQrForPayload(activeUrl);
     }
   }
 
@@ -545,10 +646,12 @@ export class WorkspaceComponent {
       this.qrCodeDataUrl.set(svgUrl);
       const pngUrl = await this.urlShareService.generateQrCodePngDataUrl(url, 512);
       this.qrCodePngUrl.set(pngUrl);
+      this.lastQrUrlSnapshot = url;
       this.qrTooLarge.set(false);
     } catch {
       this.qrCodeDataUrl.set(null);
       this.qrCodePngUrl.set(null);
+      this.lastQrUrlSnapshot = '';
       this.qrTooLarge.set(true);
     } finally {
       this.isGeneratingQr.set(false);
@@ -556,14 +659,11 @@ export class WorkspaceComponent {
   }
 
   async downloadQrImage(): Promise<void> {
-    let png = this.qrCodePngUrl();
-    if (!png) {
-      const data = this.shareData();
-      if (data?.url) {
-        await this.generateQrForPayload(data.url);
-        png = this.qrCodePngUrl();
-      }
+    const activeUrl = this.getActiveShareUrl();
+    if (activeUrl && (!this.qrCodePngUrl() || this.lastQrUrlSnapshot !== activeUrl)) {
+      await this.generateQrForPayload(activeUrl);
     }
+    const png = this.qrCodePngUrl();
     if (!png) {
       this.toast.show('QR code image not ready yet', 'info');
       return;

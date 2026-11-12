@@ -99,3 +99,104 @@ export function getValueByJsonPath(data: JsonValue | null | undefined, path: str
 
   return current;
 }
+
+export interface JsonPathMatch {
+  readonly path: string;
+  readonly value: unknown;
+}
+
+export interface JsonPathEvaluation {
+  readonly isValidQuery: boolean;
+  readonly matches: readonly JsonPathMatch[];
+}
+
+/**
+ * Evaluates a JSONPath query (supporting dot notation, bracket keys, array indices, and wildcards `[*]` / `.*`).
+ */
+export function evaluateJsonPath(
+  data: JsonValue | null | undefined,
+  query: string,
+): JsonPathEvaluation {
+  const trimmed = query.trim();
+  if (data === null || data === undefined || !trimmed.startsWith('$')) {
+    return { isValidQuery: false, matches: [] };
+  }
+
+  if (trimmed === '$') {
+    return { isValidQuery: true, matches: [{ path: '$', value: data }] };
+  }
+
+  const rest = trimmed.slice(1);
+  const tokenRegex = /(?:\.(\*|[a-zA-Z0-9_$-]+))|\[(?:\*|(\d+)|"([^"]+)"|'([^']+)')\]/g;
+  const tokens: Array<
+    | { kind: 'wildcard' }
+    | { kind: 'key'; key: string }
+    | { kind: 'index'; index: number }
+  > = [];
+
+  let consumed = 0;
+  let m: RegExpExecArray | null;
+  while ((m = tokenRegex.exec(rest)) !== null) {
+    if (m.index !== consumed) {
+      return { isValidQuery: false, matches: [] };
+    }
+    consumed = m.index + m[0].length;
+
+    if (m[0] === '[*]' || m[1] === '*') {
+      tokens.push({ kind: 'wildcard' });
+    } else if (m[2] !== undefined) {
+      tokens.push({ kind: 'index', index: parseInt(m[2], 10) });
+    } else {
+      const key = m[1] ?? m[3] ?? m[4] ?? '';
+      tokens.push({ kind: 'key', key });
+    }
+  }
+
+  if (consumed !== rest.length || tokens.length === 0) {
+    return { isValidQuery: false, matches: [] };
+  }
+
+  let currentNodes: JsonPathMatch[] = [{ path: '$', value: data }];
+
+  for (const token of tokens) {
+    const nextNodes: JsonPathMatch[] = [];
+
+    for (const node of currentNodes) {
+      const val = node.value;
+      if (val === null || val === undefined || typeof val !== 'object') {
+        continue;
+      }
+
+      if (token.kind === 'wildcard') {
+        if (Array.isArray(val)) {
+          for (let i = 0; i < val.length; i++) {
+            nextNodes.push({ path: `${node.path}[${i}]`, value: val[i] });
+          }
+        } else {
+          for (const [k, v] of Object.entries(val as Record<string, unknown>)) {
+            const nextPath = node.path === '$' ? `$.${k}` : `${node.path}.${k}`;
+            nextNodes.push({ path: nextPath, value: v });
+          }
+        }
+      } else if (token.kind === 'index') {
+        if (Array.isArray(val) && token.index >= 0 && token.index < val.length) {
+          nextNodes.push({ path: `${node.path}[${token.index}]`, value: val[token.index] });
+        }
+      } else {
+        if (!Array.isArray(val) && Object.prototype.hasOwnProperty.call(val, token.key)) {
+          const obj = val as Record<string, unknown>;
+          const accessor = formatPropertyAccessor(token.key);
+          const nextPath = accessor.startsWith('.')
+            ? `${node.path}.${token.key}`
+            : `${node.path}${accessor}`;
+          nextNodes.push({ path: nextPath, value: obj[token.key] });
+        }
+      }
+    }
+
+    currentNodes = nextNodes;
+    if (currentNodes.length === 0) break;
+  }
+
+  return { isValidQuery: true, matches: currentNodes };
+}
