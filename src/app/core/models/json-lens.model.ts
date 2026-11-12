@@ -36,6 +36,7 @@ export type SortOrder = 'asc' | 'desc' | 'none';
 export type TypeGenTarget =
   | 'typescript'
   | 'zod'
+  | 'json-schema'
   | 'javascript'
   | 'python'
   | 'java'
@@ -46,6 +47,22 @@ export type TypeGenTarget =
   | 'rust'
   | 'php'
   | 'swift';
+
+export const TYPE_GEN_TARGET_LABELS: Record<TypeGenTarget, string> = {
+  typescript: 'TypeScript',
+  zod: 'Zod',
+  'json-schema': 'JSON Schema',
+  javascript: 'JavaScript',
+  python: 'Python',
+  java: 'Java',
+  kotlin: 'Kotlin',
+  dart: 'Dart',
+  csharp: 'C#',
+  go: 'Go',
+  rust: 'Rust',
+  php: 'PHP',
+  swift: 'Swift',
+};
 
 export type JsonNodeType = 'string' | 'number' | 'boolean' | 'null' | 'object' | 'array';
 
@@ -61,6 +78,7 @@ export interface TreeNode {
 }
 
 export type DiffChangeType = 'added' | 'removed' | 'modified' | 'unchanged';
+export type DiffComparisonMode = 'strict' | 'smart-array';
 
 export interface DiffItem {
   readonly path: string;
@@ -68,6 +86,17 @@ export interface DiffItem {
   readonly oldValue?: unknown;
   readonly newValue?: unknown;
   readonly line?: number;
+}
+
+export interface EditorLineDecoration {
+  readonly line: number;
+  readonly type: 'added' | 'removed' | 'modified' | 'focus';
+  readonly hoverMessage?: string;
+}
+
+export interface DiffNavigationTarget {
+  readonly leftLine?: number;
+  readonly rightLine?: number;
 }
 export interface DiffSummary {
   readonly added: number;
@@ -84,10 +113,17 @@ export interface RouteMetadata {
   readonly softwareType?: string;
 }
 
+export type ShareTabMode = 'direct' | 'short';
+
 export interface SharePayloadInfo {
   readonly url: string;
   readonly originalBytes: number;
   readonly compressedBytes: number;
   readonly percentSaved: number;
   readonly isShort?: boolean;
+}
+
+export interface ShortSharePayloadInfo extends SharePayloadInfo {
+  readonly id: string;
+  readonly expiresAt: number;
 }

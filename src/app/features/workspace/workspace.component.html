@@ -81,6 +81,7 @@
           (minifyRequested)="onMinify()"
           (autoRepairRequested)="onAutoRepair()"
           [errorMarkers]="engine.jsonError() ? [engine.jsonError()!] : []"
+          [lineDecorations]="activeLens() === 'diff' ? diff.leftDecorations() : null"
           language="json"
         />
       </div>
@@ -172,12 +173,18 @@
 
         <app-share-dialog
           [(isOpen)]="isShareMenuOpen"
+          [activeTab]="shareTab()"
+          (activeTabChange)="onShareTabChange($event)"
           [splitPercent]="splitPercent()"
           [shareData]="shareData()"
+          [shortShareData]="shortShareData()"
+          [isShortLoading]="isShortLoading()"
+          [shortError]="shortError()"
           [isShareCopied]="isShareCopied()"
           [(isQrPreviewOpen)]="isQrPreviewOpen"
           [qrCodeDataUrl]="qrCodeDataUrl()"
           (copyRequested)="copyShareUrl()"
+          (retryShortRequested)="onRetryShortShare()"
           (viewQrRequested)="onViewQr()"
           (downloadQrRequested)="downloadQrImage()"
           (closeRequested)="closeShareMenu()"
@@ -424,7 +431,7 @@
             <app-type-lens #typeLens />
           }
           @case ('diff') {
-            <app-diff-lens />
+            <app-diff-lens #diffLens (navigateDiff)="onNavigateDiff($event)" />
           }
         }
       </div>

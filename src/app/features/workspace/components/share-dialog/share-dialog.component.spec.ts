@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ShareDialogComponent } from './share-dialog.component';
-import { SharePayloadInfo } from '../../../../core/models/json-lens.model';
+import { SharePayloadInfo, ShortSharePayloadInfo } from '../../../../core/models/json-lens.model';
 
 describe('ShareDialogComponent', () => {
   let fixture: ComponentFixture<ShareDialogComponent>;
@@ -12,6 +12,16 @@ describe('ShareDialogComponent', () => {
     originalBytes: 1024,
     compressedBytes: 256,
     percentSaved: 75,
+    isShort: false,
+  };
+
+  const mockShortShareData: ShortSharePayloadInfo = {
+    id: 'Ab12Cd34',
+    expiresAt: Math.floor(Date.now() / 1000) + 30 * 86400,
+    url: 'https://jsonlens.dev/?s=Ab12Cd34#k=secretFragmentKey',
+    originalBytes: 1024,
+    compressedBytes: 58,
+    percentSaved: 94,
     isShort: true,
   };
 
@@ -85,5 +95,51 @@ describe('ShareDialogComponent', () => {
     const downloadBtn: HTMLElement = fixture.nativeElement.querySelector('.qr-btn--download');
     downloadBtn.click();
     expect(downloadQrEmitted).toBe(true);
+  });
+
+  it('should support Instant Link and Short URL tabs with loading, error/retry, and E2EE link display', () => {
+    fixture.componentRef.setInput('isOpen', true);
+    fixture.componentRef.setInput('shareData', mockShareData);
+    fixture.detectChanges();
+
+    const tabs: NodeListOf<HTMLButtonElement> = fixture.nativeElement.querySelectorAll('.share-tab');
+    expect(tabs.length).toBe(2);
+    expect(tabs[0].textContent).toContain('Instant Link');
+    expect(tabs[1].textContent).toContain('Short URL');
+
+    // Switch to Short URL tab (loading state)
+    fixture.componentRef.setInput('isShortLoading', true);
+    tabs[1].click();
+    fixture.detectChanges();
+    expect(comp.activeTab()).toBe('short');
+
+    const copyBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.share-popover__copy-btn');
+    expect(copyBtn.disabled).toBe(true);
+
+    // Simulate error + retry button
+    let retryEmitted = false;
+    comp.retryShortRequested.subscribe(() => {
+      retryEmitted = true;
+    });
+    fixture.componentRef.setInput('isShortLoading', false);
+    fixture.componentRef.setInput('shortError', 'Service temporarily unavailable');
+    fixture.detectChanges();
+
+    const retryBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.error-box__btn--retry');
+    retryBtn.click();
+    expect(retryEmitted).toBe(true);
+
+    // Simulate ready short URL
+    fixture.componentRef.setInput('shortError', null);
+    fixture.componentRef.setInput('shortShareData', mockShortShareData);
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('.share-popover__input');
+    const readyCopyBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.share-popover__copy-btn',
+    );
+    expect(input.value).toBe(mockShortShareData.url);
+    expect(readyCopyBtn.disabled).toBe(false);
+    expect(fixture.nativeElement.querySelector('.share-popover__footer').textContent).toContain('AES-256');
   });
 });

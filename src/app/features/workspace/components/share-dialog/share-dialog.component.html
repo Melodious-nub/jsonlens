@@ -1,4 +1,4 @@
-@if (isOpen() && shareData(); as data) {
+@if (isOpen() && shareData(); as directData) {
   <!-- Responsive Mobile Backdrop -->
   <div
     class="share-popover__backdrop"
@@ -32,46 +32,166 @@
       </button>
     </div>
 
+    <!-- Mode Tabs: Instant Offline Link (Privacy Recommended) vs Zero-Knowledge Short URL -->
+    <div class="share-popover__tabs" role="tablist" aria-label="Share link type">
+      <button
+        type="button"
+        role="tab"
+        class="share-tab focus-ring"
+        [class.share-tab--active]="activeTab() === 'direct'"
+        [attr.aria-selected]="activeTab() === 'direct'"
+        (click)="onSelectTab('direct')"
+        title="100% client-side offline link (Recommended for privacy)"
+      >
+        <span class="share-tab__label">Instant Link</span>
+        <span class="share-tab__badge share-tab__badge--private">Private</span>
+      </button>
+
+      <button
+        type="button"
+        role="tab"
+        class="share-tab focus-ring"
+        [class.share-tab--active]="activeTab() === 'short'"
+        [attr.aria-selected]="activeTab() === 'short'"
+        (click)="onSelectTab('short')"
+        title="Short encrypted link (AES-256-GCM; key stays in #fragment)"
+      >
+        <span class="share-tab__label">Short URL</span>
+        <span class="share-tab__badge share-tab__badge--e2ee">E2EE</span>
+      </button>
+    </div>
+
     <!-- Popover Body -->
     <div class="share-popover__body">
-      <!-- Payload Compression Metric Badge -->
-      <div class="share-popover__stat-pill">
-        <span class="stat-pill__lightning">⚡</span>
-        <span class="stat-pill__text">
-          {{ formatBytes(data.originalBytes) }} → {{ formatBytes(data.compressedBytes) }}
-          @if (data.percentSaved > 0) {
-            <strong class="stat-pill__badge">-{{ data.percentSaved }}%</strong>
-          }
-        </span>
-        <span class="stat-pill__tag">Compressed</span>
-      </div>
+      @if (activeTab() === 'short') {
+        <!-- Short URL Tab Content -->
+        @if (isShortLoading()) {
+          <div class="share-popover__stat-pill share-popover__stat-pill--loading" role="status">
+            <lucide-icon [img]="loaderIcon" size="12" class="spin-icon" />
+            <span class="stat-pill__text">Encrypting locally &amp; generating short URL…</span>
+          </div>
 
-      <!-- URL Input & Copy Action Bar -->
-      <div class="share-popover__link-box">
-        <div class="share-popover__input-wrap">
-          <lucide-icon [img]="linkIcon" size="13" class="share-popover__link-icon" />
-          <input
-            type="text"
-            readonly
-            [value]="data.url"
-            class="share-popover__input"
-            (click)="onSelectInput($event)"
-            aria-label="Share URL"
-          />
+          <div class="share-popover__link-box">
+            <div class="share-popover__input-wrap share-popover__input-wrap--disabled">
+              <lucide-icon [img]="lockIcon" size="12" class="share-popover__link-icon" />
+              <input
+                type="text"
+                readonly
+                value="Encrypting with AES-256-GCM…"
+                class="share-popover__input"
+                aria-label="Generating short URL"
+              />
+            </div>
+            <button
+              type="button"
+              class="share-popover__copy-btn focus-ring"
+              disabled
+              aria-label="Copy short URL"
+            >
+              <lucide-icon [img]="copyIcon" size="14" />
+            </button>
+          </div>
+        } @else if (shortError(); as errorMsg) {
+          <div class="share-popover__error-box" role="alert">
+            <div class="error-box__message">
+              <lucide-icon [img]="alertIcon" size="13" class="error-box__icon" />
+              <span>{{ errorMsg }}</span>
+            </div>
+            <div class="error-box__actions">
+              <button
+                type="button"
+                class="error-box__btn error-box__btn--retry focus-ring"
+                (click)="onRetryShort()"
+              >
+                <lucide-icon [img]="retryIcon" size="11" />
+                <span>Retry</span>
+              </button>
+              <button
+                type="button"
+                class="error-box__btn focus-ring"
+                (click)="onSelectTab('direct')"
+              >
+                Use Instant Link
+              </button>
+            </div>
+          </div>
+        } @else if (shortShareData(); as shortData) {
+          <!-- Short URL Size Metric Badge -->
+          <div class="share-popover__stat-pill">
+            <lucide-icon [img]="zapIcon" size="12" class="stat-pill__icon" />
+            <span class="stat-pill__text">
+              {{ formatBytes(shortData.originalBytes) }} → {{ formatBytes(shortData.compressedBytes) }}
+              @if (shortData.percentSaved > 0) {
+                <strong class="stat-pill__badge">-{{ shortData.percentSaved }}%</strong>
+              }
+            </span>
+            <span class="stat-pill__tag">{{ expiryLabel() }}</span>
+          </div>
+
+          <!-- Short URL Input & Copy Action Bar -->
+          <div class="share-popover__link-box">
+            <div class="share-popover__input-wrap">
+              <lucide-icon [img]="lockIcon" size="12" class="share-popover__link-icon share-popover__link-icon--secure" />
+              <input
+                type="text"
+                readonly
+                [value]="shortData.url"
+                class="share-popover__input"
+                (click)="onSelectInput($event)"
+                aria-label="Encrypted short share URL"
+              />
+            </div>
+            <button
+              type="button"
+              class="share-popover__copy-btn focus-ring"
+              [class.share-popover__copy-btn--copied]="isShareCopied()"
+              (click)="onCopy()"
+              [title]="isShareCopied() ? 'Copied to clipboard!' : 'Copy short URL'"
+              [attr.aria-label]="isShareCopied() ? 'Copied to clipboard' : 'Copy short URL to clipboard'"
+            >
+              <lucide-icon [img]="isShareCopied() ? checkIcon : copyIcon" size="14" />
+            </button>
+          </div>
+        }
+      } @else {
+        <!-- Direct Instant Link Tab Content -->
+        <div class="share-popover__stat-pill">
+          <lucide-icon [img]="zapIcon" size="12" class="stat-pill__icon" />
+          <span class="stat-pill__text">
+            {{ formatBytes(directData.originalBytes) }} → {{ formatBytes(directData.compressedBytes) }}
+            @if (directData.percentSaved > 0) {
+              <strong class="stat-pill__badge">-{{ directData.percentSaved }}%</strong>
+            }
+          </span>
+          <span class="stat-pill__tag">Compressed</span>
         </div>
-        <button
-          type="button"
-          class="share-popover__copy-btn focus-ring"
-          [class.share-popover__copy-btn--copied]="isShareCopied()"
-          (click)="onCopy()"
-          [title]="isShareCopied() ? 'Copied to clipboard!' : 'Copy shareable link'"
-          [attr.aria-label]="isShareCopied() ? 'Copied to clipboard' : 'Copy link to clipboard'"
-        >
-          <lucide-icon [img]="isShareCopied() ? checkIcon : copyIcon" size="14" />
-        </button>
-      </div>
 
-      <!-- QR Code Section: Compact View & Download Actions -->
+        <div class="share-popover__link-box">
+          <div class="share-popover__input-wrap">
+            <lucide-icon [img]="linkIcon" size="13" class="share-popover__link-icon" />
+            <input
+              type="text"
+              readonly
+              [value]="directData.url"
+              class="share-popover__input"
+              (click)="onSelectInput($event)"
+              aria-label="Share URL"
+            />
+          </div>
+          <button
+            type="button"
+            class="share-popover__copy-btn focus-ring"
+            [class.share-popover__copy-btn--copied]="isShareCopied()"
+            (click)="onCopy()"
+            [title]="isShareCopied() ? 'Copied to clipboard!' : 'Copy shareable link'"
+            [attr.aria-label]="isShareCopied() ? 'Copied to clipboard' : 'Copy link to clipboard'"
+          >
+            <lucide-icon [img]="isShareCopied() ? checkIcon : copyIcon" size="14" />
+          </button>
+        </div>
+      }
+
+      <!-- QR Code Section: Synced with whichever tab's URL is active -->
       <div class="share-popover__qr-bar">
         <div class="qr-bar__title">
           <lucide-icon [img]="qrCodeIcon" size="13" class="qr-bar__icon" />
@@ -81,6 +201,7 @@
           <button
             type="button"
             class="qr-btn qr-btn--view focus-ring"
+            [disabled]="!hasActiveUrl()"
             (click)="onViewQr()"
             title="Open QR Code image previewer"
             aria-label="View QR code image preview"
@@ -91,6 +212,7 @@
           <button
             type="button"
             class="qr-btn qr-btn--download focus-ring"
+            [disabled]="!hasActiveUrl()"
             (click)="onDownloadQr()"
             title="Download QR code image"
             aria-label="Download QR code image"
@@ -104,8 +226,13 @@
 
     <!-- Popover Footer -->
     <div class="share-popover__footer">
-      <lucide-icon [img]="shieldIcon" size="12" class="shield-icon" />
-      <span>100% Client-Side Privacy. No data is stored on private servers.</span>
+      @if (activeTab() === 'short') {
+        <lucide-icon [img]="lockIcon" size="12" class="shield-icon" />
+        <span>Zero-Knowledge AES-256 E2EE. Key stays in #fragment; expires in 30 days.</span>
+      } @else {
+        <lucide-icon [img]="shieldIcon" size="12" class="shield-icon" />
+        <span>100% Client-Side Privacy. No data is stored on any server.</span>
+      }
     </div>
   </div>
 }

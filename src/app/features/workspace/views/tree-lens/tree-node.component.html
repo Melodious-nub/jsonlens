@@ -88,6 +88,8 @@
           [node]="child"
           [searchQuery]="searchQuery()"
           [selectedPath]="selectedPath()"
+          [expandCommand]="expandCommand()"
+          [matchedPaths]="matchedPaths()"
           (pathSelected)="pathSelected.emit($event)"
           (nodeSelected)="nodeSelected.emit($event)"
         />

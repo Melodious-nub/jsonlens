@@ -98,5 +98,35 @@ describe('TreeLensComponent', () => {
     fixture.detectChanges();
     expect(rootEl.style.getPropertyValue('--editor-font-size')).toBe('13px');
   });
+
+  it('should support expandAll, collapseAll, and live JSONPath query evaluation', async () => {
+    const fixture = TestBed.createComponent(TreeLensComponent);
+    const comp = fixture.componentInstance;
+    comp.engine.setInput('{"author":{"name":"Shawon"},"features":["One","Two"]}');
+    fixture.detectChanges();
+
+    // Expand All / Collapse All increments command version cleanly
+    comp.collapseAll();
+    fixture.detectChanges();
+    expect(comp.expandCommand()).toEqual({ version: 1, expanded: false });
+
+    comp.expandAll();
+    fixture.detectChanges();
+    expect(comp.expandCommand()).toEqual({ version: 2, expanded: true });
+
+    // JSONPath wildcard query evaluates live & updates matchCount + preview bar
+    comp.searchQuery.set('$.features[*]');
+    fixture.detectChanges();
+    expect(comp.isJsonPathQuery()).toBe(true);
+    expect(comp.matchCount()).toBe(2);
+    expect(comp.queryResultPreview()).toBe('["One","Two"]');
+
+    const writeTextSpy = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, {
+      clipboard: { writeText: writeTextSpy },
+    });
+    await comp.copyQueryResult();
+    expect(writeTextSpy).toHaveBeenCalledWith('[\n  "One",\n  "Two"\n]');
+  });
 });
 

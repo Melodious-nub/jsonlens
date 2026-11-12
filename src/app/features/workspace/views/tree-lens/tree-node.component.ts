@@ -14,7 +14,13 @@ import {
   hasMatchingDescendant,
   isNodeMatch,
 } from '../../../../shared/utils/json-tree.util';
+import { toStandardJsonPath } from '../../../../shared/utils/json-path.util';
 import { LucideAngularModule, ChevronRight, ChevronDown, Copy } from 'lucide-angular';
+
+export interface TreeExpandCommand {
+  readonly version: number;
+  readonly expanded: boolean;
+}
 
 @Component({
   selector: 'app-tree-node',
@@ -29,6 +35,8 @@ export class TreeNodeComponent {
   readonly searchQuery = input<string>('');
   readonly defaultExpanded = input<boolean>(true);
   readonly selectedPath = input<string | null>(null);
+  readonly expandCommand = input<TreeExpandCommand | null>(null);
+  readonly matchedPaths = input<ReadonlySet<string> | null>(null);
 
   readonly pathSelected = output<string>();
   readonly nodeSelected = output<TreeNode>();
@@ -39,8 +47,12 @@ export class TreeNodeComponent {
   readonly chevronDown = ChevronDown;
   readonly copyIcon = Copy;
 
-  // Track user manual expansion override per search query
-  private readonly manualState = signal<{ query: string; expanded: boolean } | null>(null);
+  // Track user manual expansion override per search query & expand/collapse command version
+  private readonly manualState = signal<{
+    query: string;
+    commandVersion: number;
+    expanded: boolean;
+  } | null>(null);
 
   // Check if this node has child items
   readonly isExpandable = computed(() => {
@@ -48,31 +60,64 @@ export class TreeNodeComponent {
     return (type === 'object' || type === 'array') && (this.node().children?.length ?? 0) > 0;
   });
 
-  // Highlight key/value matching search query
+  // Highlight key/value matching search query or active JSONPath matches
   readonly isMatch = computed(() => {
+    const pathMatches = this.matchedPaths();
+    if (pathMatches !== null) {
+      return pathMatches.has(toStandardJsonPath(this.node().path));
+    }
     const q = this.searchQuery().trim();
     if (!q) return false;
     return isNodeMatch(this.node(), q);
   });
 
-  // Check if any descendant node matches query
+  // Check if any descendant node matches query or JSONPath matches
   readonly hasDescendantMatch = computed(() => {
+    const pathMatches = this.matchedPaths();
+    if (pathMatches !== null) {
+      if (pathMatches.size === 0) return false;
+      const selfStd = toStandardJsonPath(this.node().path);
+      if (selfStd === '$') return true;
+      const dotPrefix = `${selfStd}.`;
+      const bracketPrefix = `${selfStd}[`;
+      for (const p of pathMatches) {
+        if (p.startsWith(dotPrefix) || p.startsWith(bracketPrefix)) {
+          return true;
+        }
+      }
+      return false;
+    }
     const q = this.searchQuery().trim();
     if (!q) return false;
     return hasMatchingDescendant(this.node(), q);
   });
 
-  // Computed expansion state: auto-expands when matching descendants or query match
+  // Computed expansion state: auto-expands when matching descendants, respects manual overrides & bulk commands
   readonly isExpanded = computed(() => {
     const q = this.searchQuery().trim();
+    const cmd = this.expandCommand();
+    const cmdVer = cmd?.version ?? 0;
     const manual = this.manualState();
-    if (manual && manual.query === q) {
-      return manual.expanded;
-    }
+
     if (q) {
+      if (manual && manual.query === q && manual.commandVersion >= cmdVer) {
+        return manual.expanded;
+      }
       return this.isMatch() || this.hasDescendantMatch();
     }
-    return manual ? manual.expanded : this.defaultExpanded();
+
+    if (manual && manual.commandVersion >= cmdVer) {
+      return manual.expanded;
+    }
+
+    if (cmd) {
+      if (!cmd.expanded && this.node().path === '$') {
+        return true;
+      }
+      return cmd.expanded;
+    }
+
+    return this.defaultExpanded();
   });
 
   // Active selection state
@@ -87,7 +132,11 @@ export class TreeNodeComponent {
     }
     if (this.isExpandable()) {
       const next = !this.isExpanded();
-      this.manualState.set({ query: this.searchQuery().trim(), expanded: next });
+      this.manualState.set({
+        query: this.searchQuery().trim(),
+        commandVersion: this.expandCommand()?.version ?? 0,
+        expanded: next,
+      });
     }
   }
 
@@ -107,7 +156,7 @@ export class TreeNodeComponent {
     const p = this.node().path;
     try {
       await navigator.clipboard.writeText(p);
-      this.toast.show(`Copied path: ${p}`, 'success');
+      this.toast.show('Copied JSONPath', 'success');
       this.nodeSelected.emit(this.node());
       this.pathSelected.emit(p);
     } catch {

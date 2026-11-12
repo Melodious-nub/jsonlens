@@ -17,10 +17,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-2) var(--space-3);
+    padding: 0 var(--space-3);
     background: var(--surface-900);
     border-bottom: 1px solid var(--border-default);
-    min-height: 38px;
+    min-height: 29px;
+    height: 29px;
     gap: var(--space-2);
     position: relative;
     z-index: 20;
@@ -29,21 +30,23 @@
   &__controls {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: 5px;
   }
 
   .action-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    height: 26px;
-    padding: 0 8px;
+    justify-content: center;
+    gap: 4px;
+    height: 22px;
+    padding: 0 7px;
     border-radius: var(--radius-xs);
     border: 1px solid var(--border-default);
     background: var(--surface-800);
     color: var(--text-secondary);
-    font-size: 0.72rem;
+    font-size: 0.69rem;
     font-weight: 500;
+    line-height: 1;
     cursor: pointer;
     transition: all var(--transition-fast);
     white-space: nowrap;
@@ -59,11 +62,11 @@
     }
 
     &--dropdown {
-      padding-right: 6px;
+      padding-right: 5px;
     }
 
     &__badge {
-      font-size: 0.62rem;
+      font-size: 0.58rem;
       font-weight: 700;
       letter-spacing: 0.04em;
       padding: 1px 4px;
@@ -74,21 +77,22 @@
     }
 
     &__text {
-      font-size: 0.72rem;
+      font-size: 0.69rem;
+      line-height: 1;
     }
   }
 
   &__actions {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: 5px;
 
     .action-icon-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 26px;
-      height: 26px;
+      width: 22px;
+      height: 22px;
       border-radius: var(--radius-xs);
       border: 1px solid var(--border-default);
       background: var(--surface-800);
@@ -176,13 +180,14 @@
 /* Target Language Dropdown */
 .dropdown-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
 
   .dropdown-chevron {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
     opacity: 0.7;
-    margin-left: 2px;
+    margin-left: 1px;
   }
 
   .dropdown-menu {
@@ -282,7 +287,8 @@
 /* Stacked Download Dropmodal */
 .download-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
 
   .download-dropmodal {
     position: absolute;
@@ -402,4 +408,19 @@
 
 .animate-scale-in {
   animation: scaleIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (max-width: 768px) {
+  .type-lens {
+    &__header {
+      padding: 0 8px;
+      min-height: 29px;
+      height: 29px;
+    }
+
+    &__controls,
+    &__actions {
+      gap: 4px;
+    }
+  }
 }

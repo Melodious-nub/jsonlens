@@ -11,3 +11,4 @@ export { jsonToGo } from './go.generator';
 export { jsonToRust } from './rust.generator';
 export { jsonToPhp } from './php.generator';
 export { jsonToSwift } from './swift.generator';
+export { jsonToJsonSchema } from './json-schema.generator';

@@ -42,6 +42,21 @@ describe('StatusBarComponent', () => {
 
     comp.typeGen.setTarget('go');
     expect(comp.typeTargetLabel()).toBe('Go');
+
+    comp.typeGen.setTarget('csharp');
+    expect(comp.typeTargetLabel()).toBe('C#');
+
+    comp.typeGen.setTarget('python');
+    expect(comp.typeTargetLabel()).toBe('Python');
+
+    comp.typeGen.setTarget('php');
+    expect(comp.typeTargetLabel()).toBe('PHP');
+
+    comp.typeGen.setTarget('rust');
+    expect(comp.typeTargetLabel()).toBe('Rust');
+
+    comp.typeGen.setTarget('json-schema');
+    expect(comp.typeTargetLabel()).toBe('JSON Schema');
   });
 
   it('should format indent label and accept mobilePane input', () => {

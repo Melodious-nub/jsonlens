@@ -120,3 +120,51 @@
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+/* Inline Diff Line & Gutter Decorations for Monaco Editor */
+.monaco-editor .diff-deco-line {
+  &--added {
+    background: rgba(52, 211, 153, 0.11);
+  }
+
+  &--removed {
+    background: rgba(251, 113, 133, 0.11);
+  }
+
+  &--modified {
+    background: rgba(251, 191, 36, 0.1);
+  }
+
+  &--pulse {
+    background: rgba(99, 102, 241, 0.24) !important;
+    box-shadow: inset 2px 0 0 var(--accent-primary);
+    animation: diffPulseFade 1.2s ease-out forwards;
+  }
+}
+
+.monaco-editor .diff-deco-gutter {
+  width: 3px !important;
+  margin-left: 3px;
+  border-radius: 2px;
+
+  &--added {
+    background: var(--accent-valid);
+  }
+
+  &--removed {
+    background: var(--accent-error);
+  }
+
+  &--modified {
+    background: var(--accent-warning);
+  }
+}
+
+@keyframes diffPulseFade {
+  0% {
+    background: rgba(99, 102, 241, 0.34);
+  }
+  100% {
+    background: transparent;
+  }
+}

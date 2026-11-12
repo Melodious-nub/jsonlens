@@ -13,7 +13,7 @@
           aria-label="Set Indentation"
         >
           <span>Indent: {{ indentLabel() }}</span>
-          <lucide-icon [img]="chevronDownIcon" size="12" class="dropdown-chevron" />
+          <lucide-icon [img]="chevronDownIcon" size="11" class="dropdown-chevron" />
         </button>
 
         @if (isIndentMenuOpen()) {
@@ -74,9 +74,9 @@
           title="Output Keys Sorting"
           aria-label="Output Keys Sorting"
         >
-          <lucide-icon [img]="sortIcon" size="13" />
+          <lucide-icon [img]="sortIcon" size="12" />
           <span>Sort: {{ sortLabel() }}</span>
-          <lucide-icon [img]="chevronDownIcon" size="12" class="dropdown-chevron" />
+          <lucide-icon [img]="chevronDownIcon" size="11" class="dropdown-chevron" />
         </button>
 
         @if (isSortMenuOpen()) {
@@ -127,9 +127,9 @@
           title="Output Data Transformations"
           aria-label="Output Data Transformations"
         >
-          <lucide-icon [img]="transformIcon" size="13" />
+          <lucide-icon [img]="transformIcon" size="12" />
           <span>Transform: {{ transformLabel() }}</span>
-          <lucide-icon [img]="chevronDownIcon" size="12" class="dropdown-chevron" />
+          <lucide-icon [img]="chevronDownIcon" size="11" class="dropdown-chevron" />
         </button>
 
         @if (isTransformMenuOpen()) {
@@ -187,7 +187,7 @@
         [title]="isCopied() ? 'Copied to Clipboard!' : 'Copy Formatted JSON'"
         aria-label="Copy Formatted JSON"
       >
-        <lucide-icon [img]="isCopied() ? checkIcon : copyIcon" size="14" />
+        <lucide-icon [img]="isCopied() ? checkIcon : copyIcon" size="12" />
       </button>
     </div>
   </div>

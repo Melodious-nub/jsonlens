@@ -191,6 +191,51 @@ describe('WorkspaceComponent', () => {
     expect(comp.showQrCode()).toBe(false);
   });
 
+  it('should generate and cache optional encrypted Short URL on tab switch and copy/QR from it', async () => {
+    const fixture = TestBed.createComponent(WorkspaceComponent);
+    const comp = fixture.componentInstance;
+    const urlShareService = TestBed.inject(UrlShareService);
+    const exportService = TestBed.inject(ExportService);
+
+    const shortResult = {
+      id: 'Xy98Zw76',
+      expiresAt: Math.floor(Date.now() / 1000) + 2592000,
+      url: 'https://jsonlens.dev/?s=Xy98Zw76#k=mockAesKey',
+      originalBytes: 120,
+      compressedBytes: 44,
+      percentSaved: 63,
+      isShort: true,
+    };
+
+    const shortSpy = vi
+      .spyOn(urlShareService, 'createShortSharePayload')
+      .mockResolvedValue(shortResult);
+    const copySpy = vi.spyOn(exportService, 'copyToClipboard').mockResolvedValue(true);
+
+    comp.engine.setInput('{"privacy": "zero-knowledge"}');
+    await comp.onToggleShare();
+    expect(comp.shareTab()).toBe('direct');
+    expect(shortSpy).not.toHaveBeenCalled();
+
+    // Switch to Short URL tab triggers lazy generation
+    comp.onShareTabChange('short');
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(comp.shareTab()).toBe('short');
+    expect(shortSpy).toHaveBeenCalledTimes(1);
+    expect(comp.shortShareData()?.url).toBe(shortResult.url);
+
+    // Copy on Short URL tab uses the short URL
+    await comp.copyShareUrl();
+    expect(copySpy).toHaveBeenCalledWith(shortResult.url);
+
+    // Switching back and to Short URL with unchanged JSON reuses cache
+    comp.onShareTabChange('direct');
+    comp.onShareTabChange('short');
+    expect(shortSpy).toHaveBeenCalledTimes(1);
+  });
+
   it('should handle global keyboard shortcuts (Alt+F, Alt+M, Alt+R, Ctrl+F)', () => {
     const fixture = TestBed.createComponent(WorkspaceComponent);
     const comp = fixture.componentInstance;
@@ -323,5 +368,54 @@ describe('WorkspaceComponent', () => {
     fixture.detectChanges();
     expect(comp.editorSettings.fontSize()).toBe(13);
     expect(resetBtn.disabled).toBe(true);
+  });
+
+  it('should route Ctrl+F to DiffLens when diff tab is active in output pane', () => {
+    const fixture = TestBed.createComponent(WorkspaceComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
+
+    comp.setLens('diff');
+    fixture.detectChanges();
+
+    const diffLens = comp.diffLens();
+    expect(diffLens).toBeTruthy();
+
+    const findSpy = vi.spyOn(diffLens!, 'triggerFind');
+    comp.setActivePane('output');
+    comp.onTriggerFind();
+
+    expect(findSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should keep fullscreen active when Escape closes the Clear Confirmation modal', () => {
+    const fixture = TestBed.createComponent(WorkspaceComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
+
+    comp.isFullscreen.set(true);
+    comp.onClear();
+    fixture.detectChanges();
+    expect(comp.isClearConfirmOpen()).toBe(true);
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+
+    expect(comp.isClearConfirmOpen()).toBe(false);
+    expect(comp.isFullscreen()).toBe(true);
+  });
+
+  it('should jump input editor line when DiffLens emits navigateDiff', () => {
+    const fixture = TestBed.createComponent(WorkspaceComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const inputEditor = comp.inputEditor();
+    expect(inputEditor).toBeTruthy();
+
+    const revealSpy = vi.spyOn(inputEditor!, 'revealLine');
+    comp.onNavigateDiff({ leftLine: 12, rightLine: 8 });
+
+    expect(revealSpy).toHaveBeenCalledWith(12);
   });
 });

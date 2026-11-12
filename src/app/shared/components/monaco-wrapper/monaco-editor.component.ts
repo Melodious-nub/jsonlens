@@ -18,7 +18,7 @@ import {
   viewChild,
 } from '@angular/core';
 import type * as MonacoType from 'monaco-editor';
-import { JsonError } from '../../../core/models/json-lens.model';
+import { EditorLineDecoration, JsonError } from '../../../core/models/json-lens.model';
 import { ThemeService } from '../../../core/services/theme.service';
 import { EditorSettingsService } from '../../../core/services/editor-settings.service';
 import { registerMonacoThemes, resolveMonacoTheme } from './monaco-themes.util';
@@ -53,6 +53,7 @@ export class MonacoEditorComponent {
   readonly readOnly = input<boolean>(false);
   readonly language = input<string>('json');
   readonly errorMarkers = input<JsonError[] | null>(null);
+  readonly lineDecorations = input<EditorLineDecoration[] | null>(null);
   readonly minimap = input<boolean>(false);
   readonly wordWrap = input<'on' | 'off'>('on');
   readonly lineNumbers = input<'on' | 'off'>('on');
@@ -73,6 +74,9 @@ export class MonacoEditorComponent {
   private monacoModule: typeof MonacoType | null = null;
   private isInternalUpdate = false;
   private tickScheduled = false;
+  private diffDecorations: MonacoType.editor.IEditorDecorationsCollection | null = null;
+  private pulseDecorations: MonacoType.editor.IEditorDecorationsCollection | null = null;
+  private pulseTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     // 1. Initialize Monaco in browser after rendering
@@ -177,6 +181,53 @@ export class MonacoEditorComponent {
       if (editor) {
         editor.updateOptions({ fontSize: size });
       }
+    });
+
+    // 8. Sync inline diff / line highlight decorations cleanly
+    effect(() => {
+      const decos = this.lineDecorations();
+      const editor = this.editorInstance();
+      const monaco = this.monacoModule;
+      if (!editor || !monaco) return;
+
+      const model = editor.getModel();
+      if (!model) return;
+
+      if (!this.diffDecorations) {
+        this.diffDecorations = editor.createDecorationsCollection();
+      }
+
+      if (!decos || decos.length === 0) {
+        this.diffDecorations.clear();
+        return;
+      }
+
+      const lineCount = model.getLineCount();
+      const monacoDecos: MonacoType.editor.IModelDeltaDecoration[] = [];
+
+      for (const d of decos) {
+        if (d.line < 1 || d.line > lineCount) continue;
+        const colorMap: Record<EditorLineDecoration['type'], string> = {
+          added: 'rgba(52, 211, 153, 0.75)',
+          removed: 'rgba(251, 113, 133, 0.75)',
+          modified: 'rgba(251, 191, 36, 0.75)',
+          focus: 'rgba(99, 102, 241, 0.85)',
+        };
+        monacoDecos.push({
+          range: new monaco.Range(d.line, 1, d.line, 1),
+          options: {
+            isWholeLine: true,
+            className: `diff-deco-line diff-deco-line--${d.type}`,
+            linesDecorationsClassName: `diff-deco-gutter diff-deco-gutter--${d.type}`,
+            overviewRuler: {
+              color: colorMap[d.type],
+              position: monaco.editor.OverviewRulerLane.Center,
+            },
+          },
+        });
+      }
+
+      this.diffDecorations.set(monacoDecos);
     });
   }
 
@@ -388,6 +439,14 @@ export class MonacoEditorComponent {
         }
         container.removeEventListener('mouseenter', onContainerMouseOver, true);
         container.removeEventListener('mouseover', onContainerMouseOver, true);
+        if (this.pulseTimer) {
+          clearTimeout(this.pulseTimer);
+          this.pulseTimer = null;
+        }
+        this.diffDecorations?.clear();
+        this.diffDecorations = null;
+        this.pulseDecorations?.clear();
+        this.pulseDecorations = null;
         this.editorInstance.set(null);
         changeDisposable.dispose();
 
@@ -478,6 +537,43 @@ export class MonacoEditorComponent {
     if (this.editor) {
       this.editor.layout();
     }
+  }
+
+  /**
+   * Smoothly scrolls the editor to a 1-based line number and flashes a brief focus highlight.
+   */
+  revealLine(line: number): void {
+    const editor = this.editor;
+    const monaco = this.monacoModule;
+    if (!editor || !monaco || !this.isBrowser) return;
+
+    const model = editor.getModel();
+    if (!model) return;
+
+    const targetLine = Math.min(Math.max(1, line), model.getLineCount());
+    editor.revealLineInCenter(targetLine, monaco.editor.ScrollType.Smooth);
+    editor.setPosition({ lineNumber: targetLine, column: 1 });
+
+    if (!this.pulseDecorations) {
+      this.pulseDecorations = editor.createDecorationsCollection();
+    }
+    this.pulseDecorations.set([
+      {
+        range: new monaco.Range(targetLine, 1, targetLine, 1),
+        options: {
+          isWholeLine: true,
+          className: 'diff-deco-line--pulse',
+        },
+      },
+    ]);
+
+    if (this.pulseTimer) {
+      clearTimeout(this.pulseTimer);
+    }
+    this.pulseTimer = setTimeout(() => {
+      this.pulseDecorations?.clear();
+      this.pulseTimer = null;
+    }, 1200);
   }
 
   private scheduleAppTick(): void {

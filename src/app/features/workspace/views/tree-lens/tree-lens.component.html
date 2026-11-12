@@ -1,7 +1,7 @@
 <div class="tree-lens" [style.--editor-font-size.px]="editorSettings.fontSize()">
   <div class="tree-lens__header">
     <div class="tree-lens__search">
-      <lucide-icon [img]="searchIcon" class="search-icon" size="14" />
+      <lucide-icon [img]="searchIcon" class="search-icon" size="12" />
       <input
         #searchInput
         type="text"
@@ -29,7 +29,55 @@
         </button>
       }
     </div>
+
+    @if (isValid() && treeData()) {
+      <div class="tree-lens__actions">
+        <button
+          type="button"
+          class="tree-action-btn focus-ring"
+          (click)="expandAll()"
+          title="Expand All Nodes"
+          aria-label="Expand All Nodes"
+        >
+          <lucide-icon [img]="expandAllIcon" size="12" />
+        </button>
+        <button
+          type="button"
+          class="tree-action-btn focus-ring"
+          (click)="collapseAll()"
+          title="Collapse All Nodes"
+          aria-label="Collapse All Nodes"
+        >
+          <lucide-icon [img]="collapseAllIcon" size="12" />
+        </button>
+      </div>
+    }
   </div>
+
+  @if (isValid() && treeData() && isJsonPathQuery()) {
+    <div class="tree-lens__query-bar">
+      <span class="query-badge">JSONPath</span>
+      @if (jsonPathEval()?.isValidQuery) {
+        @if (matchCount() > 0) {
+          <code class="query-preview" [title]="queryResultPreview()">{{ queryResultPreview() }}</code>
+          <button
+            type="button"
+            class="query-copy-btn focus-ring"
+            [class.query-copy-btn--copied]="isQueryCopied()"
+            (click)="copyQueryResult()"
+            title="Copy JSONPath Query Result"
+            aria-label="Copy JSONPath query result"
+          >
+            <lucide-icon [img]="isQueryCopied() ? checkIcon : copyIcon" size="12" />
+          </button>
+        } @else {
+          <span class="query-status">No nodes matched this JSONPath</span>
+        }
+      } @else {
+        <span class="query-status query-status--invalid">Enter a valid JSONPath (e.g. $.features[*] or $.author.name)</span>
+      }
+    </div>
+  }
 
   <div class="tree-lens__body">
     @if (!isValid()) {
@@ -50,6 +98,8 @@
           [node]="treeData()!"
           [searchQuery]="searchQuery()"
           [selectedPath]="selectedPath()"
+          [expandCommand]="expandCommand()"
+          [matchedPaths]="matchedPathSet()"
           (nodeSelected)="onNodeSelected($event)"
         />
       </div>

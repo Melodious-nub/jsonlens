@@ -5,6 +5,9 @@ import { JsonEngineService } from './json-engine.service';
 
 describe('DiffService', () => {
   beforeEach(() => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.clear();
+    }
     TestBed.configureTestingModule({
       providers: [DiffService, JsonEngineService],
     });
@@ -129,5 +132,67 @@ describe('DiffService', () => {
     const result = service.formatSecondary();
     expect(result).toBe(true);
     expect(service.secondaryInput()).toBe('{\n  "a": 1,\n  "b": [\n    2,\n    3\n  ]\n}');
+  });
+
+  it('should expose secondaryError diagnostics and autoRepairSecondary broken JSON', async () => {
+    const service = TestBed.inject(DiffService);
+    service.setSecondaryInput('{brokenKey: "val",}');
+
+    expect(service.parsedSecondary().isValid).toBe(false);
+    expect(service.secondaryError()).toBeTruthy();
+    expect(service.secondaryError()?.line).toBeGreaterThanOrEqual(1);
+
+    const repaired = service.autoRepairSecondary();
+    expect(repaired).toBe(true);
+    expect(service.parsedSecondary().isValid).toBe(true);
+    expect(service.secondaryError()).toBeNull();
+    expect(JSON.parse(service.secondaryInput())).toEqual({ brokenKey: 'val' });
+
+    service.setSecondaryInput('{asyncKey: 42,}');
+    const asyncRepaired = await service.autoRepairSecondaryAsync();
+    expect(asyncRepaired).toBe(true);
+    expect(JSON.parse(service.secondaryInput())).toEqual({ asyncKey: 42 });
+  });
+
+  it('should restore saved secondary comparison JSON from localStorage on startup', () => {
+    localStorage.setItem('jsonlens_diff_secondary_input', JSON.stringify('{"restored": true}'));
+    const restoredService = TestBed.inject(DiffService);
+
+    expect(restoredService.secondaryInput()).toBe('{"restored": true}');
+    expect(restoredService.isSampleActive()).toBe(false);
+  });
+
+  it('should compute left/right inline line decorations, resolve click-to-jump lines, and toggle smart-array mode', () => {
+    const service = TestBed.inject(DiffService);
+    const engine = TestBed.inject(JsonEngineService);
+
+    engine.setInput('{\n  "title": "Old",\n  "removed": true,\n  "list": [1, 2]\n}');
+    service.setSecondaryInput('{\n  "title": "New",\n  "added": 42,\n  "list": [0, 1, 2]\n}');
+
+    const leftDecos = service.leftDecorations();
+    const rightDecos = service.rightDecorations();
+
+    expect(leftDecos).toEqual(
+      expect.arrayContaining([
+        { line: 2, type: 'modified' },
+        { line: 3, type: 'removed' },
+      ]),
+    );
+    expect(rightDecos).toEqual(
+      expect.arrayContaining([
+        { line: 2, type: 'modified' },
+        { line: 3, type: 'added' },
+      ]),
+    );
+
+    const modItem = service.meaningfulDiffs().find((d) => d.path === 'title')!;
+    expect(service.resolveLinesForDiff(modItem)).toEqual({ leftLine: 2, rightLine: 2 });
+
+    expect(service.diffMode()).toBe('strict');
+    service.toggleDiffMode();
+    expect(service.diffMode()).toBe('smart-array');
+
+    const listDiffs = service.meaningfulDiffs().filter((d) => d.path.startsWith('list'));
+    expect(listDiffs).toEqual([{ path: 'list[0]', type: 'added', newValue: 0 }]);
   });
 });

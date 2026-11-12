@@ -3,7 +3,7 @@ import { JsonEngineService } from '../../../core/services/json-engine.service';
 import { DiffService } from '../../../core/services/diff.service';
 import { TypeGenService } from '../../../core/services/type-gen.service';
 import { FileSizePipe } from '../../pipes/file-size.pipe';
-import { LensTab } from '../../../core/models/json-lens.model';
+import { LensTab, TYPE_GEN_TARGET_LABELS } from '../../../core/models/json-lens.model';
 
 @Component({
   selector: 'app-status-bar',
@@ -59,16 +59,7 @@ export class StatusBarComponent {
   });
 
   readonly typeTargetLabel = computed(() => {
-    switch (this.typeGen.currentTarget()) {
-      case 'typescript':
-        return 'TypeScript';
-      case 'zod':
-        return 'Zod';
-      case 'go':
-        return 'Go';
-      default:
-        return this.typeGen.currentTarget();
-    }
+    return TYPE_GEN_TARGET_LABELS[this.typeGen.currentTarget()];
   });
 }
 

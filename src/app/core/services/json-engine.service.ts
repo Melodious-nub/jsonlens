@@ -16,6 +16,7 @@ import {
   ParseResult,
   SortOrder,
   TreeNode,
+  DiffComparisonMode,
   DiffItem,
   DiffSummary,
 } from '../models/json-lens.model';
@@ -28,7 +29,7 @@ import {
   stripNullProperties,
   unflattenJsonObject,
 } from '../../shared/utils/json-tree.util';
-import { JsonRepairService } from './json-repair.service';
+import { JsonRepairService, RepairResult } from './json-repair.service';
 import { StorageService } from './storage.service';
 import { UrlShareService } from './url-share.service';
 import {
@@ -40,19 +41,19 @@ const LARGE_PAYLOAD_THRESHOLD = 2 * 1024 * 1024; // 2MB
 
 export const DEFAULT_SAMPLE_JSON = `{
   "name": "JsonLens",
-  "version": "1.2.0",
-  "privacy": "100% Client-Side",
+  "version": "2.0.0",
+  "privacy": "100% Client-Side & Zero-Knowledge E2EE Sharing",
   "features": [
-    "Zoneless Angular Reactive Architecture",
-    "Real-time Syntax Error Diagnostics",
-    "One-Click Smart Error Auto-Repair",
-    "Interactive Tree Explorer & JSONPath Copy",
-    "Instant Type Generation: TypeScript, Zod, Go",
-    "Side-by-side JSON Diff Comparison",
-    "Off-thread Web Worker Parser for Large Files",
-    "Tokyo Night, Dracula & Nord Developer Themes",
-    "Dynamic Editor & Tree Font Size Controller",
-    "Compact Zero-Server Sharing with Vector QR Lightbox"
+    "Zoneless Angular 22 Signals-First Reactive Architecture",
+    "Monaco Code Lens with Key Sorting, Flatten/Unflatten & Strip Nulls",
+    "One-Click Smart Syntax Auto-Repair & Line Diagnostics",
+    "Interactive AST Tree Explorer & Live JSONPath Query Evaluator",
+    "13-Target Type & Schema Generator (TypeScript, Zod, JSON Schema, Go, Rust, Python...)",
+    "Side-by-Side Diff Lens with Smart Array Matching, Click-to-Jump & RFC 6902 Patch",
+    "Off-Thread Web Worker Engine for Multi-Megabyte Payloads",
+    "5 Curated Themes (Dark, Light, Tokyo Night, Dracula, Nord) & Font Scaling",
+    "Zero-Knowledge AES-256 Encrypted Short URLs & Offline #d= Sharing with QR",
+    "Multi-Format Exports: JSON, CSV, Typings, Markdown, Plain Text & PDF Reports"
   ],
   "author": {
     "name": "Shawon Talukder",
@@ -100,6 +101,11 @@ export class JsonEngineService {
   private readonly workerResult = signal<ParseResult | null>(null);
   private readonly workerError = signal<JsonError | null>(null);
   private readonly workerStats = signal<JsonStats | null>(null);
+
+  // Encrypted short-link resolution state
+  readonly isLoadingSharedLink = signal<boolean>(false);
+  readonly sharedLinkError = signal<string | null>(null);
+  readonly sharedLinkLoaded = signal<boolean>(false);
 
   // Computed indentation
   readonly indentValue = computed<number | string>(() => {
@@ -214,8 +220,10 @@ export class JsonEngineService {
 
   constructor() {
     if (this.isBrowser) {
-      // 1. Check for shared URL payload first
+      // 1. Check for offline #d= / #data= URL payload first
       const sharedPayload = this.urlShareService.readSharedPayload();
+      const shortParams = !sharedPayload ? this.urlShareService.hasShortShareParams() : null;
+
       if (sharedPayload) {
         this.rawInput.set(sharedPayload);
         this.storageService.setItem('jsonlens_input', sharedPayload);
@@ -225,6 +233,10 @@ export class JsonEngineService {
           DEFAULT_SAMPLE_JSON,
         );
         this.rawInput.set(savedInput);
+      }
+
+      if (shortParams) {
+        void this.loadShortSharedLink(shortParams.id, shortParams.key);
       }
 
       // 2. Restore indent preference
@@ -239,6 +251,11 @@ export class JsonEngineService {
         const payload = this.urlShareService.readSharedPayload();
         if (payload) {
           this.setInput(payload);
+          return;
+        }
+        const nextShortParams = this.urlShareService.hasShortShareParams();
+        if (nextShortParams) {
+          void this.loadShortSharedLink(nextShortParams.id, nextShortParams.key);
         }
       };
       window.addEventListener('hashchange', onHashChange);
@@ -251,6 +268,23 @@ export class JsonEngineService {
       });
 
       this.initWorker();
+    }
+  }
+
+  private async loadShortSharedLink(id: string, key: string): Promise<void> {
+    this.isLoadingSharedLink.set(true);
+    this.sharedLinkError.set(null);
+    this.sharedLinkLoaded.set(false);
+    try {
+      const decrypted = await this.urlShareService.resolveShortSharePayload(id, key);
+      this.setInput(decrypted);
+      this.sharedLinkLoaded.set(true);
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : 'Failed to load encrypted shared workspace.';
+      this.sharedLinkError.set(msg);
+    } finally {
+      this.isLoadingSharedLink.set(false);
     }
   }
 
@@ -327,25 +361,48 @@ export class JsonEngineService {
 
   autoRepairAsync(): Promise<boolean> {
     const input = this.rawInput();
-    const worker = this.worker;
-    if (!worker || input.length < 250 * 1024) {
+    if (!this.worker || input.length < 250 * 1024) {
       return Promise.resolve(this.autoRepair());
     }
 
-    return new Promise<boolean>((resolve) => {
+    return this.repairWithWorker(input).then((result) => {
+      if (result.success && result.wasModified) {
+        this.setInput(result.repaired);
+        return true;
+      }
+      return false;
+    });
+  }
+
+  /**
+   * Repairs broken JSON syntax in the background Web Worker (with sync fallback).
+   */
+  repairWithWorker(input: string): Promise<RepairResult> {
+    const worker = this.worker;
+    if (!worker || input.length < 250 * 1024) {
+      return Promise.resolve(this.repairService.repair(input));
+    }
+
+    return new Promise<RepairResult>((resolve) => {
       this.isProcessing.set(true);
       const taskId = `repair-${++this.currentWorkerTaskId}`;
 
       this.pendingWorkerCallbacks.set(taskId, (response: WorkerResponse) => {
         this.isProcessing.set(false);
         if (response.type === 'repair' && response.success) {
-          if (response.wasModified) {
-            this.setInput(response.repaired);
-            resolve(true);
-            return;
-          }
+          resolve({
+            success: true,
+            repaired: response.repaired,
+            wasModified: response.wasModified,
+          });
+          return;
         }
-        resolve(false);
+        resolve({
+          success: false,
+          repaired: input,
+          wasModified: false,
+          error: response.type === 'repair' ? response.error : 'Worker repair failed',
+        });
       });
 
       worker.postMessage({
@@ -356,10 +413,58 @@ export class JsonEngineService {
     });
   }
 
+  /**
+   * Parses a JSON string in the background Web Worker and returns a cancellation callback.
+   */
+  parseJsonWorker(
+    input: string,
+    indent: number | string,
+    callback: (result: { data: JsonValue | null; isValid: boolean; error: JsonError | null } | null) => void,
+  ): () => void {
+    const worker = this.worker;
+    if (!worker) {
+      callback(null);
+      return () => {};
+    }
+
+    const taskId = `aux-parse-${++this.currentWorkerTaskId}`;
+    this.pendingWorkerCallbacks.set(taskId, (response: WorkerResponse) => {
+      if (response.type === 'parse') {
+        if (response.success) {
+          callback({
+            data: response.data as JsonValue,
+            isValid: true,
+            error: null,
+          });
+        } else {
+          callback({
+            data: null,
+            isValid: false,
+            error: response.error as JsonError,
+          });
+        }
+      } else {
+        callback(null);
+      }
+    });
+
+    worker.postMessage({
+      id: taskId,
+      type: 'parse',
+      input,
+      indent,
+    });
+
+    return () => {
+      this.pendingWorkerCallbacks.delete(taskId);
+    };
+  }
+
   computeDiffWorker(
     left: unknown,
     right: unknown,
     callback: (result: { diffItems: DiffItem[]; summary: DiffSummary } | null) => void,
+    mode: DiffComparisonMode = 'strict',
   ): () => void {
     const worker = this.worker;
     if (!worker) {
@@ -384,6 +489,7 @@ export class JsonEngineService {
       type: 'diff',
       left,
       right,
+      mode,
     });
 
     return () => {
