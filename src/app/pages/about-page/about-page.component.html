@@ -583,28 +583,29 @@
 
               <!-- Guide 4: JSON to TypeScript & Zod -->
               <article class="seo-guide-card">
-                <h4 class="seo-guide-card__title">4. JSON to TypeScript, Zod &amp; Multi-Language Type Converter</h4>
+                <h4 class="seo-guide-card__title">4. JSON to TypeScript, Zod &amp; 13-Target Type Converter</h4>
                 <p class="seo-guide-card__desc">
-                  Manually writing TypeScript interfaces for complex, deeply nested JSON responses is tedious. JsonLens analyzes JSON structure and automatically generates strongly typed models across 12 modern programming languages.
+                  Manually writing TypeScript interfaces for complex, deeply nested JSON responses is tedious. JsonLens analyzes JSON structure and automatically generates strongly typed models across 13 languages and schema targets.
                 </p>
                 <ul class="seo-guide-card__list">
                   <li><strong>TypeScript Interfaces &amp; Types:</strong> Generates modular, nested interfaces with optional fields and union types.</li>
                   <li><strong>Zod Runtime Schemas:</strong> Synthesizes production-ready <code>z.object()</code>, <code>z.string()</code>, and <code>z.array()</code> validation schemas.</li>
                   <li><strong>Go Structs with JSON Tags:</strong> Generates PascalCase Go struct models with <code>`json:"fieldName"`</code> tags.</li>
-                  <li><strong>Python TypedDict, Rust Structs &amp; More:</strong> Supports Kotlin, Java, C#, Swift, Dart, and JSON Schema Draft 7.</li>
+                  <li><strong>Python, JavaScript, Rust &amp; More:</strong> Supports Kotlin, Java, C#, Swift, Dart, PHP, and JSON Schema Draft 7 with custom filename downloads.</li>
                 </ul>
               </article>
 
               <!-- Guide 5: Visual AST Diff -->
               <article class="seo-guide-card">
-                <h4 class="seo-guide-card__title">5. Side-by-Side Visual JSON Diff &amp; AST Comparison</h4>
+                <h4 class="seo-guide-card__title">5. Side-by-Side Visual JSON Diff, Smart Arrays &amp; Patch Export</h4>
                 <p class="seo-guide-card__desc">
-                  Comparing two JSON payloads textually using standard diff tools fails when keys are reordered. JsonLens performs deep recursive AST diffing, comparing the semantic structure of objects and arrays regardless of key order.
+                  Comparing two JSON payloads textually using standard diff tools fails when keys are reordered or array items shift. JsonLens performs deep recursive AST diffing with Smart Array Matching, inline color gutters, and direct jump-to-line navigation.
                 </p>
                 <ul class="seo-guide-card__list">
-                  <li><strong>Semantic Structural Diffing:</strong> Compares semantic trees, ignoring irrelevant whitespace or key ordering differences.</li>
-                  <li><strong>Color-Coded Visual Indicators:</strong> Green badges highlight added keys, red badges indicate deleted properties, and yellow badges display modified values.</li>
-                  <li><strong>Instant Swap:</strong> Swap left and right payloads with one click to reverse comparison direction.</li>
+                  <li><strong>Semantic Diff &amp; Smart Array Matching:</strong> Ignores whitespace or key ordering differences and cleanly aligns inserted or deleted array items.</li>
+                  <li><strong>Click-to-Jump &amp; Dedicated Copy Path:</strong> Click any difference row to scroll straight to the exact line in both editors, or copy its JSONPath in 1 click.</li>
+                  <li><strong>RFC 6902 Patch &amp; Report Exports:</strong> Copy RFC 6902 JSON Patches or download formatted diff reports as Markdown (<code>.md</code>) or Plain Text (<code>.txt</code>).</li>
+                  <li><strong>Collapsible 0%&ndash;100% Drawer &amp; Swap:</strong> Resize or collapse the differences drawer smoothly and swap comparison payloads anytime.</li>
                 </ul>
               </article>
             </div>
@@ -653,9 +654,9 @@
                     <td class="table-negative">&#10008; Requires manual code editing</td>
                   </tr>
                   <tr>
-                    <td><strong>Zero-Server URL Sharing</strong></td>
-                    <td class="table-positive">&#10004; LZ-String in hash (#d=...), never sent to server</td>
-                    <td class="table-negative">&#10008; Stores payloads in centralized cloud databases</td>
+                    <td><strong>Zero-Knowledge &amp; Offline Sharing</strong></td>
+                    <td class="table-positive">&#10004; Offline #d= hash links &amp; optional AES-256 E2EE Short URLs</td>
+                    <td class="table-negative">&#10008; Stores plaintext payloads in centralized cloud databases</td>
                   </tr>
                   <tr>
                     <td><strong>Offline &amp; PWA Support</strong></td>
@@ -701,16 +702,16 @@
               </details>
 
               <details class="seo-faq-item">
-                <summary class="seo-faq-question focus-ring">How does Zero-Server URL Sharing work?</summary>
+                <summary class="seo-faq-question focus-ring">How do Offline Sharing and E2EE Short URLs work?</summary>
                 <div class="seo-faq-answer">
-                  <p>JsonLens compresses your JSON payload into the URL hash fragment (<code>#d=...</code>) using LZ-String compression. Per the HTTP specification, web browsers never transmit URL hash fragments to web servers in HTTP request headers. As a result, shared links can be passed securely through your own communication channels with zero server storage.</p>
+                  <p>By default, JsonLens compresses your JSON payload directly into the URL hash fragment (<code>#d=...</code>), which browsers never send over HTTP. For very large payloads, the optional <strong>Short URL</strong> tab encrypts compressed JSON locally using Web Crypto <strong>AES-256-GCM</strong> before storing ciphertext for 30 days, while keeping the decryption key strictly inside the <code>#k=...</code> hash fragment.</p>
                 </div>
               </details>
 
               <details class="seo-faq-item">
                 <summary class="seo-faq-question focus-ring">How do I convert JSON into TypeScript interfaces and Zod schemas?</summary>
                 <div class="seo-faq-answer">
-                  <p>Navigate to the Types lens tab in JsonLens or visit the <code>/json-to-typescript</code> tool mode. JsonLens will infer types from your JSON structure and generate nested TypeScript interfaces, Zod validation schemas, or Go structs that you can copy or download directly as <code>.ts</code> files.</p>
+                  <p>Navigate to the Types lens tab in JsonLens or visit the <code>/json-to-typescript</code> tool mode. JsonLens infers structure automatically and generates code across 13 targets&mdash;including TypeScript, Zod, JavaScript, Go, Python, Rust, Kotlin, Java, C#, Swift, Dart, PHP, and JSON Schema&mdash;ready to copy or download with custom filenames.</p>
                 </div>
               </details>
 

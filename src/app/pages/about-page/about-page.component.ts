@@ -190,15 +190,15 @@ export class AboutPageComponent {
     {
       icon: '📘',
       title: 'JSON to TypeScript & Zod',
-      badge: 'Type Generator',
-      description: 'Convert JSON payloads into nested TypeScript interfaces, runtime Zod validation schemas, and Go structs with json tags.',
+      badge: '13-Target Generator',
+      description: 'Convert JSON payloads into nested TypeScript interfaces, runtime Zod schemas, Go structs, Python, Rust, and 8 more targets.',
       route: '/json-to-typescript',
     },
     {
       icon: '⚖️',
       title: 'JSON Visual AST Diff',
       badge: 'Deep Comparator',
-      description: 'Side-by-side recursive visual comparator with color-coded additions, deletions, modifications, and instant swap controls.',
+      description: 'Side-by-side semantic comparator with Smart Array Matching, click-to-jump line navigation, RFC 6902 JSON Patch, and .md/.txt reports.',
       route: '/json-diff',
     },
   ];
@@ -208,37 +208,37 @@ readonly features = [
       icon: '✨',
       title: 'One-Click Syntax Auto-Repair',
       description:
-        'Instantly fixes unquoted keys, single quotes, trailing commas, Python booleans (True/False/None), and unescaped quotes with intelligent AST recovery.',
+        'Instantly fixes unquoted keys, single quotes, trailing commas, Python/JS literals (True/False/None/undefined), and unbalanced brackets with smart AST recovery.',
     },
     {
       icon: '🌳',
-      title: 'Interactive AST Tree & JSONPath',
+      title: 'Interactive AST Tree & Live JSONPath',
       description:
-        'Recursively navigate deep hierarchies with automatic type badges, child counts, search auto-expansion, and 1-click JSONPath queries (e.g. $.users[0].id).',
+        'Navigate deep hierarchies with type badges, search auto-expansion, match counters, and a live JSONPath query evaluator (e.g. $.features[*]) with 1-click result copy.',
     },
     {
       icon: '🏷️',
-      title: '12-Language Type & Schema Generator',
+      title: '13-Target Type & Schema Generator',
       description:
-        'Synthesizes production-ready models in TypeScript, Zod, Go, Python (TypedDict), Rust, Kotlin, Java, C#, Swift, Dart, PHP, and JSON Schema Draft 7.',
+        'Synthesizes idiomatic models across TypeScript, Zod, JavaScript, Python (TypedDict), Rust, Kotlin, Java, C#, Swift, Dart, PHP, Go structs, and JSON Schema.',
     },
     {
       icon: '⚖️',
-      title: 'Semantic Visual AST Diff',
+      title: 'Semantic Diff & Smart Array Matching',
       description:
-        'Side-by-side structural comparison that categorizes additions, removals, and modifications with color-coded markers, change counters, and swap controls.',
+        'Side-by-side comparison with Smart Array alignment, click-to-jump line links, copy-path actions, 0%–100% resizable drawer, RFC 6902 Patch, and .md/.txt exports.',
     },
     {
       icon: '🔗',
-      title: 'Zero-Server URL Sharing & QR Codes',
+      title: 'Instant Links, E2EE Short URLs & QR',
       description:
-        'Compresses payloads using LZ-String into URL hash fragments (#d=...). Never touches a server. Includes zoomable interactive QR code preview and 512px PNG download.',
+        'Share offline via LZ-compressed #d= hash links or generate Zero-Knowledge AES-256-GCM encrypted short URLs (30d TTL, key in #fragment) with zoomable QR preview.',
     },
     {
       icon: '📤',
-      title: 'Multi-Format Export & Local Persistence',
+      title: 'Pro Exports, 5 Themes & Typography',
       description:
-        'Export formatted JSON, PDF diagnostic reports, flattened CSV spreadsheets, and TypeScript definition files in 1 click. Work auto-persists in local storage.',
+        'Export JSON, flattened CSV spreadsheets, A4 PDF reports, and typed code files. Includes 5 themes (Dark, Light, Tokyo Night, Dracula, Nord) and synced Aa font scaling.',
     },
   ];
 
@@ -247,13 +247,13 @@ readonly features = [
       category: 'Privacy & Security',
       question: 'How does JsonLens guarantee 100% client-side privacy?',
       answer:
-        'Every single operation—parsing, formatting, syntax auto-repair, tree AST construction, 12-language type generation, and side-by-side AST diffing—runs strictly inside your local browser memory sandbox. Not a single byte of your confidential payloads, bearer tokens, customer records, or database dumps is ever transmitted to remote cloud servers or collected by analytics.',
+        'Every core operation—parsing, formatting, syntax auto-repair, live JSONPath evaluation, 13-target type generation, PDF/CSV export, and AST diffing—runs strictly inside your local browser memory sandbox. Optional Short URLs are encrypted locally with AES-256-GCM before upload, keeping the decryption key strictly inside the #fragment.',
     },
     {
       category: 'Privacy & Security',
-      question: 'How does Zero-Server URL Sharing (#d=...) work without storing my data?',
+      question: 'How do Instant Links (#d=...) and E2EE Short URLs work?',
       answer:
-        'When you click "Share", JsonLens pre-minifies and compresses your JSON into the URL hash fragment (#d=...) using LZ-String compression. Per RFC HTTP specifications, web browsers never transmit URL hash fragments (#...) to web servers in HTTP request headers. The URL can be sent through your own private channels or scanned via the integrated QR code previewer with zero database storage.',
+        'Instant Links pre-minify and compress JSON directly into the URL hash fragment (#d=...), which browsers never transmit over HTTP. If a shorter link is needed, the optional Short URL tab encrypts compressed JSON in-browser using Web Crypto AES-256-GCM, stores only unreadable ciphertext for 30 days with zero IP logging, and keeps the decryption key strictly in #k=.',
     },
     {
       category: 'Performance',
@@ -271,7 +271,7 @@ readonly features = [
       category: 'Engine & Tooling',
       question: 'Which programming languages are supported in the Type Generator?',
       answer:
-        'JsonLens includes a built-in Type Generator Lens supporting 12 target languages and schema formats: TypeScript (interfaces & types), Zod schemas, Python (TypedDict), Java (Jackson POJOs), Kotlin (data classes), Go (structs with json tags), Rust (Serde structs), C# (System.Text.Json), Swift (Codable structs), Dart, PHP, and JSON Schema (Draft 7).',
+        'JsonLens includes a built-in Type Generator Lens supporting 13 target languages and schema formats: TypeScript (interfaces & types), Zod schemas, JavaScript, Python (TypedDict), Java (Jackson POJOs), Kotlin (data classes), Go (structs with json tags), Rust (Serde structs), C# (System.Text.Json), Swift (Codable structs), Dart, PHP, and JSON Schema (Draft 7).',
     },
     {
       category: 'Deployment',
