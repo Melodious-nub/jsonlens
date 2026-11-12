@@ -81,6 +81,7 @@
           (minifyRequested)="onMinify()"
           (autoRepairRequested)="onAutoRepair()"
           [errorMarkers]="engine.jsonError() ? [engine.jsonError()!] : []"
+          [lineDecorations]="activeLens() === 'diff' ? diff.leftDecorations() : null"
           language="json"
         />
       </div>
@@ -424,7 +425,7 @@
             <app-type-lens #typeLens />
           }
           @case ('diff') {
-            <app-diff-lens />
+            <app-diff-lens #diffLens (navigateDiff)="onNavigateDiff($event)" />
           }
         }
       </div>

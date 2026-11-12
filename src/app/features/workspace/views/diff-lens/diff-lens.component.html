@@ -2,7 +2,25 @@
   <div class="diff-lens__header">
     <div class="diff-lens__header-info">
       @if (!parsedSecondary().isValid) {
-        <span class="invalid-indicator">Invalid JSON syntax</span>
+        <span
+          class="invalid-indicator"
+          [title]="secondaryError()?.message || 'Invalid JSON syntax'"
+        >
+          @if (secondaryError(); as err) {
+            Invalid (Ln {{ err.line }})
+          } @else {
+            Invalid JSON syntax
+          }
+        </span>
+        <button
+          type="button"
+          class="action-btn action-btn--fix focus-ring"
+          (click)="autoRepairSecondary()"
+          title="Auto-Fix Comparison JSON Syntax"
+          aria-label="Auto-Fix comparison JSON syntax errors"
+        >
+          <lucide-icon [img]="fixIcon" size="14" />
+        </button>
       }
     </div>
 
@@ -24,8 +42,7 @@
         title="Format comparison JSON (indented)"
         aria-label="Format comparison JSON"
       >
-        <lucide-icon [img]="formatIcon" size="13" />
-        <span>Format</span>
+        <lucide-icon [img]="formatIcon" size="14" />
       </button>
 
       <button
@@ -35,8 +52,7 @@
         title="Swap Left and Right JSON"
         aria-label="Swap Left and Right JSON"
       >
-        <lucide-icon [img]="swapIcon" size="13" />
-        <span>Swap</span>
+        <lucide-icon [img]="swapIcon" size="14" />
       </button>
 
       <button
@@ -46,8 +62,7 @@
         title="Open comparison .json file"
         aria-label="Open comparison .json file"
       >
-        <lucide-icon [img]="folderOpenIcon" size="13" />
-        <span>Open File</span>
+        <lucide-icon [img]="folderOpenIcon" size="14" />
       </button>
 
       <button
@@ -57,8 +72,7 @@
         title="Clear comparison JSON"
         aria-label="Clear comparison JSON"
       >
-        <lucide-icon [img]="clearIcon" size="13" />
-        <span>Clear</span>
+        <lucide-icon [img]="clearIcon" size="14" />
       </button>
     </div>
   </div>
@@ -75,8 +89,11 @@
     >
       <div class="editor-wrapper">
         <app-monaco-editor
+          #editorComponent
           [content]="secondaryInput()"
           (contentChange)="onSecondaryInput($event)"
+          [errorMarkers]="secondaryError() ? [secondaryError()!] : []"
+          [lineDecorations]="diff.rightDecorations()"
           language="json"
         />
       </div>
@@ -111,7 +128,7 @@
           appResizableSplitter
           [container]="diffBodyRef()?.nativeElement!"
           direction="vertical"
-          [minPercent]="15"
+          [minPercent]="0"
           [maxPercent]="100"
           [(splitPercent)]="splitPercent"
           [(isDragging)]="isDragging"
@@ -137,6 +154,111 @@
         </div>
       </div>
 
+      @if (meaningfulDiffs().length > 0 || diff.diffMode() === 'smart-array') {
+        <div class="changes-toolbar">
+          <div class="changes-filters" role="group" aria-label="Filter differences by change type">
+            @for (chip of filterChips(); track chip.id) {
+              <button
+                type="button"
+                class="diff-chip focus-ring {{ chip.variantClass }}"
+                [class.diff-chip--active]="activeFilter() === chip.id"
+                [attr.aria-pressed]="activeFilter() === chip.id"
+                (click)="setFilter(chip.id)"
+                [title]="'Filter: ' + chip.label + ' (' + chip.count + ')'"
+                [attr.aria-label]="'Filter ' + chip.id + ' changes (' + chip.count + ')'"
+              >
+                <span class="diff-chip__label">{{ chip.label }}</span>
+                <span class="diff-chip__count">{{ chip.count }}</span>
+              </button>
+            }
+          </div>
+
+          <div class="changes-search">
+            <lucide-icon [img]="searchIcon" size="12" class="changes-search__icon" />
+            <input
+              type="text"
+              class="changes-search__input"
+              [value]="pathQuery()"
+              (input)="onPathSearchInput($event)"
+              placeholder="Filter path or value..."
+              aria-label="Filter differences by path or value"
+            />
+            @if (pathQuery()) {
+              <button
+                type="button"
+                class="changes-search__clear focus-ring"
+                (click)="clearPathSearch()"
+                title="Clear filter"
+                aria-label="Clear path filter"
+              >
+                <lucide-icon [img]="closeIcon" size="12" />
+              </button>
+            }
+          </div>
+
+          <div class="changes-exports">
+            <button
+              type="button"
+              class="changes-export-btn focus-ring"
+              [class.changes-export-btn--smart]="diff.diffMode() === 'smart-array'"
+              [attr.aria-pressed]="diff.diffMode() === 'smart-array'"
+              (click)="toggleSmartArrays()"
+              [title]="diff.diffMode() === 'smart-array' ? 'Smart Array Matching: ON (click for Strict Index)' : 'Enable Smart Array Matching (align inserted/deleted array items)'"
+              aria-label="Toggle Smart Array Matching"
+            >
+              <lucide-icon [img]="smartArrayIcon" size="13" />
+            </button>
+
+            <button
+              type="button"
+              class="changes-export-btn focus-ring"
+              [class.changes-export-btn--copied]="isPatchCopied()"
+              (click)="copyJsonPatch()"
+              title="Copy RFC 6902 JSON Patch"
+              aria-label="Copy RFC 6902 JSON Patch"
+            >
+              <lucide-icon [img]="isPatchCopied() ? checkIcon : copyIcon" size="13" />
+            </button>
+
+            <div class="diff-export-wrapper" appClickOutside (clickOutside)="closeExportMenu()">
+              <button
+                type="button"
+                class="changes-export-btn focus-ring"
+                [class.changes-export-btn--active]="isExportMenuOpen()"
+                (click)="toggleExportMenu()"
+                [attr.aria-expanded]="isExportMenuOpen()"
+                aria-haspopup="menu"
+                title="Download Diff Report (.md or .txt)"
+                aria-label="Download Diff Report"
+              >
+                <lucide-icon [img]="downloadIcon" size="13" />
+              </button>
+
+              @if (isExportMenuOpen()) {
+                <div class="diff-export-menu animate-scale-in" role="menu" aria-label="Download diff report format">
+                  <button
+                    type="button"
+                    class="diff-export-item"
+                    role="menuitem"
+                    (click)="downloadReport('md')"
+                  >
+                    <span>Markdown (.md)</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="diff-export-item"
+                    role="menuitem"
+                    (click)="downloadReport('txt')"
+                  >
+                    <span>Plain Text (.txt)</span>
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
       <div class="changes-list">
           @if (meaningfulDiffs().length === 0) {
             @if (!parsedSecondary().isValid || !engine.isValid()) {
@@ -154,8 +276,15 @@
               </div>
             }
           } @else {
-            @for (item of meaningfulDiffs(); track item.path + item.type) {
-              <div class="diff-row diff-row--{{ item.type }}">
+            @for (item of filteredDiffs(); track item.path + item.type) {
+              <div
+                class="diff-row diff-row--{{ item.type }}"
+                [class.diff-row--selected]="selectedDiffKey() === item.path + ':' + item.type"
+                (click)="onJumpToDiff(item)"
+                (keydown.enter)="onJumpToDiff(item)"
+                tabindex="0"
+                title="Click to jump to line in editors"
+              >
                 <div class="diff-row__badge-col">
                   <span class="diff-type-badge diff-type-badge--{{ item.type }}">
                     @switch (item.type) {
@@ -165,7 +294,7 @@
                     }
                   </span>
                 </div>
-                <div class="diff-row__path">
+                <div class="diff-row__path" [title]="item.path">
                   <code>{{ item.path }}</code>
                 </div>
                 <div class="diff-row__values">
@@ -179,6 +308,28 @@
                     <span class="diff-val diff-val--old">{{ formatVal(item.oldValue) }}</span>
                   }
                 </div>
+                <button
+                  type="button"
+                  class="diff-row__copy-btn focus-ring"
+                  [class.diff-row__copy-btn--copied]="copiedRowPath() === item.path"
+                  (click)="copyDiffPath(item.path); $event.stopPropagation()"
+                  (keydown.enter)="$event.stopPropagation()"
+                  title="Copy JSONPath"
+                  [attr.aria-label]="'Copy JSONPath for ' + item.path"
+                >
+                  <lucide-icon [img]="copiedRowPath() === item.path ? checkIcon : copyIcon" size="12" />
+                </button>
+              </div>
+            } @empty {
+              <div class="diff-empty">
+                <span class="diff-empty-text">No differences match your current filter.</span>
+                <button
+                  type="button"
+                  class="diff-reset-filter-btn focus-ring"
+                  (click)="resetFilters()"
+                >
+                  Reset filters
+                </button>
               </div>
             }
           }

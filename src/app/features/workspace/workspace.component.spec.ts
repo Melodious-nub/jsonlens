@@ -324,4 +324,53 @@ describe('WorkspaceComponent', () => {
     expect(comp.editorSettings.fontSize()).toBe(13);
     expect(resetBtn.disabled).toBe(true);
   });
+
+  it('should route Ctrl+F to DiffLens when diff tab is active in output pane', () => {
+    const fixture = TestBed.createComponent(WorkspaceComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
+
+    comp.setLens('diff');
+    fixture.detectChanges();
+
+    const diffLens = comp.diffLens();
+    expect(diffLens).toBeTruthy();
+
+    const findSpy = vi.spyOn(diffLens!, 'triggerFind');
+    comp.setActivePane('output');
+    comp.onTriggerFind();
+
+    expect(findSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should keep fullscreen active when Escape closes the Clear Confirmation modal', () => {
+    const fixture = TestBed.createComponent(WorkspaceComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
+
+    comp.isFullscreen.set(true);
+    comp.onClear();
+    fixture.detectChanges();
+    expect(comp.isClearConfirmOpen()).toBe(true);
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+
+    expect(comp.isClearConfirmOpen()).toBe(false);
+    expect(comp.isFullscreen()).toBe(true);
+  });
+
+  it('should jump input editor line when DiffLens emits navigateDiff', () => {
+    const fixture = TestBed.createComponent(WorkspaceComponent);
+    const comp = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const inputEditor = comp.inputEditor();
+    expect(inputEditor).toBeTruthy();
+
+    const revealSpy = vi.spyOn(inputEditor!, 'revealLine');
+    comp.onNavigateDiff({ leftLine: 12, rightLine: 8 });
+
+    expect(revealSpy).toHaveBeenCalledWith(12);
+  });
 });

@@ -117,7 +117,7 @@ export class TreeLensComponent {
     if (!node) return;
     try {
       await navigator.clipboard.writeText(node.path);
-      this.toast.show(`Copied path: ${node.path}`, 'success');
+      this.toast.show('Copied JSONPath', 'success');
     } catch {
       this.toast.show('Failed to copy JSONPath', 'error');
     }

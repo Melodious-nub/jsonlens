@@ -47,6 +47,21 @@ export type TypeGenTarget =
   | 'php'
   | 'swift';
 
+export const TYPE_GEN_TARGET_LABELS: Record<TypeGenTarget, string> = {
+  typescript: 'TypeScript',
+  zod: 'Zod',
+  javascript: 'JavaScript',
+  python: 'Python',
+  java: 'Java',
+  kotlin: 'Kotlin',
+  dart: 'Dart',
+  csharp: 'C#',
+  go: 'Go',
+  rust: 'Rust',
+  php: 'PHP',
+  swift: 'Swift',
+};
+
 export type JsonNodeType = 'string' | 'number' | 'boolean' | 'null' | 'object' | 'array';
 
 export interface TreeNode {
@@ -61,6 +76,7 @@ export interface TreeNode {
 }
 
 export type DiffChangeType = 'added' | 'removed' | 'modified' | 'unchanged';
+export type DiffComparisonMode = 'strict' | 'smart-array';
 
 export interface DiffItem {
   readonly path: string;
@@ -68,6 +84,17 @@ export interface DiffItem {
   readonly oldValue?: unknown;
   readonly newValue?: unknown;
   readonly line?: number;
+}
+
+export interface EditorLineDecoration {
+  readonly line: number;
+  readonly type: 'added' | 'removed' | 'modified' | 'focus';
+  readonly hoverMessage?: string;
+}
+
+export interface DiffNavigationTarget {
+  readonly leftLine?: number;
+  readonly rightLine?: number;
 }
 export interface DiffSummary {
   readonly added: number;

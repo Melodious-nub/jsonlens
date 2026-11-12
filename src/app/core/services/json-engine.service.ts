@@ -16,6 +16,7 @@ import {
   ParseResult,
   SortOrder,
   TreeNode,
+  DiffComparisonMode,
   DiffItem,
   DiffSummary,
 } from '../models/json-lens.model';
@@ -28,7 +29,7 @@ import {
   stripNullProperties,
   unflattenJsonObject,
 } from '../../shared/utils/json-tree.util';
-import { JsonRepairService } from './json-repair.service';
+import { JsonRepairService, RepairResult } from './json-repair.service';
 import { StorageService } from './storage.service';
 import { UrlShareService } from './url-share.service';
 import {
@@ -327,25 +328,48 @@ export class JsonEngineService {
 
   autoRepairAsync(): Promise<boolean> {
     const input = this.rawInput();
-    const worker = this.worker;
-    if (!worker || input.length < 250 * 1024) {
+    if (!this.worker || input.length < 250 * 1024) {
       return Promise.resolve(this.autoRepair());
     }
 
-    return new Promise<boolean>((resolve) => {
+    return this.repairWithWorker(input).then((result) => {
+      if (result.success && result.wasModified) {
+        this.setInput(result.repaired);
+        return true;
+      }
+      return false;
+    });
+  }
+
+  /**
+   * Repairs broken JSON syntax in the background Web Worker (with sync fallback).
+   */
+  repairWithWorker(input: string): Promise<RepairResult> {
+    const worker = this.worker;
+    if (!worker || input.length < 250 * 1024) {
+      return Promise.resolve(this.repairService.repair(input));
+    }
+
+    return new Promise<RepairResult>((resolve) => {
       this.isProcessing.set(true);
       const taskId = `repair-${++this.currentWorkerTaskId}`;
 
       this.pendingWorkerCallbacks.set(taskId, (response: WorkerResponse) => {
         this.isProcessing.set(false);
         if (response.type === 'repair' && response.success) {
-          if (response.wasModified) {
-            this.setInput(response.repaired);
-            resolve(true);
-            return;
-          }
+          resolve({
+            success: true,
+            repaired: response.repaired,
+            wasModified: response.wasModified,
+          });
+          return;
         }
-        resolve(false);
+        resolve({
+          success: false,
+          repaired: input,
+          wasModified: false,
+          error: response.type === 'repair' ? response.error : 'Worker repair failed',
+        });
       });
 
       worker.postMessage({
@@ -356,10 +380,58 @@ export class JsonEngineService {
     });
   }
 
+  /**
+   * Parses a JSON string in the background Web Worker and returns a cancellation callback.
+   */
+  parseJsonWorker(
+    input: string,
+    indent: number | string,
+    callback: (result: { data: JsonValue | null; isValid: boolean; error: JsonError | null } | null) => void,
+  ): () => void {
+    const worker = this.worker;
+    if (!worker) {
+      callback(null);
+      return () => {};
+    }
+
+    const taskId = `aux-parse-${++this.currentWorkerTaskId}`;
+    this.pendingWorkerCallbacks.set(taskId, (response: WorkerResponse) => {
+      if (response.type === 'parse') {
+        if (response.success) {
+          callback({
+            data: response.data as JsonValue,
+            isValid: true,
+            error: null,
+          });
+        } else {
+          callback({
+            data: null,
+            isValid: false,
+            error: response.error as JsonError,
+          });
+        }
+      } else {
+        callback(null);
+      }
+    });
+
+    worker.postMessage({
+      id: taskId,
+      type: 'parse',
+      input,
+      indent,
+    });
+
+    return () => {
+      this.pendingWorkerCallbacks.delete(taskId);
+    };
+  }
+
   computeDiffWorker(
     left: unknown,
     right: unknown,
     callback: (result: { diffItems: DiffItem[]; summary: DiffSummary } | null) => void,
+    mode: DiffComparisonMode = 'strict',
   ): () => void {
     const worker = this.worker;
     if (!worker) {
@@ -384,6 +456,7 @@ export class JsonEngineService {
       type: 'diff',
       left,
       right,
+      mode,
     });
 
     return () => {

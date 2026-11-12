@@ -12,7 +12,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { ExportFormat, LensTab, SharePayloadInfo } from '../../core/models/json-lens.model';
+import { DiffNavigationTarget, ExportFormat, LensTab, SharePayloadInfo } from '../../core/models/json-lens.model';
 import { JsonEngineService } from '../../core/services/json-engine.service';
 import { DiffService } from '../../core/services/diff.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -167,6 +167,7 @@ export class WorkspaceComponent {
   readonly codeLens = viewChild<CodeLensComponent>('codeLens');
   readonly treeLens = viewChild<TreeLensComponent>('treeLens');
   readonly typeLens = viewChild<TypeLensComponent>('typeLens');
+  readonly diffLens = viewChild<DiffLensComponent>('diffLens');
 
   constructor() {
     if (this.isBrowser) {
@@ -208,6 +209,9 @@ export class WorkspaceComponent {
 
         // 5. Escape -> Priority dismiss
         if (e.key === 'Escape') {
+          if (this.isClearConfirmOpen()) {
+            return;
+          }
           if (this.isQrPreviewOpen()) {
             this.closeQrPreview();
           } else if (this.isShareMenuOpen()) {
@@ -220,11 +224,13 @@ export class WorkspaceComponent {
             const inputHasFind = this.inputEditor()?.isFindWidgetVisible();
             const codeHasFind = this.codeLens()?.isFindWidgetVisible();
             const typeHasFind = this.typeLens()?.isFindWidgetVisible();
+            const diffHasFind = this.diffLens()?.isFindWidgetVisible();
 
-            if (inputHasFind || codeHasFind || typeHasFind) {
+            if (inputHasFind || codeHasFind || typeHasFind || diffHasFind) {
               this.inputEditor()?.closeFindWidget();
               this.codeLens()?.closeFindWidget();
               this.typeLens()?.closeFindWidget();
+              this.diffLens()?.closeFindWidget();
             } else if (this.isFullscreen()) {
               this.toggleFullscreen();
             }
@@ -291,6 +297,8 @@ export class WorkspaceComponent {
     window.setTimeout(() => {
       this.inputEditor()?.layout();
       this.codeLens()?.layout();
+      this.typeLens()?.layout();
+      this.diffLens()?.layout();
     }, 390);
   }
 
@@ -384,6 +392,8 @@ export class WorkspaceComponent {
         this.codeLens()?.triggerFind();
       } else if (lens === 'type') {
         this.typeLens()?.triggerFind();
+      } else if (lens === 'diff') {
+        this.diffLens()?.triggerFind();
       } else if (lens === 'tree') {
         this.treeLens()?.focusSearch();
       }
@@ -394,6 +404,9 @@ export class WorkspaceComponent {
       }
       if (this.typeLens()?.isFindWidgetVisible()) {
         this.typeLens()?.closeFindWidget();
+      }
+      if (this.diffLens()?.isFindWidgetVisible()) {
+        this.diffLens()?.closeFindWidget();
       }
 
       this.inputEditor()?.triggerFind();
@@ -663,6 +676,12 @@ export class WorkspaceComponent {
     this.splitPercent.set(percent);
     if (this.isBrowser) {
       this.storage.setItem('jsonlens_split_percent', percent);
+    }
+  }
+
+  onNavigateDiff(target: DiffNavigationTarget): void {
+    if (target.leftLine) {
+      this.inputEditor()?.revealLine(target.leftLine);
     }
   }
 }

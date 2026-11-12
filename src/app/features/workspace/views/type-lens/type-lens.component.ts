@@ -198,6 +198,10 @@ export class TypeLensComponent {
     return this.editorComponent()?.isFindWidgetVisible() ?? false;
   }
 
+  layout(): void {
+    this.editorComponent()?.layout();
+  }
+
   readonly rootName = computed<string>(() => {
     const raw = this.downloadFileName().trim();
     if (!raw) return 'Root';

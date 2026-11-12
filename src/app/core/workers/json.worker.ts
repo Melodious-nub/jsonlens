@@ -2,6 +2,7 @@
 
 import { extractJsonError, calculateStats } from '../../shared/utils/json-tree.util';
 import { deepDiffJson, summarizeDiff } from '../../shared/utils/json-diff.util';
+import { DiffComparisonMode } from '../models/json-lens.model';
 import { jsonrepair } from 'jsonrepair';
 
 export type WorkerTaskType = 'parse' | 'repair' | 'diff';
@@ -24,6 +25,7 @@ export interface WorkerDiffRequest {
   readonly type: 'diff';
   readonly left: unknown;
   readonly right: unknown;
+  readonly mode?: DiffComparisonMode;
 }
 
 export type WorkerRequest = WorkerParseRequest | WorkerRepairRequest | WorkerDiffRequest;
@@ -144,7 +146,7 @@ addEventListener('message', ({ data }: MessageEvent<WorkerRequest>) => {
   } else if (taskType === 'diff') {
     const diffReq = data as WorkerDiffRequest;
     try {
-      const diffItems = deepDiffJson(diffReq.left, diffReq.right);
+      const diffItems = deepDiffJson(diffReq.left, diffReq.right, '$', diffReq.mode ?? 'strict');
       const summary = summarizeDiff(diffItems);
       const response: WorkerDiffSuccess = {
         id,
