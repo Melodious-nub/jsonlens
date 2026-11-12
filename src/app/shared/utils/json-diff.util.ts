@@ -357,6 +357,23 @@ const REPORT_BADGE_MAP: Record<Exclude<DiffItem['type'], 'unchanged'>, string> =
 };
 
 /**
+ * Formats a value safely as an inline code cell inside a GFM Markdown table.
+ * Escapes backslashes before pipe characters so trailing backslashes cannot unescape
+ * table column delimiters (CWE-116), normalizes line breaks, and guards inline backticks.
+ */
+function formatMarkdownCodeCell(value: string): string {
+  const escaped = value
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/\\/g, '\\\\')
+    .replace(/\|/g, '\\|');
+  if (!escaped.includes('`')) {
+    return `\`${escaped}\``;
+  }
+  const safeBackticks = escaped.replace(/`{2,}/g, (run) => run.split('').join(' '));
+  return `\`\` ${safeBackticks} \`\``;
+}
+
+/**
  * Formats meaningful diffs into a clean Markdown report for sharing in issues or PRs.
  */
 export function diffToMarkdown(diffs: readonly DiffItem[], summary: DiffSummary): string {
@@ -382,11 +399,11 @@ export function diffToMarkdown(diffs: readonly DiffItem[], summary: DiffSummary)
   for (const item of meaningful) {
     if (item.type === 'unchanged') continue;
     const badge = REPORT_BADGE_MAP[item.type];
-    const safePath = `\`${item.path.replace(/\|/g, '\\|')}\``;
-    const details = formatReportDetails(item).replace(/\|/g, '\\|');
-    const formattedDetails = item.type === 'modified'
-      ? `\`${stringifyReportValue(item.oldValue).replace(/\|/g, '\\|')}\` -> \`${stringifyReportValue(item.newValue).replace(/\|/g, '\\|')}\``
-      : `\`${details}\``;
+    const safePath = formatMarkdownCodeCell(item.path);
+    const formattedDetails =
+      item.type === 'modified'
+        ? `${formatMarkdownCodeCell(stringifyReportValue(item.oldValue))} -> ${formatMarkdownCodeCell(stringifyReportValue(item.newValue))}`
+        : formatMarkdownCodeCell(formatReportDetails(item));
     lines.push(`| \`${badge}\` | ${safePath} | ${formattedDetails} |`);
   }
 

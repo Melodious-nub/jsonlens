@@ -105,6 +105,18 @@ describe('json-diff.util', () => {
     expect(textReport).toContain('[~ MOD] title : "Old" -> "New"');
   });
 
+  it('should properly escape backslashes, pipes, and backticks in Markdown diff cells', () => {
+    const diffs = deepDiffJson(
+      { 'col\\|key': 'a\\|b', note: 'has `tick' },
+      { 'col\\|key': 'c|d\\', note: 'has ``two' },
+    );
+
+    const markdown = diffToMarkdown(diffs, summarizeDiff(diffs));
+    expect(markdown).toContain('`$["col\\\\\\\\\\|key"]`');
+    expect(markdown).toContain('`"a\\\\\\\\\\|b"` -> `"c\\|d\\\\\\\\"`');
+    expect(markdown).toContain('`` "has `tick" `` -> `` "has ` `two" ``');
+  });
+
   it('should align inserted items and object IDs cleanly in smart-array diff mode', () => {
     const insertedDiffs = deepDiffJson([1, 2, 3], [0, 1, 2, 3], '$', 'smart-array');
     const insertedSummary = summarizeDiff(insertedDiffs);
