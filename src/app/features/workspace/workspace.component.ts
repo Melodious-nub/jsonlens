@@ -34,7 +34,7 @@ import { DropZoneDirective } from '../../shared/directives/drop-zone.directive';
 import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive';
 import { ResizableSplitterDirective } from '../../shared/directives/resizable-splitter.directive';
 import { triggerHaptic } from '../../shared/utils/haptics.util';
-import { ShareDialogComponent } from './components/share-dialog/share-dialog.component';
+import { ShareAnchorRect, ShareDialogComponent } from './components/share-dialog/share-dialog.component';
 import { ClearConfirmModalComponent } from './components/clear-confirm-modal/clear-confirm-modal.component';
 import { ImagePreviewerComponent } from '../../shared/components/image-previewer/image-previewer.component';
 import { CodeLensComponent } from './views/code-lens/code-lens.component';
@@ -154,6 +154,7 @@ export class WorkspaceComponent {
 
   // 100% Client-Side Share, Zero-Knowledge Short URL & Mobile QR Code State
   readonly isShareMenuOpen = signal<boolean>(false);
+  readonly shareAnchor = signal<ShareAnchorRect | null>(null);
   readonly shareTab = signal<ShareTabMode>('direct');
   readonly isQrPreviewOpen = signal<boolean>(false);
   readonly showQrCode = computed(() => this.isQrPreviewOpen());
@@ -508,7 +509,9 @@ export class WorkspaceComponent {
       : (this.shareData()?.url ?? null);
   }
 
-  async onToggleShare(): Promise<void> {
+  async onToggleShare(event?: Event): Promise<void> {
+    event?.stopPropagation();
+
     if (this.isShareMenuOpen()) {
       this.closeShareMenu();
       return;
@@ -518,6 +521,17 @@ export class WorkspaceComponent {
     if (!json || json.trim() === '') {
       this.toast.show('Enter JSON before generating a share link', 'info');
       return;
+    }
+
+    if (this.isBrowser && event?.currentTarget instanceof HTMLElement) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      this.shareAnchor.set({
+        top: Math.max(12, Math.min(rect.top, window.innerHeight - 360)),
+        left: rect.left,
+        right: rect.right,
+      });
+    } else {
+      this.shareAnchor.set(null);
     }
 
     const payload = this.urlShareService.createSharePayload(json);
