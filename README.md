@@ -1,7 +1,7 @@
-# JsonLens v2.0.0 — The Ultimate Privacy-First JSON Formatter & All-in-One Developer Suite
+# JsonLens v2.0.1 — The Ultimate Privacy-First JSON Formatter & All-in-One Developer Suite
 
 [![Latest Release](https://img.shields.io/github/v/release/Melodious-nub/jsonlens?color=blue&label=Latest%20Version)](https://github.com/Melodious-nub/jsonlens/releases/latest)
-[![Version](https://img.shields.io/badge/Version-2.0.0-6366f1.svg)](https://github.com/Melodious-nub/jsonlens/releases)
+[![Version](https://img.shields.io/badge/Version-2.0.1-6366f1.svg)](https://github.com/Melodious-nub/jsonlens/releases)
 [![Live Demo](https://img.shields.io/badge/Live%20App-jsonlens.pages.dev-brightgreen?logo=googlechrome)](https://jsonlens.pages.dev)
 [![Angular Version](https://img.shields.io/badge/Angular-22.2-dd0031.svg?logo=angular)](https://angular.dev)
 [![Privacy](https://img.shields.io/badge/Privacy-100%25%20Client%20Side-brightgreen.svg)](#-privacy--security)
@@ -29,7 +29,7 @@
 
 Experience the full developer suite directly in your browser with SSR-fast loading and PWA support:
 
-[![Launch Web App Button](https://img.shields.io/badge/Launch%20App-JsonLens%20v2.0.0-success?style=for-the-badge&logo=googlechrome)](https://jsonlens.pages.dev)
+[![Launch Web App Button](https://img.shields.io/badge/Launch%20App-JsonLens%20v2.0.1-success?style=for-the-badge&logo=googlechrome)](https://jsonlens.pages.dev)
 
 **Dedicated Tool Routes:**
 - `/` — JSON Formatter & Beautifier
