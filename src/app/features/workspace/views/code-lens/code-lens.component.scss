@@ -217,16 +217,26 @@
       padding: 0 8px;
       min-height: 29px;
       height: 29px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      &::-webkit-scrollbar {
-        display: none;
-      }
+      overflow: visible;
     }
 
     &__actions {
       gap: 4px;
+
+      .action-btn {
+        padding: 0 5px;
+        font-size: 0.66rem;
+        gap: 3px;
+
+        &--dropdown {
+          padding-right: 4px;
+        }
+      }
     }
+  }
+
+  .dropdown-wrapper .dropdown-menu {
+    max-width: calc(100vw - 56px);
   }
 
   .dropdown-wrapper--indent {

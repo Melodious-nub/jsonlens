@@ -9,6 +9,9 @@
   <div
     class="share-popover animate-scale-in"
     [class.share-popover--flip-left]="splitPercent() > 65"
+    [style.top.px]="anchorRect() ? anchorRect()!.top - 6 : null"
+    [style.left.px]="anchorRect() && splitPercent() <= 65 ? anchorRect()!.right + 8 : null"
+    [style.right]="anchorRect() && splitPercent() > 65 ? 'calc(100vw - ' + (anchorRect()!.left - 8) + 'px)' : null"
     role="dialog"
     aria-modal="true"
     aria-labelledby="share-dialog-title"

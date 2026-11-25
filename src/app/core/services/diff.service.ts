@@ -329,7 +329,8 @@ export class DiffService {
         (parsed.version === '1.0.0' ||
           parsed.version === '1.1.0' ||
           parsed.version === '1.2.0' ||
-          parsed.version === '2.0.0') &&
+          parsed.version === '2.0.0' ||
+          parsed.version === '2.0.1') &&
         Array.isArray(parsed.features)
       );
     } catch {

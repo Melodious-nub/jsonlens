@@ -156,13 +156,13 @@
         }
       </div>
 
-      <!-- Share Dropdown & Card -->
-      <div class="dropdown-wrapper rail-dropdown" appClickOutside (clickOutside)="closeShareMenu()">
+      <!-- Share Trigger -->
+      <div class="dropdown-wrapper rail-dropdown">
         <button
           type="button"
           class="rail-btn focus-ring"
           [class.rail-btn--active]="isShareMenuOpen()"
-          (click)="onToggleShare()"
+          (click)="onToggleShare($event)"
           [attr.aria-expanded]="isShareMenuOpen()"
           aria-haspopup="dialog"
           title="Share JSON Workspace"
@@ -170,26 +170,6 @@
         >
           <lucide-icon [img]="shareIcon" size="14" />
         </button>
-
-        <app-share-dialog
-          [(isOpen)]="isShareMenuOpen"
-          [activeTab]="shareTab()"
-          (activeTabChange)="onShareTabChange($event)"
-          [splitPercent]="splitPercent()"
-          [shareData]="shareData()"
-          [shortShareData]="shortShareData()"
-          [isShortLoading]="isShortLoading()"
-          [shortError]="shortError()"
-          [isShareCopied]="isShareCopied()"
-          [(isQrPreviewOpen)]="isQrPreviewOpen"
-          [qrCodeDataUrl]="qrCodeDataUrl()"
-          (copyRequested)="copyShareUrl()"
-          (retryShortRequested)="onRetryShortShare()"
-          (viewQrRequested)="onViewQr()"
-          (downloadQrRequested)="downloadQrImage()"
-          (closeRequested)="closeShareMenu()"
-          (closeQrPreviewRequested)="closeQrPreview()"
-        />
       </div>
 
       <div class="rail-divider"></div>
@@ -440,6 +420,28 @@
 
   <!-- Bottom Diagnostics & Stats Bar -->
   <app-status-bar [activeLens]="activeLens()" [mobilePane]="mobilePane()" />
+
+  <!-- Share Workspace Dialog (Root level for viewport-safe fixed stacking on mobile & desktop) -->
+  <app-share-dialog
+    [(isOpen)]="isShareMenuOpen"
+    [activeTab]="shareTab()"
+    (activeTabChange)="onShareTabChange($event)"
+    [splitPercent]="splitPercent()"
+    [anchorRect]="shareAnchor()"
+    [shareData]="shareData()"
+    [shortShareData]="shortShareData()"
+    [isShortLoading]="isShortLoading()"
+    [shortError]="shortError()"
+    [isShareCopied]="isShareCopied()"
+    [(isQrPreviewOpen)]="isQrPreviewOpen"
+    [qrCodeDataUrl]="qrCodeDataUrl()"
+    (copyRequested)="copyShareUrl()"
+    (retryShortRequested)="onRetryShortShare()"
+    (viewQrRequested)="onViewQr()"
+    (downloadQrRequested)="downloadQrImage()"
+    (closeRequested)="closeShareMenu()"
+    (closeQrPreviewRequested)="closeQrPreview()"
+  />
 
   <!-- Full-Screen Lightbox for Workspace QR Code (Root level for proper z-index stacking over header) -->
   @defer (when isQrPreviewOpen(); prefetch on idle) {

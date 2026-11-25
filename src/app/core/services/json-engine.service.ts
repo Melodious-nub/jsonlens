@@ -41,7 +41,7 @@ const LARGE_PAYLOAD_THRESHOLD = 2 * 1024 * 1024; // 2MB
 
 export const DEFAULT_SAMPLE_JSON = `{
   "name": "JsonLens",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "privacy": "100% Client-Side & Zero-Knowledge E2EE Sharing",
   "features": [
     "Zoneless Angular 22 Signals-First Reactive Architecture",

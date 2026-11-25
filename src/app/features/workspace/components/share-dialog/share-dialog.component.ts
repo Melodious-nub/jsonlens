@@ -31,6 +31,12 @@ import {
   Zap,
 } from 'lucide-angular';
 
+export interface ShareAnchorRect {
+  readonly top: number;
+  readonly left: number;
+  readonly right: number;
+}
+
 @Component({
   selector: 'app-share-dialog',
   standalone: true,
@@ -47,6 +53,7 @@ export class ShareDialogComponent {
   readonly isOpen = model<boolean>(false);
   readonly activeTab = model<ShareTabMode>('direct');
   readonly splitPercent = input<number>(50);
+  readonly anchorRect = input<ShareAnchorRect | null>(null);
   readonly shareData = input<SharePayloadInfo | null>(null);
   readonly shortShareData = input<ShortSharePayloadInfo | null>(null);
   readonly isShortLoading = input<boolean>(false);

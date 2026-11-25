@@ -684,7 +684,8 @@
       border-left: 1px solid var(--border-default);
       border-right: 1px solid var(--border-default);
       box-shadow: 0 0 16px rgba(0, 0, 0, 0.35);
-      z-index: 30;
+      overflow: visible;
+      z-index: 40;
 
       .rail-divider {
         width: 16px;
@@ -756,13 +757,27 @@
       }
 
       .rail-dropdown .rail-menu {
-        position: fixed;
-        top: auto;
-        bottom: 50px;
-        left: 50%;
-        transform: translateX(-50%);
+        position: absolute;
+        top: 0;
+        right: calc(100% + 6px);
+        left: auto;
         z-index: 1000;
         box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+
+        &.font-size-popover {
+          top: auto;
+          bottom: -4px;
+          transform-origin: right bottom;
+        }
+      }
+    }
+
+    &__panels--mobile-output .workspace__divider .rail-dropdown .rail-menu {
+      left: calc(100% + 6px);
+      right: auto;
+
+      &.font-size-popover {
+        transform-origin: left bottom;
       }
     }
 
